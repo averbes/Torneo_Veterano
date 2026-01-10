@@ -1,0 +1,17 @@
+name,nickname,number,position,isStarter
+Zoltan V,The Wall,1,GK,true
+Jax Shield,Shield,5,DF,true
+Nova Pulse,Velocity,2,DF,true
+Link Conductor,Conductor,6,MF,true
+Echo Pulse,Pulse,10,MF,true
+Titan Behemoth,Titan,9,FW,true
+Neon Spark,Spark,11,FW,true
+Dante Wild,Wildcard,18,FW,false
+Zara Blade,Blade,14,MF,false
+Mako Tide,Tide,15,DF,false
+Orion Star,Star,16,MF,false
+Sora Sky,Sky,12,GK,false
+Kaelen Iron,Iron,4,DF,true
+Ryon Anchor,Anchor,3,DF,true
+Cypher Neural,Neural,8,MF,true
+Vex Ghost,Ghost,7,MF,true

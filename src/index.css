@@ -1,0 +1,209 @@
+@import "tailwindcss";
+
+@theme {
+  --animate-scan: scan 3s linear infinite;
+  --animate-scan-modal: scan-modal 2s ease-in-out infinite;
+  --animate-pulse-slow: pulse-slow 4s ease-in-out infinite;
+  --animate-glitch-1: glitch-1 2s linear infinite;
+  --animate-glitch-2: glitch-2 2s linear infinite;
+
+  @keyframes scan {
+
+    0%,
+    100% {
+      transform: translateY(0);
+      opacity: 0;
+    }
+
+    10% {
+      opacity: 0.5;
+    }
+
+    50% {
+      transform: translateY(280px);
+      opacity: 0.5;
+    }
+
+    90% {
+      opacity: 0.5;
+    }
+
+    100% {
+      transform: translateY(280px);
+      opacity: 0;
+    }
+  }
+
+  @keyframes scan-modal {
+
+    0%,
+    100% {
+      transform: translateY(0);
+      opacity: 0;
+    }
+
+    50% {
+      transform: translateY(400px);
+      opacity: 0.3;
+    }
+  }
+
+  @keyframes pulse-slow {
+
+    0%,
+    100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+
+    50% {
+      opacity: 0.5;
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes glitch-1 {
+    0% {
+      transform: translate(0);
+    }
+
+    20% {
+      transform: translate(-2px, 2px);
+    }
+
+    40% {
+      transform: translate(-2px, -2px);
+    }
+
+    60% {
+      transform: translate(2px, 2px);
+    }
+
+    80% {
+      transform: translate(2px, -2px);
+    }
+
+    100% {
+      transform: translate(0);
+    }
+  }
+
+  @keyframes glitch-2 {
+    0% {
+      transform: translate(0);
+    }
+
+    20% {
+      transform: translate(2px, -2px);
+    }
+
+    40% {
+      transform: translate(2px, 2px);
+    }
+
+    60% {
+      transform: translate(-2px, -2px);
+    }
+
+    80% {
+      transform: translate(-2px, 2px);
+    }
+
+    100% {
+      transform: translate(0);
+    }
+  }
+}
+
+:root {
+  background-color: #050510;
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ffffff10;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ffffff20;
+}
+
+/* Fix for Select Options in Dark Mode */
+select option {
+  background-color: #0a0a1a !important;
+  color: white !important;
+  padding: 15px !important;
+  font-size: 1.2rem !important;
+}
+
+select option:hover,
+select option:focus,
+select option:active {
+  background-color: #00f2ff !important;
+  color: #050510 !important;
+}
+
+/* Remove default appearance logic to ensure our styles apply better */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2300f2ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1.5rem center;
+  background-size: 1.5em;
+  padding-right: 4rem !important;
+}
+
+/* Enlarge Native Calendar & Time Pickers */
+input[type="date"],
+input[type="time"] {
+  position: relative;
+  cursor: pointer;
+  /* Extreme zoom to force major scaling of the native picker popup */
+  zoom: 1.8;
+  font-weight: 900 !important;
+}
+
+/* Custom indicator for Webkit (Chrome, Edge, Safari) */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  display: block;
+  width: 2.2rem;
+  height: 2.2rem;
+  cursor: pointer;
+  filter: invert(80%) sepia(80%) saturate(500%) hue-rotate(140deg);
+  /* Cyan Glow */
+  transition: all 0.2s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  transform: scale(1.1);
+  filter: invert(100%) brightness(2);
+}
+
+/* Global improvements for form accessibility */
+label {
+  letter-spacing: 0.15em !important;
+  text-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
+}
+
+input:focus,
+select:focus {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 0 30px rgba(0, 242, 255, 0.15);
+}
