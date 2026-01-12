@@ -1,17 +1,26 @@
 import express from 'express';
-import { db } from '../db.js';
+import { Standing, Team } from '../db.js';
 
 const router = express.Router();
 
+// GET /standings
 router.get('/', async (req, res) => {
-    await db.read();
-    // Sort by points desc, then GD desc
-    const sorted = (db.data.standings || []).sort((a, b) => {
-        if (b.points !== a.points) return b.points - a.points;
-        return b.gd - a.gd;
-    });
+    try {
+        const standings = await Standing.find();
+        const teams = await Team.find();
 
-    res.json(sorted);
+        const standingsWithTeamInfo = standings.map(s => {
+            const sObj = s.toObject();
+            return {
+                ...sObj,
+                team: teams.find(t => t.id === s.teamId) || { name: 'Unknown', logo: '🛡️' }
+            };
+        });
+
+        res.json(standingsWithTeamInfo);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 export default router;
