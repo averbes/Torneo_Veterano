@@ -11,7 +11,7 @@ import standingsRoutes from './routes/standings.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors());
@@ -22,17 +22,30 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 console.log("Initializing Database...");
 await initDB();
 
-// Routes
-app.use('/admin', adminRoutes);
-app.use('/teams', teamRoutes);
-app.use('/players', playerRoutes);
-app.use('/matches', matchRoutes);
-app.use('/standings', standingsRoutes);
+// API Routes
+app.use('/api/admin', adminRoutes);
+app.use('/api/teams', teamRoutes);
+app.use('/api/players', playerRoutes);
+app.use('/api/matches', matchRoutes);
+app.use('/api/standings', standingsRoutes);
 
 // Mock storage for static uploads if needed later
 app.use('/uploads', express.static(join(__dirname, 'uploads')));
 
+// Production: Serve built frontend static files
+const distPath = join(__dirname, '../dist');
+app.use(express.static(distPath));
+
+// Catch-all route for SPA (React Router)
+app.get('*', (req, res) => {
+    // Only serve index.html if the request is not for an API route
+    if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ error: 'API route not found' });
+    }
+    res.sendFile(join(distPath, 'index.html'));
+});
+
 app.listen(PORT, () => {
-    console.log(`Backend Server running on http://localhost:${PORT}`);
-    console.log(`Admin Login: POST /admin/login`);
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Serving static files from ${distPath}`);
 });
