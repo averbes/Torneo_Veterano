@@ -50,8 +50,11 @@ async function bootstrap() {
             console.log(">>> [LOG]: Found 'dist' directory. Serving static assets.");
             app.use(express.static(distPath));
 
-            app.get('/*', (req, res) => {
-                if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'API not found' });
+            // Catch-all for SPA routing
+            app.use((req, res, next) => {
+                if (req.path.startsWith('/api/')) {
+                    return res.status(404).json({ error: 'API not found' });
+                }
                 const indexPath = join(distPath, 'index.html');
                 if (fs.existsSync(indexPath)) {
                     res.sendFile(indexPath);
@@ -61,8 +64,10 @@ async function bootstrap() {
             });
         } else {
             console.warn(">>> [WARNING]: 'dist' folder NOT detected. Frontend will not be available.");
-            app.get('/*', (req, res) => {
-                if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'API not found' });
+            app.use((req, res) => {
+                if (req.path.startsWith('/api/')) {
+                    return res.status(404).json({ error: 'API not found' });
+                }
                 res.status(404).send('Application is in Backend-Only mode (dist missing).');
             });
         }
