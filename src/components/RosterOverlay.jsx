@@ -6,24 +6,24 @@ const RosterOverlay = ({ team, onClose }) => {
     const [players, setPlayers] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (team) {
-            fetchPlayers();
-        }
-    }, [team]);
-
-    const fetchPlayers = async () => {
+    const fetchPlayers = React.useCallback(async () => {
         try {
             setLoading(true);
             const res = await fetch(`/api/players?teamId=${team.id}`);
             const data = await res.json();
             setPlayers(data);
-        } catch (err) {
-            console.error("Failed to fetch players:", err);
+        } catch (_) {
+            console.error("Failed to fetch players");
         } finally {
             setLoading(false);
         }
-    };
+    }, [team.id]);
+
+    useEffect(() => {
+        if (team) {
+            fetchPlayers();
+        }
+    }, [team, fetchPlayers]);
 
     if (!team) return null;
 

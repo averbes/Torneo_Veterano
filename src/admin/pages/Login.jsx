@@ -18,7 +18,7 @@ const Login = ({ onLogin }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ password })
             });
-            const data = await res.json();
+            await res.json();
 
             if (res.ok) {
                 localStorage.setItem('neo-veterans-admin', 'true');
@@ -27,7 +27,7 @@ const Login = ({ onLogin }) => {
             } else {
                 setError(true);
             }
-        } catch (err) {
+        } catch (_) {
             setError(true);
         } finally {
             setLoading(false);

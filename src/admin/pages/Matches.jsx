@@ -91,7 +91,7 @@ const Matches = () => {
             } else {
                 setFormError(data.error || "Error saving match");
             }
-        } catch (err) {
+        } catch (_) {
             setFormError("System link failure. Check connectivity.");
         }
     };
@@ -101,8 +101,8 @@ const Matches = () => {
         try {
             const res = await fetch(`/api/matches/${id}`, { method: 'DELETE' });
             if (res.ok) fetchData();
-        } catch (err) {
-            console.error(err);
+        } catch (_) {
+            console.error("Delete failed");
         }
     };
 
@@ -129,7 +129,7 @@ const Matches = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus })
             }); if (res.ok) fetchData();
-        } catch (err) { console.error("Update failed", err); }
+        } catch (_) { console.error("Update failed"); }
     };
 
     const openEventModal = async (match) => {
@@ -146,8 +146,8 @@ const Matches = () => {
             const pBData = await pBRes.json();
             setMatchPlayers([...pAData, ...pBData]);
             setIsEventModalOpen(true);
-        } catch (err) {
-            console.error("Error fetching match players:", err);
+        } catch (_) {
+            console.error("Error fetching match players");
         }
     };
 
@@ -169,8 +169,8 @@ const Matches = () => {
                 setIsEventModalOpen(false);
                 fetchData();
             }
-        } catch (err) {
-            console.error("Error recording event:", err);
+        } catch (_) {
+            console.error("Error recording event");
         }
     };
 

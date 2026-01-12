@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
-export const Header = ({ onTeamsClick }) => {
+export const Header = () => {
   const location = useLocation();
   const isPublicView = !location.pathname.startsWith('/admin');
 

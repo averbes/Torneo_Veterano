@@ -48,8 +48,8 @@ const Players = () => {
             const teamsData = await teamsRes.json();
             setPlayers(playersData);
             setTeams(teamsData);
-        } catch (err) {
-            console.error("Error fetching data:", err);
+        } catch (_) {
+            console.error("Error fetching data");
         } finally {
             setLoading(false);
         }
@@ -157,7 +157,7 @@ const Players = () => {
                 const data = await res.json();
                 setFormError(data.error || "An error occurred");
             }
-        } catch (err) {
+        } catch (_) {
             setFormError("Server error");
         }
     };
@@ -170,8 +170,8 @@ const Players = () => {
             if (res.ok) {
                 fetchData();
             }
-        } catch (err) {
-            console.error("Error deleting player:", err);
+        } catch (_) {
+            console.error("Error deleting player");
         }
     };
 

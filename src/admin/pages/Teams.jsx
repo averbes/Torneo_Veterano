@@ -25,8 +25,8 @@ const Teams = () => {
             const res = await fetch('/api/teams');
             const data = await res.json();
             setTeams(data || []);
-        } catch (err) {
-            console.error(err);
+        } catch (_) {
+            console.error("Error fetching teams");
         } finally {
             setLoading(false);
         }
@@ -101,7 +101,7 @@ const Teams = () => {
                 const data = await res.json();
                 setFormError(data.error || "Error saving team");
             }
-        } catch (err) {
+        } catch (_) {
             setFormError("Server error");
         }
     };
@@ -112,8 +112,8 @@ const Teams = () => {
         try {
             const res = await fetch(`/api/teams/${id}`, { method: 'DELETE' });
             if (res.ok) fetchTeams();
-        } catch (err) {
-            console.error(err);
+        } catch (_) {
+            console.error("Delete failed");
         }
     };
 
@@ -139,8 +139,8 @@ const Teams = () => {
                 } else {
                     alert("Error uploading roster.");
                 }
-            } catch (err) {
-                console.error(err);
+            } catch (_) {
+                console.error("Upload failed");
             }
         };
         input.click();
