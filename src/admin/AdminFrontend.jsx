@@ -71,7 +71,7 @@ const AdminFrontend = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-grow overflow-auto bg-[url('https://grainy-gradients.vercel.app/noise.svg')]">
+            <main className="flex-grow overflow-auto bg-gradient-to-br from-[#0a0a1a] to-[#050510]">
                 <div className="p-8">
                     <Routes>
                         <Route path="dashboard" element={<Dashboard />} />
@@ -92,8 +92,8 @@ const NavItem = ({ to, icon, label, active }) => (
     <Link
         to={to}
         className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${active
-                ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/20'
-                : 'text-[#ffffff60] hover:text-white hover:bg-[#ffffff05]'
+            ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/20'
+            : 'text-[#ffffff60] hover:text-white hover:bg-[#ffffff05]'
             }`}
     >
         {icon}

@@ -7,6 +7,7 @@ const Standings = () => {
     const [players, setPlayers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editingCard, setEditingCard] = useState(null);
+    const [editingStats, setEditingStats] = useState(null);
 
     useEffect(() => {
         fetchData();
@@ -41,6 +42,49 @@ const Standings = () => {
             yellowCards: player.stats?.yellowCards || 0,
             redCards: player.stats?.redCards || 0
         });
+    };
+
+    const handleEditStats = (player) => {
+        setEditingStats({
+            playerId: player.id,
+            goals: player.stats?.goals || 0,
+            assists: player.stats?.assists || 0
+        });
+    };
+
+    const handleSaveStats = async (playerId) => {
+        try {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+
+            const updatedStats = {
+                ...player.stats,
+                goals: editingStats.goals,
+                assists: editingStats.assists
+            };
+
+            const response = await fetch(`/api/players/${playerId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ stats: updatedStats })
+            });
+
+            if (response.ok) {
+                // Update local state
+                setPlayers(players.map(p =>
+                    p.id === playerId
+                        ? { ...p, stats: updatedStats }
+                        : p
+                ));
+                setEditingStats(null);
+            } else {
+                const error = await response.json();
+                alert(`Error: ${error.error || 'Failed to update stats'}`);
+            }
+        } catch (err) {
+            console.error('Error saving stats:', err);
+            alert('Failed to save stats data');
+        }
     };
 
     const handleSaveCards = async (playerId) => {
@@ -168,6 +212,128 @@ const Standings = () => {
                         Standings are updated automatically upon match finalization. Rank priority: Points &gt; Goal Difference &gt; Goals Scored.
                         Elite squads (Top 1) qualify for the Grand Final Championship.
                     </p>
+                </div>
+            </div>
+
+            {/* Player Goals Table */}
+            <div className="mt-8">
+                <div className="mb-4">
+                    <h2 className="text-3xl font-black text-white tracking-tighter">TOP SCORERS <span className="text-[#00f2ff]">MANAGER</span></h2>
+                    <p className="text-[#ffffff50] text-sm font-mono mt-1 uppercase tracking-widest">Player Goals Registry</p>
+                </div>
+
+                <div className="bg-[#ffffff02] border border-[#ffffff08] rounded-2xl overflow-hidden backdrop-blur-sm">
+                    <table className="w-full text-left">
+                        <thead className="bg-[#ffffff05] border-b border-[#ffffff08]">
+                            <tr>
+                                <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase">#</th>
+                                <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase">Player</th>
+                                <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase">Team</th>
+                                <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase">Position</th>
+                                <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center">Goals</th>
+                                <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center">Assists</th>
+                                <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#ffffff05]">
+                            {players.length > 0 ? (
+                                players
+                                    .sort((a, b) => (b.stats?.goals || 0) - (a.stats?.goals || 0))
+                                    .map((player) => {
+                                        const team = getTeamInfo(player.teamId);
+                                        const isEditing = editingStats?.playerId === player.id;
+
+                                        return (
+                                            <tr key={player.id} className="group hover:bg-[#ffffff02] transition-colors">
+                                                <td className="p-4 font-mono text-[#ffffff50]">{player.number}</td>
+                                                <td className="p-4">
+                                                    <div>
+                                                        <div className="font-bold text-white">{player.name}</div>
+                                                        {player.nickname && (
+                                                            <div className="text-xs text-[#00f2ff] font-mono">"{player.nickname}"</div>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="p-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-6 h-6 flex items-center justify-center bg-[#ffffff05] rounded-lg border border-[#ffffff10] overflow-hidden">
+                                                            {team.logo && team.logo.startsWith('data:') ? (
+                                                                <img src={team.logo} alt="Logo" className="w-full h-full object-contain p-0.5" />
+                                                            ) : (
+                                                                <span className="text-sm">{team.logo || '🛡️'}</span>
+                                                            )}
+                                                        </div>
+                                                        <span className="text-sm text-[#ffffff70]">{team.name}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="p-4 text-sm text-[#ffffff70]">{player.position}</td>
+                                                <td className="p-4 text-center">
+                                                    {isEditing ? (
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            className="w-16 bg-[#ffffff10] border border-[#ffffff20] rounded px-2 py-1 text-center text-[#00f2ff] font-mono"
+                                                            value={editingStats.goals}
+                                                            onChange={(e) => setEditingStats({ ...editingStats, goals: parseInt(e.target.value) || 0 })}
+                                                        />
+                                                    ) : (
+                                                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-[#00f2ff]/10 text-[#00f2ff] font-mono font-bold">
+                                                            ⚽ {player.stats?.goals || 0}
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td className="p-4 text-center">
+                                                    {isEditing ? (
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            className="w-16 bg-[#ffffff10] border border-[#ffffff20] rounded px-2 py-1 text-center text-purple-400 font-mono"
+                                                            value={editingStats.assists}
+                                                            onChange={(e) => setEditingStats({ ...editingStats, assists: parseInt(e.target.value) || 0 })}
+                                                        />
+                                                    ) : (
+                                                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-purple-500/10 text-purple-400 font-mono font-bold">
+                                                            👟 {player.stats?.assists || 0}
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td className="p-4 text-center">
+                                                    {isEditing ? (
+                                                        <div className="flex gap-2 justify-center">
+                                                            <button
+                                                                onClick={() => handleSaveStats(player.id)}
+                                                                className="px-3 py-1 bg-green-500/20 text-green-400 rounded hover:bg-green-500/30 transition-colors text-xs font-mono"
+                                                            >
+                                                                Save
+                                                            </button>
+                                                            <button
+                                                                onClick={() => setEditingStats(null)}
+                                                                className="px-3 py-1 bg-[#ffffff10] text-[#ffffff50] rounded hover:bg-[#ffffff20] transition-colors text-xs font-mono"
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => handleEditStats(player)}
+                                                            className="px-3 py-1 bg-[#00f2ff]/10 text-[#00f2ff] rounded hover:bg-[#00f2ff]/20 transition-colors text-xs font-mono"
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
+                            ) : (
+                                <tr>
+                                    <td colSpan="7" className="p-12 text-center text-[#ffffff20] font-mono uppercase italic">
+                                        No players registered yet...
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
 

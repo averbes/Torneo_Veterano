@@ -1,6 +1,11 @@
 import React from 'react';
 
-const TeamCard = ({ team, onManage, onEdit }) => {
+const TeamCard = ({ team, onManage }) => {
+    // Calculate win rate dynamically
+    const winRate = team.stats.played > 0
+        ? Math.round((team.stats.wins / team.stats.played) * 100)
+        : 0;
+
     return (
         <div
             onClick={() => onManage(team)}
@@ -23,17 +28,10 @@ const TeamCard = ({ team, onManage, onEdit }) => {
                                 <span className="text-6xl filter drop-shadow-[0_0_15px_var(--team-color)]">{team.logo || '🛡️'}</span>
                             )}
                         </div>
-                        <button
-                            onClick={(e) => { e.stopPropagation(); onEdit(team); }}
-                            className="p-3 rounded-xl bg-[#ffffff05] border border-[#ffffff10] text-[#ffffff30] hover:text-[var(--team-color)] hover:border-[var(--team-color)] transition-all hover:scale-110 active:scale-90"
-                            title="Edit Team Config"
-                        >
-                            <span className="text-xl">⚙️</span>
-                        </button>
                     </div>
                     <div className="text-right">
                         <div className="text-[12px] font-mono uppercase tracking-[0.2em] text-[#ffffff40]">Win Rate</div>
-                        <div className="text-2xl font-black text-white">84%</div>
+                        <div className="text-2xl font-black text-white">{winRate}%</div>
                     </div>
                 </div>
 

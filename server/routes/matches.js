@@ -132,7 +132,11 @@ function recalculateAll(data) {
     // Reset Player Stats
     if (data.players) {
         data.players.forEach(p => {
-            p.stats = { goals: 0, assists: 0, yellowCards: 0, redCards: 0, minutes: 0 };
+            if (p.stats) {
+                p.stats = { goals: 0, assists: 0, yellowCards: 0, redCards: 0, minutes: 0 };
+            } else {
+                p.stats = { goals: 0, assists: 0, yellowCards: 0, redCards: 0, minutes: 0 };
+            }
         });
     }
 

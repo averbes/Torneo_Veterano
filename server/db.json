@@ -66,36 +66,38 @@
       "time": "09:53",
       "field": "Neo Stadium",
       "referee": "AutoRef",
-      "status": "scheduled",
+      "status": "finished",
       "score": {
-        "teamA": 0,
-        "teamB": 0
+        "teamA": 6,
+        "teamB": 8
       },
-      "events": []
+      "events": [],
+      "scoreA": "6",
+      "scoreB": "8"
     }
   ],
   "standings": [
     {
       "teamId": "team_1767995251325",
       "points": 0,
-      "played": 1,
+      "played": 2,
       "won": 0,
       "drawn": 0,
-      "lost": 1,
-      "gf": 2,
-      "ga": 8,
-      "gd": -6
+      "lost": 2,
+      "gf": 8,
+      "ga": 16,
+      "gd": -8
     },
     {
       "teamId": "team_1767996268327",
-      "points": 3,
-      "played": 1,
-      "won": 1,
+      "points": 6,
+      "played": 2,
+      "won": 2,
       "drawn": 0,
       "lost": 0,
-      "gf": 8,
-      "ga": 2,
-      "gd": 6
+      "gf": 16,
+      "ga": 8,
+      "gd": 8
     }
   ],
   "meta": {
@@ -119,10 +121,10 @@
       "status": "Active",
       "stats": {
         "goals": 1,
-        "assists": 0,
-        "yellowCards": 0,
+        "assists": 3,
+        "yellowCards": 1,
         "redCards": 0,
-        "minutes": 90
+        "minutes": 180
       }
     },
     {
@@ -140,11 +142,11 @@
       "joinDate": "2026-01-09",
       "status": "Active",
       "stats": {
-        "goals": 0,
+        "goals": 1,
         "assists": 0,
         "yellowCards": 0,
         "redCards": 0,
-        "minutes": 90
+        "minutes": 180
       }
     }
   ]
