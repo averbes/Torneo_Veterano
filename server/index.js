@@ -11,58 +11,83 @@ import standingsRoutes from './routes/standings.js';
 
 import fs from 'fs';
 
+console.log(">>> [LOG]: SERVER BOOT SEQUENCE INITIATED");
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware
-app.use(cors());
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+async function bootstrap() {
+    try {
+        console.log(">>> [LOG]: Initializing Middlewares...");
+        app.use(cors());
+        app.use(express.json({ limit: '50mb' }));
+        app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Initialize Database
-console.log("Initializing Database...");
-await initDB().catch(err => console.error("Database initialization failed:", err));
+        // Health check
+        app.get('/health', (req, res) => res.status(200).send('OK'));
 
-// Health check
-app.get('/health', (req, res) => res.send('OK'));
+        console.log(">>> [LOG]: Initializing Database...");
+        await initDB();
+        console.log(">>> [LOG]: Database Loaded Successfully.");
 
-// API Routes
-app.use('/api/admin', adminRoutes);
-app.use('/api/teams', teamRoutes);
-app.use('/api/players', playerRoutes);
-app.use('/api/matches', matchRoutes);
-app.use('/api/standings', standingsRoutes);
+        // API Routes
+        console.log(">>> [LOG]: Mounting API Routes...");
+        app.use('/api/admin', adminRoutes);
+        app.use('/api/teams', teamRoutes);
+        app.use('/api/players', playerRoutes);
+        app.use('/api/matches', matchRoutes);
+        app.use('/api/standings', standingsRoutes);
 
-// Mock storage for static uploads if needed later
-app.use('/uploads', express.static(join(process.cwd(), 'uploads')));
+        // Files
+        app.use('/uploads', express.static(join(process.cwd(), 'uploads')));
 
-// Production: Serve built frontend static files
-const distPath = join(process.cwd(), 'dist');
-console.log(`Checking for static files at: ${distPath}`);
-if (fs.existsSync(distPath)) {
-    console.log("dist folder found!");
-    app.use(express.static(distPath));
-} else {
-    console.warn("WARNING: dist folder NOT found. Frontend might not load.");
+        // Static Files (Production)
+        const distPath = join(process.cwd(), 'dist');
+        console.log(`>>> [LOG]: Checking for dist folder at: ${distPath}`);
+
+        if (fs.existsSync(distPath)) {
+            console.log(">>> [LOG]: Found 'dist' directory. Serving static assets.");
+            app.use(express.static(distPath));
+
+            app.get('*', (req, res) => {
+                if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'API not found' });
+                const indexPath = join(distPath, 'index.html');
+                if (fs.existsSync(indexPath)) {
+                    res.sendFile(indexPath);
+                } else {
+                    res.status(404).send('index.html not found in dist.');
+                }
+            });
+        } else {
+            console.warn(">>> [WARNING]: 'dist' folder NOT detected. Frontend will not be available.");
+            app.get('*', (req, res) => {
+                if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'API not found' });
+                res.status(404).send('Application is in Backend-Only mode (dist missing).');
+            });
+        }
+
+        console.log(`>>> [LOG]: Attempting to bind to PORT: ${PORT}`);
+        app.listen(PORT, () => {
+            console.log(`>>> [SUCCESS]: Server live on port ${PORT}`);
+            console.log(`>>> [LOG]: Current Working Directory: ${process.cwd()}`);
+        });
+
+    } catch (error) {
+        console.error(">>> [FATAL]: CRITICAL SERVER CRASH ON STARTUP:");
+        console.error(error);
+        process.exit(1);
+    }
 }
 
-// Catch-all route for SPA (React Router)
-app.get('*', (req, res) => {
-    // Only serve index.html if the request is not for an API route
-    if (req.path.startsWith('/api/')) {
-        return res.status(404).json({ error: 'API route not found' });
-    }
-
-    const indexPath = join(distPath, 'index.html');
-    if (fs.existsSync(indexPath)) {
-        res.sendFile(indexPath);
-    } else {
-        res.status(404).send('Frontend not built. Please check build logs.');
-    }
+// Global process error handlers
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('>>> [CRITICAL]: Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Working directory: ${process.cwd()}`);
+process.on('uncaughtException', (err) => {
+    console.error('>>> [CRITICAL]: Uncaught Exception:', err);
+    process.exit(1);
 });
+
+bootstrap();
