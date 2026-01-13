@@ -19,6 +19,7 @@ const PlayerSchema = new mongoose.Schema({
     id: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     nickname: { type: String, default: '' },
+    photo: { type: String, default: '' },
     birthDate: { type: String, default: '' },
     position: { type: String, default: 'Midfielder' },
     teamId: { type: String, required: true },

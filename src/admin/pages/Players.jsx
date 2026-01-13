@@ -86,7 +86,8 @@ const Players = () => {
             weight: '',
             preferredFoot: 'Right',
             joinDate: new Date().toISOString().split('T')[0],
-            status: 'Active'
+            status: 'Active',
+            photo: ''
         });
         setFormError('');
         setIsModalOpen(true);
@@ -106,7 +107,8 @@ const Players = () => {
             weight: player.weight || '',
             preferredFoot: player.preferredFoot || 'Right',
             joinDate: player.joinDate || new Date().toISOString().split('T')[0],
-            status: player.status || 'Active'
+            status: player.status || 'Active',
+            photo: player.photo || ''
         });
         setFormError('');
         setIsModalOpen(true);
@@ -235,8 +237,12 @@ const Players = () => {
                                     <tr key={player.id} className="group hover:bg-[#ffffff03] transition-colors">
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ffffff10] to-[#ffffff05] flex items-center justify-center border border-[#ffffff10] text-[#00f2ff] font-bold">
-                                                    {player.name ? player.name.charAt(0) : '?'}
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ffffff10] to-[#ffffff05] flex items-center justify-center border border-[#ffffff10] text-[#00f2ff] font-bold overflow-hidden">
+                                                    {player.photo ? (
+                                                        <img src={player.photo} alt={player.name} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        player.name ? player.name.charAt(0) : '?'
+                                                    )}
                                                 </div>
                                                 <div>
                                                     <div className="font-bold text-white group-hover:text-[#00f2ff] transition-colors">{player.name}</div>
@@ -445,6 +451,38 @@ const Players = () => {
                                                 <option value="Inactive">Inactive</option>
                                             </select>
                                         </div>
+                                        <div>
+                                            <label className="block text-sm font-black text-[#ffffff60] mb-3 font-mono uppercase tracking-widest tracking-tighter">PHOTO (BASE64/URL)</label>
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files[0];
+                                                        if (file) {
+                                                            const reader = new FileReader();
+                                                            reader.onloadend = () => {
+                                                                setFormData(prev => ({ ...prev, photo: reader.result }));
+                                                            };
+                                                            reader.readAsDataURL(file);
+                                                        }
+                                                    }}
+                                                    className="hidden"
+                                                    id="photo-upload"
+                                                />
+                                                <label
+                                                    htmlFor="photo-upload"
+                                                    className="flex-1 bg-[#ffffff05] border-2 border-[#ffffff10] border-dashed rounded-2xl px-6 py-5 text-sm text-[#ffffff50] font-mono cursor-pointer hover:border-[#00f2ff] hover:text-[#00f2ff] transition-all flex items-center justify-center gap-2"
+                                                >
+                                                    {formData.photo ? 'CHANGE PHOTO' : 'UPLOAD PHOTO'}
+                                                </label>
+                                                {formData.photo && (
+                                                    <div className="w-16 h-16 rounded-xl overflow-hidden border border-[#ffffff10]">
+                                                        <img src={formData.photo} className="w-full h-full object-cover" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -474,8 +512,12 @@ const Players = () => {
                         {/* Profile Header */}
                         <div className="h-32 bg-[#00f2ff]/10 relative">
                             <div className="absolute -bottom-8 left-8 w-20 h-20 rounded-2xl bg-[#0a0a1a] border border-[#00f2ff]/30 p-1">
-                                <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#00f2ff]/20 to-[#00f2ff]/5 flex items-center justify-center text-2xl font-black text-[#00f2ff]">
-                                    {selectedPlayer.name ? selectedPlayer.name.charAt(0) : '?'}
+                                <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#00f2ff]/20 to-[#00f2ff]/5 flex items-center justify-center text-2xl font-black text-[#00f2ff] overflow-hidden">
+                                    {selectedPlayer.photo ? (
+                                        <img src={selectedPlayer.photo} alt={selectedPlayer.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        selectedPlayer.name ? selectedPlayer.name.charAt(0) : '?'
+                                    )}
                                 </div>
                             </div>
                             <button onClick={() => setIsViewModalOpen(false)} className="absolute top-4 right-4 text-[#ffffff60] hover:text-white"><X size={20} /></button>
