@@ -183,8 +183,8 @@ function App() {
                         </div>
                       </div>
 
-                      {/* Lineup Button */}
-                      {hasLineup && (
+                      {/* Lineup Button - Always show for context, modal handles empty state */}
+                      {(match.status === 'finished' || match.status === 'live') && (
                         <div className="flex justify-center mt-2 pt-2 border-t border-white/5">
                           <button
                             onClick={() => setSelectedMatchShow(match)}
