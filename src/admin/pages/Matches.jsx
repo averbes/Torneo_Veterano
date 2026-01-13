@@ -511,6 +511,7 @@ const Matches = () => {
             {isLineupModalOpen && selectedMatch && (
                 <LineupModal
                     match={selectedMatch}
+                    teams={teams}
                     onClose={() => setIsLineupModalOpen(false)}
                     onSave={handleSaveLineup}
                 />
