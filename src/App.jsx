@@ -6,12 +6,15 @@ import RosterOverlay from './components/RosterOverlay'
 import StandingsTable from './components/StandingsTable'
 import TopStats from './components/TopStats'
 import DisciplineTable from './components/DisciplineTable'
+import MatchLineupDisplay from './components/MatchLineupDisplay'
+import { Users } from 'lucide-react'
 
 function App() {
   const [data, setData] = useState({ teams: [] });
   const [standings, setStandings] = useState([]);
   const [players, setPlayers] = useState([]);
   const [selectedTeam, setSelectedTeam] = useState(null);
+  const [selectedMatchShow, setSelectedMatchShow] = useState(null);
   const [loading, setLoading] = useState(true);
   const [matches, setMatches] = useState([]);
 
@@ -51,7 +54,7 @@ function App() {
             wins: teamStanding?.won || 0,
             draws: teamStanding?.drawn || 0,
             losses: teamStanding?.lost || 0,
-            played: teamStanding?.played || 0,
+            played: teamStanding?.played || 0 || 0,
             goalsFor: teamStanding?.gf || 0,
             goalsAgainst: teamStanding?.ga || 0
           }
@@ -137,15 +140,17 @@ function App() {
                 {matches.map(match => {
                   const homeTeam = data.teams.find(t => t.id === match.teamA);
                   const awayTeam = data.teams.find(t => t.id === match.teamB);
+                  const hasLineup = match.rosters && (match.rosters.teamA?.length > 0 || match.rosters.teamB?.length > 0);
 
                   return (
-                    <div key={match.id} className="p-4 bg-[#00000020] border border-[#ffffff05] rounded-xl hover:border-[#ffffff10] transition-colors">
-                      <div className="flex justify-between items-center">
+                    <div key={match.id} className="p-4 bg-[#00000020] border border-[#ffffff05] rounded-xl hover:border-[#ffffff10] transition-colors relative group">
+                      <div className="flex justify-between items-center mb-2">
                         <div className="flex items-center gap-4 flex-1">
                           <div className="text-right flex-1">
-                            <span className="text-white font-bold">{homeTeam?.name || 'Unknown'}</span>
+                            <span className="text-white font-bold hidden md:block">{homeTeam?.name || 'Unknown'}</span>
+                            <span className="text-white font-bold md:hidden">{homeTeam?.name?.substring(0, 3) || '???'}</span>
                           </div>
-                          <div className="w-8 h-8 flex items-center justify-center bg-[#ffffff05] rounded-full border border-[#ffffff10]">
+                          <div className="w-10 h-10 flex items-center justify-center bg-[#ffffff05] rounded-full border border-[#ffffff10]">
                             {homeTeam?.logo && homeTeam.logo.startsWith('data:') ? (
                               <img src={homeTeam.logo} alt={homeTeam.name} className="w-full h-full object-contain p-1" />
                             ) : (
@@ -154,7 +159,7 @@ function App() {
                           </div>
                         </div>
 
-                        <div className="px-6 flex flex-col items-center">
+                        <div className="px-4 flex flex-col items-center min-w-[100px]">
                           <div className="text-2xl font-black text-white tracking-widest">
                             {match.status === 'finished' ? `${match.score.teamA} - ${match.score.teamB}` : 'VS'}
                           </div>
@@ -164,7 +169,7 @@ function App() {
                         </div>
 
                         <div className="flex items-center gap-4 flex-1">
-                          <div className="w-8 h-8 flex items-center justify-center bg-[#ffffff05] rounded-full border border-[#ffffff10]">
+                          <div className="w-10 h-10 flex items-center justify-center bg-[#ffffff05] rounded-full border border-[#ffffff10]">
                             {awayTeam?.logo && awayTeam.logo.startsWith('data:') ? (
                               <img src={awayTeam.logo} alt={awayTeam.name} className="w-full h-full object-contain p-1" />
                             ) : (
@@ -172,10 +177,23 @@ function App() {
                             )}
                           </div>
                           <div className="text-left flex-1">
-                            <span className="text-white font-bold">{awayTeam?.name || 'Unknown'}</span>
+                            <span className="text-white font-bold hidden md:block">{awayTeam?.name || 'Unknown'}</span>
+                            <span className="text-white font-bold md:hidden">{awayTeam?.name?.substring(0, 3) || '???'}</span>
                           </div>
                         </div>
                       </div>
+
+                      {/* Lineup Button */}
+                      {hasLineup && (
+                        <div className="flex justify-center mt-2 pt-2 border-t border-white/5">
+                          <button
+                            onClick={() => setSelectedMatchShow(match)}
+                            className="text-[10px] font-mono uppercase text-[#00f2ff] hover:text-[#00f2ff]/80 flex items-center gap-1.5 transition-colors"
+                          >
+                            <Users size={12} /> View Tactical Roster
+                          </button>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -204,6 +222,13 @@ function App() {
         <RosterOverlay
           team={selectedTeam}
           onClose={handleCloseOverlay}
+        />
+      )}
+
+      {selectedMatchShow && (
+        <MatchLineupDisplay
+          match={selectedMatchShow}
+          onClose={() => setSelectedMatchShow(null)}
         />
       )}
 
