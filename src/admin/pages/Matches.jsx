@@ -210,6 +210,19 @@ const Matches = () => {
         }
     };
 
+    const isPlayerInTeamForMatch = (player, match, side) => {
+        if (!player) return false;
+        if (match.rosters) {
+            // Dynamic Roster Check
+            if (side === 'A') return match.rosters.teamA?.includes(player.id);
+            if (side === 'B') return match.rosters.teamB?.includes(player.id);
+        }
+        // Legacy Fallback
+        if (side === 'A') return player.teamId === match.teamA;
+        if (side === 'B') return player.teamId === match.teamB;
+        return false;
+    };
+
     const getTeamName = (id) => teams.find(t => t.id === id)?.name || 'Unknown';
 
     if (loading && matches.length === 0) {
@@ -407,15 +420,29 @@ const Matches = () => {
                                 <select
                                     value={eventData.playerId}
                                     onChange={(e) => {
-                                        const p = matchPlayers.find(pl => pl.id === e.target.value);
-                                        setEventData({ ...eventData, playerId: e.target.value, teamId: p?.teamId });
+                                        const pid = e.target.value;
+                                        const p = matchPlayers.find(pl => pl.id === pid);
+
+                                        // Determine which team this player is currently playing for in this match
+                                        let currentTeamId = p?.teamId; // Fallback
+                                        if (isPlayerInTeamForMatch(p, selectedMatch, 'A')) currentTeamId = selectedMatch.teamA;
+                                        else if (isPlayerInTeamForMatch(p, selectedMatch, 'B')) currentTeamId = selectedMatch.teamB;
+
+                                        setEventData({ ...eventData, playerId: pid, teamId: currentTeamId });
                                     }}
                                     className="w-full bg-[#ffffff05] border-2 border-[#ffffff10] rounded-xl px-4 py-3 text-white outline-none focus:border-[#00f2ff] font-bold"
                                 >
                                     <option value="">SELECT PLAYER...</option>
-                                    {matchPlayers.map(p => (
-                                        <option key={p.id} value={p.id}>[{getTeamName(p.teamId)}] {p.name} (#{p.number})</option>
-                                    ))}
+                                    <optgroup label={getTeamName(selectedMatch.teamA)}>
+                                        {matchPlayers.filter(p => isPlayerInTeamForMatch(p, selectedMatch, 'A')).map(p => (
+                                            <option key={p.id} value={p.id}>{p.name} (#{p.number})</option>
+                                        ))}
+                                    </optgroup>
+                                    <optgroup label={getTeamName(selectedMatch.teamB)}>
+                                        {matchPlayers.filter(p => isPlayerInTeamForMatch(p, selectedMatch, 'B')).map(p => (
+                                            <option key={p.id} value={p.id}>{p.name} (#{p.number})</option>
+                                        ))}
+                                    </optgroup>
                                 </select>
                             </div>
 
