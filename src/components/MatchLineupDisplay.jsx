@@ -72,13 +72,17 @@ const MatchLineupDisplay = ({ match, onClose }) => {
                         <div className="space-y-2">
                             {teamAPlayers.length > 0 ? (
                                 teamAPlayers.map(p => (
-                                    <div key={p.id} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5">
-                                        <div className="w-8 h-8 rounded-full bg-[#00f2ff] text-black font-black flex items-center justify-center text-xs">
-                                            {p.number}
+                                    <div key={p.id} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 group hover:border-[#00f2ff]/30 transition-all">
+                                        <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+                                            {p.photo ? (
+                                                <img src={p.photo} alt={p.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center bg-[#00f2ff]/10 text-[#00f2ff] font-black">{p.number}</div>
+                                            )}
                                         </div>
-                                        <div>
+                                        <div className="flex-1">
                                             <div className="font-bold text-white text-sm">{p.name}</div>
-                                            <div className="text-[10px] text-white/40 font-mono uppercase">{p.position}</div>
+                                            <div className="text-[10px] text-white/40 font-mono uppercase">{p.position} {p.photo && `// #${p.number}`}</div>
                                         </div>
                                     </div>
                                 ))
@@ -105,13 +109,17 @@ const MatchLineupDisplay = ({ match, onClose }) => {
                         <div className="space-y-2">
                             {teamBPlayers.length > 0 ? (
                                 teamBPlayers.map(p => (
-                                    <div key={p.id} className="flex flex-row-reverse items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 text-right">
-                                        <div className="w-8 h-8 rounded-full bg-red-500 text-white font-black flex items-center justify-center text-xs">
-                                            {p.number}
+                                    <div key={p.id} className="flex flex-row-reverse items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 text-right group hover:border-red-500/30 transition-all">
+                                        <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+                                            {p.photo ? (
+                                                <img src={p.photo} alt={p.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center bg-red-500/10 text-red-500 font-black">{p.number}</div>
+                                            )}
                                         </div>
-                                        <div>
+                                        <div className="flex-1">
                                             <div className="font-bold text-white text-sm">{p.name}</div>
-                                            <div className="text-[10px] text-white/40 font-mono uppercase">{p.position}</div>
+                                            <div className="text-[10px] text-white/40 font-mono uppercase">{p.position} {p.photo && `// #${p.number}`}</div>
                                         </div>
                                     </div>
                                 ))

@@ -186,8 +186,12 @@ const RosterOverlay = ({ team, onClose }) => {
                                         onClick={() => setSelectedPlayer(p)}
                                         className="flex items-center gap-4 p-3 rounded-xl bg-[#ffffff03] hover:bg-[#ffffff08] border border-transparent hover:border-[#00f2ff]/30 cursor-pointer transition-all group"
                                     >
-                                        <div className="w-10 h-10 rounded-lg bg-[#ffffff05] flex items-center justify-center font-black text-[#00f2ff] border border-[#ffffff10] group-hover:bg-[#00f2ff] group-hover:text-black transition-colors">
-                                            {p.number}
+                                        <div className="w-10 h-10 rounded-lg bg-[#ffffff05] flex items-center justify-center font-black text-[#00f2ff] border border-[#ffffff10] group-hover:bg-[#00f2ff] group-hover:text-black transition-colors overflow-hidden">
+                                            {p.photo ? (
+                                                <img src={p.photo} alt={p.number} className="w-full h-full object-cover" />
+                                            ) : (
+                                                p.number
+                                            )}
                                         </div>
                                         <div className="flex-1">
                                             <div className="font-bold text-white group-hover:text-[#00f2ff] transition-colors">{p.name}</div>
@@ -233,6 +237,7 @@ const PlayerNode = ({ player, color, isGK, onClick }) => (
                 bg-black/40 backdrop-blur-sm flex items-center justify-center 
                 transition-all duration-300 group-hover:scale-110 
                 shadow-lg hover:shadow-[0_0_15px_var(--player-ptr-color)]
+                overflow-hidden
                 ${isGK ? 'border-yellow-400' : ''}
             `}
             style={{
@@ -240,7 +245,11 @@ const PlayerNode = ({ player, color, isGK, onClick }) => (
                 backgroundColor: isGK ? 'rgba(255, 200, 0, 0.2)' : 'rgba(0, 0, 0, 0.4)'
             }}
         >
-            <span className="text-xs font-black text-white">{player.number || '?'}</span>
+            {player.photo ? (
+                <img src={player.photo} alt={player.name} className="w-full h-full object-cover" />
+            ) : (
+                <span className="text-xs font-black text-white">{player.number || '?'}</span>
+            )}
         </div>
 
         {/* Player Name Tag */}
