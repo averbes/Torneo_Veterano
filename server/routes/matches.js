@@ -142,8 +142,21 @@ async function recalculateAll() {
             processTeam(match.teamB, match.score.teamB, match.score.teamA);
 
             // Update minutes for all players in the match
-            players.filter(p => p.teamId === match.teamA || p.teamId === match.teamB).forEach(p => {
-                p.stats.minutes += 90;
+            const rosterIds = [];
+            if (match.rosters && (match.rosters.teamA?.length > 0 || match.rosters.teamB?.length > 0)) {
+                if (match.rosters.teamA) rosterIds.push(...match.rosters.teamA);
+                if (match.rosters.teamB) rosterIds.push(...match.rosters.teamB);
+            } else {
+                // Fallback to team affiliation
+                players.forEach(p => {
+                    if (p.teamId === match.teamA || p.teamId === match.teamB) rosterIds.push(p.id);
+                });
+            }
+
+            players.forEach(p => {
+                if (rosterIds.includes(p.id)) {
+                    p.stats.minutes += 90;
+                }
             });
         });
 

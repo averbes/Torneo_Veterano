@@ -51,6 +51,10 @@ const MatchSchema = new mongoose.Schema({
         teamA: { type: Number, default: 0 },
         teamB: { type: Number, default: 0 }
     },
+    rosters: {
+        teamA: [{ type: String }],
+        teamB: [{ type: String }]
+    },
     events: [{
         id: { type: String },
         type: { type: String },

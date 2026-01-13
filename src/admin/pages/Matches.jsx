@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, X, Calendar, MapPin, User, Info, CheckCircle, Clock } from 'lucide-react';
+import { Plus, X, Calendar, MapPin, User, Info, CheckCircle, Clock, Users } from 'lucide-react';
+import LineupModal from '../components/LineupModal';
 
 const Matches = () => {
     const [matches, setMatches] = useState([]);
     const [teams, setTeams] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isLineupModalOpen, setIsLineupModalOpen] = useState(false);
     const [formError, setFormError] = useState('');
     const [formData, setFormData] = useState({
         teamA: '',
@@ -132,19 +134,53 @@ const Matches = () => {
         } catch (_) { console.error("Update failed"); }
     };
 
+    const openLineupModal = (match) => {
+        setSelectedMatch(match);
+        setIsLineupModalOpen(true);
+    };
+
+    const handleSaveLineup = async (rosters) => {
+        try {
+            const res = await fetch(`/api/matches/${selectedMatch.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rosters })
+            });
+            if (res.ok) {
+                setIsLineupModalOpen(false);
+                fetchData();
+            }
+        } catch (_) {
+            console.error("Error saving lineup");
+        }
+    };
+
     const openEventModal = async (match) => {
         setSelectedMatch(match);
         setEventData({ type: 'goal', teamId: match.teamA, playerId: '', minute: '' });
 
-        // Fetch players for both teams
+        // Fetch players logic updated for dynamic rosters
         try {
-            const [pARes, pBRes] = await Promise.all([
-                fetch(`/api/players?teamId=${match.teamA}`),
-                fetch(`/api/players?teamId=${match.teamB}`)
-            ]);
-            const pAData = await pARes.json();
-            const pBData = await pBRes.json();
-            setMatchPlayers([...pAData, ...pBData]);
+            let playersList = [];
+
+            // If rosters exist, fetch/use those specific players
+            if (match.rosters && (match.rosters.teamA?.length > 0 || match.rosters.teamB?.length > 0)) {
+                const res = await fetch('/api/players');
+                const allPlayers = await res.json();
+                const rosterIds = [...(match.rosters.teamA || []), ...(match.rosters.teamB || [])];
+                playersList = allPlayers.filter(p => rosterIds.includes(p.id));
+            } else {
+                // Fallback to legacy team fetch
+                const [pARes, pBRes] = await Promise.all([
+                    fetch(`/api/players?teamId=${match.teamA}`),
+                    fetch(`/api/players?teamId=${match.teamB}`)
+                ]);
+                const pAData = await pARes.json();
+                const pBData = await pBRes.json();
+                playersList = [...pAData, ...pBData];
+            }
+
+            setMatchPlayers(playersList);
             setIsEventModalOpen(true);
         } catch (_) {
             console.error("Error fetching match players");
@@ -277,6 +313,9 @@ const Matches = () => {
                         </div>
 
                         <div className="mt-4 flex gap-2">
+                            <button onClick={() => openLineupModal(match)} className="px-4 py-2 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 rounded-lg text-xs font-black uppercase flex items-center gap-2 transition-all">
+                                <Users size={16} /> LINEUP
+                            </button>
                             {match.status === 'scheduled' && (
                                 <button
                                     onClick={() => handleStatusUpdate(match.id, 'live')}
@@ -458,6 +497,15 @@ const Matches = () => {
                         </form>
                     </div>
                 </div>
+            )}
+
+            {/* LINEUP MODAL */}
+            {isLineupModalOpen && selectedMatch && (
+                <LineupModal
+                    match={selectedMatch}
+                    onClose={() => setIsLineupModalOpen(false)}
+                    onSave={handleSaveLineup}
+                />
             )}
         </div>
     );
