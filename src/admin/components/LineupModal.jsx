@@ -129,20 +129,20 @@ const LineupModal = ({ match, teams = [], onClose, onSave }) => {
                     </button>
                 </div>
 
-                {/* Columns */}
-                <div className="flex-1 overflow-hidden grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10 bg-[#050510]">
+                {/* Columns Container - Force hidden overflow on parent, handle scroll in children */}
+                <div className="flex-1 overflow-hidden grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10 bg-[#050510] min-h-0">
 
                     {/* Team A Zone */}
                     <div
-                        className="flex flex-col bg-[#00f2ff]/5 transition-colors relative"
+                        className="flex flex-col h-full bg-[#00f2ff]/5 transition-colors relative"
                         onDragOver={handleDragOver}
                         onDrop={(e) => handleDrop(e, 'A')}
                     >
-                        <div className="p-4 text-center border-b border-[#00f2ff]/20 bg-[#00f2ff]/10">
+                        <div className="flex-none p-4 text-center border-b border-[#00f2ff]/20 bg-[#00f2ff]/10">
                             <h3 className="text-[#00f2ff] font-black uppercase text-xl">{teamAName}</h3>
                             <div className="text-xs font-mono text-[#00f2ff]/60">{teamARoster.length} UNITS ASSIGNED</div>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-2 space-y-2">
+                        <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-0">
                             {filterList(teamARoster).map(p => (
                                 <DraggableCard
                                     key={p.id}
@@ -156,20 +156,22 @@ const LineupModal = ({ match, teams = [], onClose, onSave }) => {
                                 />
                             ))}
                             {teamARoster.length === 0 && <EmptyState text="DROP UNITS HERE" />}
+                            {/* Spacer to prevent last item being cut off */}
+                            <div className="h-12"></div>
                         </div>
                     </div>
 
                     {/* Reserve Pool Zone */}
                     <div
-                        className="flex flex-col bg-black/40"
+                        className="flex flex-col h-full bg-black/40"
                         onDragOver={handleDragOver}
                         onDrop={(e) => handleDrop(e, 'global')}
                     >
-                        <div className="p-4 text-center border-b border-white/10">
+                        <div className="flex-none p-4 text-center border-b border-white/10">
                             <h3 className="text-white/40 font-black uppercase text-sm">RESERVE POOL</h3>
                             <div className="text-xs font-mono text-white/30">{availablePlayers.length} UNITS AVAILABLE</div>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-2 space-y-2">
+                        <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-0">
                             {filterList(availablePlayers).map(p => (
                                 <DraggableCard
                                     key={p.id}
@@ -184,20 +186,21 @@ const LineupModal = ({ match, teams = [], onClose, onSave }) => {
                                     isDragging={draggingId === p.id}
                                 />
                             ))}
+                            <div className="h-12"></div>
                         </div>
                     </div>
 
                     {/* Team B Zone */}
                     <div
-                        className="flex flex-col bg-[#00f2ff]/5"
+                        className="flex flex-col h-full bg-[#00f2ff]/5"
                         onDragOver={handleDragOver}
                         onDrop={(e) => handleDrop(e, 'B')}
                     >
-                        <div className="p-4 text-center border-b border-[#00f2ff]/20 bg-[#00f2ff]/10">
+                        <div className="flex-none p-4 text-center border-b border-[#00f2ff]/20 bg-[#00f2ff]/10">
                             <h3 className="text-[#00f2ff] font-black uppercase text-xl">{teamBName}</h3>
                             <div className="text-xs font-mono text-[#00f2ff]/60">{teamBRoster.length} UNITS ASSIGNED</div>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-2 space-y-2">
+                        <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-0">
                             {filterList(teamBRoster).map(p => (
                                 <DraggableCard
                                     key={p.id}
@@ -212,6 +215,7 @@ const LineupModal = ({ match, teams = [], onClose, onSave }) => {
                                 />
                             ))}
                             {teamBRoster.length === 0 && <EmptyState text="DROP UNITS HERE" />}
+                            <div className="h-12"></div>
                         </div>
                     </div>
 
