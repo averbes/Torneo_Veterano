@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Users, Shield } from 'lucide-react';
+import { X, Users, Shield, User } from 'lucide-react';
 
 const MatchLineupDisplay = ({ match, onClose }) => {
     const [players, setPlayers] = useState([]);
@@ -46,7 +46,9 @@ const MatchLineupDisplay = ({ match, onClose }) => {
                         <Users className="text-[#00f2ff]" />
                         <div>
                             <h2 className="text-xl font-black text-white uppercase tracking-tighter">MATCH ROSTER</h2>
-                            <div className="text-xs font-mono text-white/40">OFFICIAL LINEUP RECORD</div>
+                            <div className="text-xs font-mono text-white/40 flex items-center gap-2">
+                                OFFICIAL LINEUP RECORD {match.referee && <>// REF: <span className="text-[#00f2ff]">{match.referee}</span></>}
+                            </div>
                         </div>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors"><X className="text-white" /></button>

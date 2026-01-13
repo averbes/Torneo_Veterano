@@ -317,8 +317,13 @@ const Matches = () => {
                         </div>
 
                         <div className="flex items-center justify-between pt-4 border-t border-[#ffffff05]">
-                            <div className="flex items-center gap-2 text-lg text-white font-black uppercase tracking-tighter">
-                                <MapPin size={18} className="text-[#00f2ff]" /> {match.field}
+                            <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-2 text-lg text-white font-black uppercase tracking-tighter">
+                                    <MapPin size={18} className="text-[#00f2ff]" /> {match.field}
+                                </div>
+                                <div className="flex items-center gap-2 text-[10px] text-[#ffffff30] font-mono border-l border-[#ffffff10] pl-4">
+                                    <User size={12} /> {match.referee || 'AutoRef'}
+                                </div>
                             </div>
                             <div className="flex items-center gap-2 text-xs text-[#ffffff40] font-mono">
                                 <Calendar size={14} /> {match.date}
@@ -490,9 +495,15 @@ const Matches = () => {
                                 </div>
                             </div>
 
-                            <div>
-                                <label className="block text-lg font-black text-[#ffffff60] mb-3 font-mono uppercase tracking-widest">Location / Field</label>
-                                <input name="field" value={formData.field} onChange={handleInputChange} className="w-full bg-[#ffffff05] border-2 border-[#ffffff10] rounded-2xl px-8 py-6 text-3xl text-white outline-none focus:border-[#00f2ff] font-black" />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-lg font-black text-[#ffffff60] mb-3 font-mono uppercase tracking-widest">Location / Field</label>
+                                    <input name="field" value={formData.field} onChange={handleInputChange} className="w-full bg-[#ffffff05] border-2 border-[#ffffff10] rounded-2xl px-8 py-6 text-3xl text-white outline-none focus:border-[#00f2ff] font-black" />
+                                </div>
+                                <div>
+                                    <label className="block text-lg font-black text-[#ffffff60] mb-3 font-mono uppercase tracking-widest">Referee</label>
+                                    <input name="referee" value={formData.referee} onChange={handleInputChange} className="w-full bg-[#ffffff05] border-2 border-[#ffffff10] rounded-2xl px-8 py-6 text-3xl text-white outline-none focus:border-[#00f2ff] font-black" placeholder="Judge Name" />
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4 bg-[#ffffff05] p-6 rounded-2xl border border-[#ffffff10]">

@@ -7,7 +7,7 @@ import StandingsTable from './components/StandingsTable'
 import TopStats from './components/TopStats'
 import DisciplineTable from './components/DisciplineTable'
 import MatchLineupDisplay from './components/MatchLineupDisplay'
-import { Users } from 'lucide-react'
+import { Users, User } from 'lucide-react'
 
 function App() {
   const [data, setData] = useState({ teams: [] });
@@ -166,6 +166,11 @@ function App() {
                           <div className="text-[10px] font-mono uppercase text-[#ffffff40] mt-1">
                             {match.status === 'finished' ? 'Final Score' : match.time}
                           </div>
+                          {match.referee && (
+                            <div className="text-[8px] font-mono uppercase text-[#ffffff20] mt-1 flex items-center gap-1">
+                              <User size={8} /> {match.referee}
+                            </div>
+                          )}
                         </div>
 
                         <div className="flex items-center gap-4 flex-1">
