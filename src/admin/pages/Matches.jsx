@@ -312,47 +312,55 @@ const Matches = () => {
                             </div>
                         </div>
 
-                        <div className="mt-4 flex gap-2">
-                            <button onClick={() => openLineupModal(match)} className="px-4 py-2 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 rounded-lg text-xs font-black uppercase flex items-center gap-2 transition-all">
-                                <Users size={16} /> LINEUP
+                        <div className="mt-4 flex flex-col gap-3">
+                            {/* Lineup Button - Always Visible & Prominent */}
+                            <button
+                                onClick={() => openLineupModal(match)}
+                                className="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white border border-purple-400 rounded-xl text-sm font-black uppercase flex items-center justify-center gap-3 transition-all shadow-[0_0_15px_rgba(147,51,234,0.3)] hover:scale-[1.02]"
+                            >
+                                <Users size={20} /> MANAGE TACTICAL LINEUP / ROSTER
                             </button>
-                            {match.status === 'scheduled' && (
-                                <button
-                                    onClick={() => handleStatusUpdate(match.id, 'live')}
-                                    className="flex-1 py-2 rounded-lg bg-green-500/10 text-green-500 border border-green-500/20 text-[10px] font-black uppercase hover:bg-green-500/20 transition-all"
-                                >
-                                    Go Live
-                                </button>
-                            )}
-                            {match.status === 'live' && (
-                                <button
-                                    onClick={() => handleStatusUpdate(match.id, 'finished')}
-                                    className="flex-1 py-2 rounded-lg bg-red-500/10 text-red-500 border border-red-500/20 text-[10px] font-black uppercase hover:bg-red-500/20 transition-all"
-                                >
-                                    End Match
-                                </button>
-                            )}
-                            {match.status === 'finished' && (
-                                <div className="flex-1 flex gap-2">
-                                    <div className="flex-1 py-2 flex items-center justify-center gap-2 text-[10px] text-[#ffffff20] font-black uppercase bg-[#ffffff05] rounded-lg border border-transparent">
-                                        <CheckCircle size={12} /> Results Validated
-                                    </div>
+
+                            <div className="flex gap-2">
+                                {match.status === 'scheduled' && (
                                     <button
-                                        onClick={() => openEditMatch(match)}
-                                        className="px-4 py-2 rounded-lg bg-[#ffffff05] border border-[#ffffff10] text-[#00f2ff] text-[10px] font-black uppercase hover:bg-[#00f2ff]/10 transition-all"
+                                        onClick={() => handleStatusUpdate(match.id, 'live')}
+                                        className="flex-1 py-3 rounded-xl bg-green-500/10 text-green-500 border border-green-500/20 text-xs font-black uppercase hover:bg-green-500/20 transition-all flex items-center justify-center gap-2"
                                     >
-                                        EDIT DATA
+                                        <Play size={16} /> GO LIVE
                                     </button>
-                                </div>
-                            )}
-                            {(match.status === 'live' || match.status === 'finished') && (
-                                <button
-                                    onClick={() => openEventModal(match)}
-                                    className="px-4 py-2 rounded-lg bg-[#ffffff05] border border-[#ffffff10] text-[#00f2ff] text-[10px] font-black uppercase hover:bg-[#00f2ff]/10 transition-all flex items-center gap-2"
-                                >
-                                    <Plus size={12} /> LOG EVENT
-                                </button>
-                            )}
+                                )}
+                                {match.status === 'live' && (
+                                    <button
+                                        onClick={() => handleStatusUpdate(match.id, 'finished')}
+                                        className="flex-1 py-3 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 text-xs font-black uppercase hover:bg-red-500/20 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <CheckCircle size={16} /> END MATCH
+                                    </button>
+                                )}
+                                {match.status === 'finished' && (
+                                    <div className="flex-1 flex gap-2">
+                                        <div className="hidden md:flex flex-1 py-2 items-center justify-center gap-2 text-[10px] text-[#ffffff20] font-black uppercase bg-[#ffffff05] rounded-xl border border-transparent">
+                                            <CheckCircle size={12} /> COMPLETED
+                                        </div>
+                                        <button
+                                            onClick={() => openEditMatch(match)}
+                                            className="flex-1 px-4 py-2 rounded-xl bg-[#ffffff05] border border-[#ffffff10] text-[#00f2ff] text-[10px] font-black uppercase hover:bg-[#00f2ff]/10 transition-all"
+                                        >
+                                            EDIT
+                                        </button>
+                                    </div>
+                                )}
+
+                                {(match.status === 'live' || match.status === 'finished') && (
+                                    <button
+                                        onClick={() => openEventModal(match)}
+                                        className="flex-1 px-4 py-3 rounded-xl bg-[#00f2ff]/10 border border-[#00f2ff]/20 text-[#00f2ff] text-xs font-black uppercase hover:bg-[#00f2ff]/20 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <Plus size={16} /> LOG EVENT
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </div>
                 ))}
