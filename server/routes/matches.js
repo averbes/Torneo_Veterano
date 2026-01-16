@@ -1,5 +1,5 @@
 import express from 'express';
-import { Match, Team, Player, Standing } from '../db.js';
+import { supabase } from '../db.js';
 import { emitUpdate } from '../socket.js';
 
 const router = express.Router();
@@ -7,8 +7,21 @@ const router = express.Router();
 // GET /matches
 router.get('/', async (req, res) => {
     try {
-        const matches = await Match.find();
-        res.json(matches);
+        const { data: matches, error } = await supabase.from('matches').select('*');
+        if (error) throw error;
+
+        // Fetch events for each match (simplified for now, can be optimized with a join)
+        const { data: events } = await supabase.from('match_events').select('*');
+
+        const enrichedMatches = matches.map(m => ({
+            ...m,
+            teamA: m.team_a, // Compatibility with frontend if it expects teamA
+            teamB: m.team_b,
+            score: { teamA: m.score_a, teamB: m.score_b },
+            events: events.filter(e => e.match_id === m.id)
+        }));
+
+        res.json(enrichedMatches);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -20,20 +33,20 @@ router.post('/', async (req, res) => {
     if (!teamA || !teamB) return res.status(400).json({ error: "Teams required" });
 
     try {
-        const newMatch = new Match({
-            id: 'm_' + Date.now(),
-            teamA,
-            teamB,
+        const { data: newMatch, error } = await supabase.from('matches').insert({
+            team_a: teamA,
+            team_b: teamB,
             date,
             time,
             field: field || 'Main Stadium',
             referee: referee || 'AutoRef',
             status: status || 'scheduled',
-            score: score || { teamA: 0, teamB: 0 },
-            events: []
-        });
+            score_a: score?.teamA || 0,
+            score_b: score?.teamB || 0
+        }).select().single();
 
-        await newMatch.save();
+        if (error) throw error;
+
         await recalculateAll();
         res.status(201).json(newMatch);
     } catch (err) {
@@ -46,13 +59,24 @@ router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
 
-    try {
-        const match = await Match.findOneAndUpdate(
-            { id },
-            { $set: updates },
-            { new: true }
-        );
+    // Map frontend keys to DB
+    const mappedUpdates = { ...updates };
+    if (updates.teamA) { mappedUpdates.team_a = updates.teamA; delete mappedUpdates.teamA; }
+    if (updates.teamB) { mappedUpdates.team_b = updates.teamB; delete mappedUpdates.teamB; }
+    if (updates.score) {
+        mappedUpdates.score_a = updates.score.teamA;
+        mappedUpdates.score_b = updates.score.teamB;
+        delete mappedUpdates.score;
+    }
 
+    try {
+        const { data: match, error } = await supabase.from('matches')
+            .update(mappedUpdates)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) throw error;
         if (!match) return res.status(404).json({ error: "Match not found" });
 
         await recalculateAll();
@@ -68,26 +92,29 @@ router.post('/:id/events', async (req, res) => {
     const { type, teamId, playerId, minute } = req.body;
 
     try {
-        const match = await Match.findOne({ id });
-        if (!match) return res.status(404).json({ error: "Match not found" });
+        const { data: match, error: fetchError } = await supabase.from('matches').select('*').eq('id', id).single();
+        if (fetchError || !match) return res.status(404).json({ error: "Match not found" });
 
-        const newEvent = {
-            id: 'evt_' + Date.now(),
+        const { data: newEvent, error: eventError } = await supabase.from('match_events').insert({
+            match_id: id,
             type,
-            teamId,
-            playerId,
+            team_id: teamId,
+            player_id: playerId,
             minute: minute || '90'
-        };
-        match.events.push(newEvent);
+        }).select().single();
+
+        if (eventError) throw eventError;
 
         if (type === 'goal') {
-            if (match.teamA === teamId) match.score.teamA++;
-            else if (match.teamB === teamId) match.score.teamB++;
+            const updates = {};
+            if (match.team_a === teamId) updates.score_a = match.score_a + 1;
+            else if (match.team_b === teamId) updates.score_b = match.score_b + 1;
+
+            await supabase.from('matches').update(updates).eq('id', id);
         }
 
-        await match.save();
         await recalculateAll();
-        res.json({ success: true, match });
+        res.json({ success: true, event: newEvent });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -97,8 +124,8 @@ router.post('/:id/events', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        const deletedMatch = await Match.findOneAndDelete({ id });
-        if (!deletedMatch) return res.status(404).json({ error: "Match not found" });
+        const { error } = await supabase.from('matches').delete().eq('id', id);
+        if (error) throw error;
 
         await recalculateAll();
         res.json({ success: true, message: "Match deleted" });
@@ -109,19 +136,25 @@ router.delete('/:id', async (req, res) => {
 
 async function recalculateAll() {
     try {
-        const players = await Player.find();
-        const matches = await Match.find();
-        const teams = await Team.find();
+        const { data: players } = await supabase.from('players').select('*');
+        const { data: matches } = await supabase.from('matches').select('*');
+        const { data: teams } = await supabase.from('teams').select('*');
+        const { data: events } = await supabase.from('match_events').select('*');
 
-        // 1. Reset all player stats
-        for (let player of players) {
-            player.stats = { goals: 0, assists: 0, yellowCards: 0, redCards: 0, minutes: 0 };
-        }
+        // 1. Reset player stats
+        const playerStatsUpdate = players.map(p => ({
+            id: p.id,
+            goals: 0,
+            assists: 0,
+            yellow_cards: 0,
+            red_cards: 0,
+            minutes: 0
+        }));
 
         // 2. Prepare standings map
         const standingsMap = {};
         teams.forEach(t => {
-            standingsMap[t.id] = { teamId: t.id, points: 0, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0 };
+            standingsMap[t.id] = { team_id: t.id, points: 0, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0 };
         });
 
         // 3. Process finished matches
@@ -139,55 +172,54 @@ async function recalculateAll() {
                 else if (goalsFor === goalsAgainst) { entry.points += 1; entry.drawn++; }
                 else { entry.lost++; }
             };
-            processTeam(match.teamA, match.score.teamA, match.score.teamB);
-            processTeam(match.teamB, match.score.teamB, match.score.teamA);
+            processTeam(match.team_a, match.score_a, match.score_b);
+            processTeam(match.team_b, match.score_b, match.score_a);
 
-            // Update minutes for all players in the match
-            const rosterIds = [];
-            if (match.rosters && (match.rosters.teamA?.length > 0 || match.rosters.teamB?.length > 0)) {
-                if (match.rosters.teamA) rosterIds.push(...match.rosters.teamA);
-                if (match.rosters.teamB) rosterIds.push(...match.rosters.teamB);
-            } else {
-                // Fallback to team affiliation
-                players.forEach(p => {
-                    if (p.teamId === match.teamA || p.teamId === match.teamB) rosterIds.push(p.id);
-                });
-            }
-
-            players.forEach(p => {
-                if (rosterIds.includes(p.id)) {
-                    p.stats.minutes += 90;
+            // Minutes calculation (simplified: all players in the team get 90 mins if match finished)
+            playerStatsUpdate.forEach(pUpdate => {
+                const player = players.find(p => p.id === pUpdate.id);
+                if (player.team_id === match.team_a || player.team_id === match.team_b) {
+                    pUpdate.minutes += 90;
                 }
             });
         });
 
-        // 4. Process events from all matches (finished + live) for player stats
-        matches.filter(m => m.status === 'finished' || m.status === 'live').forEach(match => {
-            if (match.events) {
-                match.events.forEach(evt => {
-                    const player = players.find(p => p.id === evt.playerId);
-                    if (player) {
-                        if (evt.type === 'goal') player.stats.goals++;
-                        if (evt.type === 'assist') player.stats.assists++;
-                        if (evt.type === 'yellow_card') player.stats.yellowCards++;
-                        if (evt.type === 'red_card') player.stats.redCards++;
-                    }
-                });
+        // 4. Process events
+        events.forEach(evt => {
+            const pUpdate = playerStatsUpdate.find(p => p.id === evt.player_id);
+            if (pUpdate) {
+                if (evt.type === 'goal') pUpdate.goals++;
+                if (evt.type === 'assist') pUpdate.assists++;
+                if (evt.type === 'yellow_card') pUpdate.yellow_cards++;
+                if (evt.type === 'red_card') pUpdate.red_cards++;
             }
         });
 
-        // 5. Bulk save player stats
-        await Promise.all(players.map(p => p.save()));
+        // 5. Update DB (Supabase bulk upsert)
+        if (playerStatsUpdate.length > 0) {
+            await supabase.from('players').upsert(playerStatsUpdate);
+        }
 
-        // 6. Update Standings collection
-        await Standing.deleteMany({});
-        const newStandings = Object.values(standingsMap);
-        await Standing.insertMany(newStandings);
+        // 6. Update Team Stats (optional but good for denormalization)
+        const teamUpdates = Object.values(standingsMap).map(s => ({
+            id: s.team_id,
+            wins: s.won,
+            draws: s.drawn,
+            losses: s.lost,
+            goals_for: s.gf,
+            goals_against: s.ga
+        }));
+        if (teamUpdates.length > 0) {
+            await supabase.from('teams').upsert(teamUpdates);
+        }
 
-        // 7. Emit Real-time Updates
-        emitUpdate('matches', matches);
-        emitUpdate('standings', newStandings);
-        emitUpdate('players', players);
+        // 7. Emit updates
+        const { data: finalMatches } = await supabase.from('matches').select('*');
+        const { data: finalPlayers } = await supabase.from('players').select('*');
+
+        emitUpdate('matches', finalMatches);
+        emitUpdate('standings', Object.values(standingsMap));
+        emitUpdate('players', finalPlayers);
 
     } catch (err) {
         console.error("Error in recalculateAll:", err);

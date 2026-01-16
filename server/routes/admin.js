@@ -1,9 +1,9 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import { Admin } from '../db.js';
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'neo-league-secret-key-2026';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Vet2026#';
 
 // GET /admin - Verify token
 router.get('/verify', async (req, res) => {
@@ -23,14 +23,9 @@ router.post('/login', async (req, res) => {
     const { password } = req.body;
 
     try {
-        let admin = await Admin.findOne({ key: 'admin_user' });
-        if (!admin) {
-            admin = new Admin({ key: 'admin_user', password: 'Vet2026#' });
-            await admin.save();
-        }
-
-        // In a real app, use bcrypt.compare(password, admin.password)
-        if (password === admin.password) {
+        // Simple credential check for now. 
+        // Future improvement: Use Supabase Auth or a dedicated 'admins' table.
+        if (password === ADMIN_PASSWORD) {
             const token = jwt.sign(
                 { key: 'admin_user', role: 'admin' },
                 JWT_SECRET,

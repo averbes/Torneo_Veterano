@@ -1,43 +1,33 @@
-import mongoose from 'mongoose';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs';
-import { Team, Player, Match, Standing, Admin } from './models.js';
+import { createClient } from '@supabase/supabase-js';
+import 'dotenv/config';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+    console.error(">>> [DB]: MISSING SUPABASE CREDENTIALS IN .ENV");
+}
+
+export const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function initDB() {
-    const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/torneo_veteranos';
-
-    console.log(`>>> [DB]: Connecting to MongoDB...`);
-
+    console.log(`>>> [DB]: Initializing Supabase Connection...`);
     try {
-        await mongoose.connect(mongoURI);
-        console.log(">>> [DB]: Connected to MongoDB successfully.");
+        // Test connection by fetching a single row from teams
+        const { error } = await supabase.from('teams').select('id').limit(1);
+        if (error) throw error;
 
-        // Check if we need to seed from db.json
-        const teamsCount = await Team.countDocuments();
-        if (teamsCount === 0) {
-            console.log(">>> [DB]: MongoDB is empty. Attempting to seed from db.json...");
-            const dbJsonPath = join(__dirname, 'db.json');
-
-            if (fs.existsSync(dbJsonPath)) {
-                const data = JSON.parse(fs.readFileSync(dbJsonPath, 'utf8'));
-
-                if (data.teams?.length) await Team.insertMany(data.teams);
-                if (data.players?.length) await Player.insertMany(data.players);
-                if (data.matches?.length) await Match.insertMany(data.matches);
-                if (data.standings?.length) await Standing.insertMany(data.standings);
-
-                console.log(">>> [DB]: Data seeded from db.json successfully.");
-            } else {
-                console.log(">>> [DB]: No db.json found to seed from.");
-            }
-        }
+        console.log(">>> [DB]: Connected to Supabase successfully.");
     } catch (err) {
-        console.error(">>> [DB]: MongoDB connection error:", err);
-        throw err;
+        console.error(">>> [DB]: Supabase connection error:", err.message);
+        // We don't throw here to allow the server to start even if DB is currently unreachable, 
+        // though in production this might be critical.
     }
 }
 
-export { Team, Player, Match, Standing, Admin };
+// Export a dummy object for compatibility with old imports if needed
+export const Team = { find: () => ({}) };
+export const Player = { find: () => ({}) };
+export const Match = { find: () => ({}) };
+export const Standing = { find: () => ({}) };
+export const Admin = { find: () => ({}) };
