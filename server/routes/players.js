@@ -1,5 +1,6 @@
 import express from 'express';
 import { Player, Team } from '../db.js';
+import { emitUpdate } from '../socket.js';
 
 const router = express.Router();
 
@@ -55,7 +56,7 @@ router.get('/:id', async (req, res) => {
 // POST /players - Create Player
 router.post('/', async (req, res) => {
     const {
-        name, nickname, birthDate, position, teamId,
+        name, nickname, photo, birthDate, position, teamId,
         number, nationality, height, weight, preferredFoot,
         joinDate, status
     } = req.body;
@@ -72,6 +73,7 @@ router.post('/', async (req, res) => {
             id: generateId(),
             name,
             nickname: nickname || '',
+            photo: photo || '',
             birthDate: birthDate || '',
             position: position || 'Midfielder',
             teamId,
@@ -85,6 +87,8 @@ router.post('/', async (req, res) => {
         });
 
         await newPlayer.save();
+        const allPlayers = await Player.find();
+        emitUpdate('players', allPlayers);
         res.status(201).json(newPlayer);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -119,6 +123,8 @@ router.put('/:id', async (req, res) => {
             { new: true }
         );
 
+        const allPlayers = await Player.find();
+        emitUpdate('players', allPlayers);
         res.json(updatedPlayer);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -130,6 +136,8 @@ router.delete('/:id', async (req, res) => {
     try {
         const deletedPlayer = await Player.findOneAndDelete({ id: req.params.id });
         if (!deletedPlayer) return res.status(404).json({ error: "Player not found" });
+        const allPlayers = await Player.find();
+        emitUpdate('players', allPlayers);
         res.json({ message: "Player deleted successfully" });
     } catch (err) {
         res.status(500).json({ error: err.message });

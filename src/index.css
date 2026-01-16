@@ -4,30 +4,23 @@
   --animate-scan: scan 3s linear infinite;
   --animate-scan-modal: scan-modal 2s ease-in-out infinite;
   --animate-pulse-slow: pulse-slow 4s ease-in-out infinite;
+  --animate-pulse-fast: pulse-fast 1.5s ease-in-out infinite;
+  --animate-spin-slow: spin 8s linear infinite;
   --animate-glitch-1: glitch-1 2s linear infinite;
   --animate-glitch-2: glitch-2 2s linear infinite;
 
   @keyframes scan {
-
     0%,
     100% {
       transform: translateY(0);
       opacity: 0;
     }
-
-    10% {
-      opacity: 0.5;
-    }
-
+    10% { opacity: 0.5; }
     50% {
       transform: translateY(280px);
       opacity: 0.5;
     }
-
-    90% {
-      opacity: 0.5;
-    }
-
+    90% { opacity: 0.5; }
     100% {
       transform: translateY(280px);
       opacity: 0;
@@ -35,13 +28,11 @@
   }
 
   @keyframes scan-modal {
-
     0%,
     100% {
       transform: translateY(0);
       opacity: 0;
     }
-
     50% {
       transform: translateY(400px);
       opacity: 0.3;
@@ -49,69 +40,38 @@
   }
 
   @keyframes pulse-slow {
-
     0%,
     100% {
       opacity: 0.3;
       transform: scale(1);
     }
-
     50% {
       opacity: 0.5;
       transform: scale(1.05);
     }
   }
 
+  @keyframes pulse-fast {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
   @keyframes glitch-1 {
-    0% {
-      transform: translate(0);
-    }
-
-    20% {
-      transform: translate(-2px, 2px);
-    }
-
-    40% {
-      transform: translate(-2px, -2px);
-    }
-
-    60% {
-      transform: translate(2px, 2px);
-    }
-
-    80% {
-      transform: translate(2px, -2px);
-    }
-
-    100% {
-      transform: translate(0);
-    }
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
   }
 
   @keyframes glitch-2 {
-    0% {
-      transform: translate(0);
-    }
-
-    20% {
-      transform: translate(2px, -2px);
-    }
-
-    40% {
-      transform: translate(2px, 2px);
-    }
-
-    60% {
-      transform: translate(-2px, -2px);
-    }
-
-    80% {
-      transform: translate(-2px, 2px);
-    }
-
-    100% {
-      transform: translate(0);
-    }
+    0% { transform: translate(0); }
+    20% { transform: translate(2px, -2px); }
+    40% { transform: translate(2px, 2px); }
+    60% { transform: translate(-2px, -2px); }
+    80% { transform: translate(-2px, 2px); }
+    100% { transform: translate(0); }
   }
 }
 

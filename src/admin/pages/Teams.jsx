@@ -58,22 +58,34 @@ const Teams = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleFileChange = (e) => {
+    const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            if (file.size > 2 * 1024 * 1024) {
-                setFormError("IMAGE TOO LARGE (MAX 2MB)");
+            if (file.size > 5 * 1024 * 1024) {
+                setFormError("IMAGE TOO LARGE (MAX 5MB)");
                 return;
             }
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64String = reader.result;
-                setLogoPreview(base64String);
-                setFormData(prev => ({ ...prev, logo: base64String }));
-                // Opcionalmente guardar en localStorage para persistencia temporal si se desea
-                localStorage.setItem('temp_team_logo', base64String);
-            };
-            reader.readAsDataURL(file);
+
+            const formDataUpload = new FormData();
+            formDataUpload.append('image', file);
+
+            try {
+                const res = await fetch('/api/upload/image', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('admin-token')}`
+                    },
+                    body: formDataUpload
+                });
+                const data = await res.json();
+                if (data.url) {
+                    setLogoPreview(data.url);
+                    setFormData(prev => ({ ...prev, logo: data.url }));
+                }
+            } catch (err) {
+                console.error("Upload failed", err);
+                setFormError("Logo upload failed");
+            }
         }
     };
 

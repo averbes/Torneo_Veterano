@@ -457,14 +457,27 @@ const Players = () => {
                                                 <input
                                                     type="file"
                                                     accept="image/*"
-                                                    onChange={(e) => {
+                                                    onChange={async (e) => {
                                                         const file = e.target.files[0];
                                                         if (file) {
-                                                            const reader = new FileReader();
-                                                            reader.onloadend = () => {
-                                                                setFormData(prev => ({ ...prev, photo: reader.result }));
-                                                            };
-                                                            reader.readAsDataURL(file);
+                                                            const formDataUpload = new FormData();
+                                                            formDataUpload.append('image', file);
+                                                            try {
+                                                                const res = await fetch('/api/upload/image', {
+                                                                    method: 'POST',
+                                                                    headers: {
+                                                                        'Authorization': `Bearer ${localStorage.getItem('admin-token')}`
+                                                                    },
+                                                                    body: formDataUpload
+                                                                });
+                                                                const data = await res.json();
+                                                                if (data.url) {
+                                                                    setFormData(prev => ({ ...prev, photo: data.url }));
+                                                                }
+                                                            } catch (err) {
+                                                                console.error("Upload failed", err);
+                                                                setFormError("Photo upload failed");
+                                                            }
                                                         }
                                                     }}
                                                     className="hidden"

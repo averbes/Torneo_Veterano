@@ -47,6 +47,10 @@ const MatchSchema = new mongoose.Schema({
     time: { type: String },
     field: { type: String, default: 'Main Stadium' },
     referee: { type: String, default: 'AutoRef' },
+    formations: {
+        teamA: { type: String, default: '4-4-2' },
+        teamB: { type: String, default: '4-4-2' }
+    },
     status: { type: String, default: 'scheduled' },
     score: {
         teamA: { type: Number, default: 0 },

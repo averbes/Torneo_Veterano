@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { X, Users, Shield, User } from 'lucide-react';
+import { X, Users, Shield, User, Zap, Layout as LayoutIcon, Eye } from 'lucide-react';
+import { FORMATIONS } from '../utils/formations';
 
 const MatchLineupDisplay = ({ match, onClose }) => {
     const [players, setPlayers] = useState([]);
     const [teams, setTeams] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [activeTeamId, setActiveTeamId] = useState(match.teamA);
+    const [stadiumMode, setStadiumMode] = useState(false);
 
     useEffect(() => {
         const fetchInfo = async () => {
@@ -26,115 +29,196 @@ const MatchLineupDisplay = ({ match, onClose }) => {
         fetchInfo();
     }, []);
 
-    const getTeamName = (id) => teams.find(t => t.id === id)?.name || 'Unknown';
-    const getTeamLogo = (id) => teams.find(t => t.id === id)?.logo;
+    const getTeam = (id) => teams.find(t => t.id === id);
+    const getTeamName = (id) => getTeam(id)?.name || 'Unknown';
+    const getTeamLogo = (id) => getTeam(id)?.logo;
 
-    const teamAPlayers = players.filter(p => match.rosters?.teamA?.includes(p.id));
-    const teamBPlayers = players.filter(p => match.rosters?.teamB?.includes(p.id));
+    const getTacticalLayout = (teamId) => {
+        const formationKey = teamId === match.teamA
+            ? match.formations?.teamA || '4-4-2'
+            : match.formations?.teamB || '4-4-2';
+
+        const basePositions = FORMATIONS[formationKey] || FORMATIONS['4-4-2'];
+
+        const rosterIds = teamId === match.teamA ? match.rosters?.teamA : match.rosters?.teamB;
+        if (!rosterIds || rosterIds.length === 0) return basePositions.map(pos => ({ ...pos, player: null }));
+
+        const teamPlayers = players.filter(p => rosterIds.includes(p.id));
+        const remaining = [...teamPlayers];
+
+        return basePositions.map(pos => {
+            const idx = remaining.findIndex(p => {
+                if (pos.role === 'GK') return p.position === 'Arquero' || p.position === 'GK';
+                if (pos.role === 'DF') return p.position === 'Defensa' || p.position === 'DF' || p.position === 'Defender';
+                if (pos.role === 'MF') return p.position === 'Mediocampista' || p.position === 'MF' || p.position === 'Midfielder';
+                if (pos.role === 'FW') return p.position === 'Delantero' || p.position === 'FW' || p.position === 'Forward' || p.position === 'ST';
+                return false;
+            });
+            const p = idx !== -1 ? remaining.splice(idx, 1)[0] : remaining.shift();
+            return { ...pos, player: p };
+        });
+    };
 
     if (loading) return null;
 
-    return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-            <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={onClose} />
+    const currentTeam = getTeam(activeTeamId);
+    const tacticalLineup = getTacticalLayout(activeTeamId);
+    const teamAPlayers = players.filter(p => match.rosters?.teamA?.includes(p.id));
+    const teamBPlayers = players.filter(p => match.rosters?.teamB?.includes(p.id));
 
-            <div className="relative w-full max-w-4xl bg-[#0a0a1a] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 md:p-8 animate-in fade-in zoom-in duration-300">
+            <div className="absolute inset-0 bg-[#050510]/98 backdrop-blur-3xl" onClick={onClose} />
+
+            <div className="relative w-full max-w-6xl h-full max-h-[92vh] bg-[#0a0a1a] border border-[#00d4ff]/20 rounded-[2.5rem] overflow-hidden shadow-[0_0_150px_rgba(0,0,0,0.9)] flex flex-col">
 
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5">
-                    <div className="flex items-center gap-3">
-                        <Users className="text-[#00f2ff]" />
+                <div className="px-8 py-5 border-b border-white/5 flex justify-between items-center bg-white/5">
+                    <div className="flex items-center gap-6">
+                        <div className="flex -space-x-4">
+                            <div className="w-12 h-12 bg-black border border-[#00d4ff]/30 rounded-full flex items-center justify-center p-1.5 z-10 shadow-[0_0_15px_#00d4ff20]">
+                                <img src={getTeamLogo(match.teamA)} className="w-full h-full object-contain" fallback={<Shield />} />
+                            </div>
+                            <div className="w-12 h-12 bg-black border border-red-500/30 rounded-full flex items-center justify-center p-1.5 z-0">
+                                <img src={getTeamLogo(match.teamB)} className="w-full h-full object-contain" fallback={<Shield />} />
+                            </div>
+                        </div>
                         <div>
-                            <h2 className="text-xl font-black text-white uppercase tracking-tighter">MATCH ROSTER</h2>
-                            <div className="text-xs font-mono text-white/40 flex items-center gap-2">
-                                OFFICIAL LINEUP RECORD {match.referee && <>// REF: <span className="text-[#00f2ff]">{match.referee}</span></>}
+                            <h2 className="text-2xl font-black text-white uppercase tracking-tighter leading-none italic">TACTICAL BATTLEFIELD</h2>
+                            <div className="text-[9px] font-mono text-[#00d4ff] uppercase tracking-[0.3em] mt-1 flex items-center gap-2">
+                                <Zap size={8} className="animate-pulse" /> OFFICIAL MATCH LINEUP // <User size={8} /> {match.referee || 'AutoRef'}
                             </div>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors"><X className="text-white" /></button>
+
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => setStadiumMode(!stadiumMode)}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border font-black text-[9px] uppercase transition-all duration-300 ${stadiumMode
+                                ? 'bg-[#00d4ff] text-[#050510] border-[#00f2ff] shadow-[0_0_15px_#00d4ff40]'
+                                : 'bg-white/5 text-white/40 border-white/10 hover:border-[#00d4ff]/50'
+                                }`}
+                        >
+                            {stadiumMode ? <LayoutIcon size={12} /> : <Eye size={12} />}
+                            {stadiumMode ? 'DATA' : 'STADIUM'}
+                        </button>
+                        <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                            {[match.teamA, match.teamB].map(id => (
+                                <button
+                                    key={id}
+                                    onClick={() => setActiveTeamId(id)}
+                                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all duration-300 ${activeTeamId === id
+                                        ? 'bg-[#00d4ff] text-[#050510] shadow-[0_0_15px_#00d4ff40]'
+                                        : 'text-white/40 hover:text-white'
+                                        }`}
+                                >
+                                    {getTeamName(id).split(' ')[0]}
+                                </button>
+                            ))}
+                        </div>
+                        <button
+                            onClick={onClose}
+                            className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 text-white/20 hover:text-red-500 transition-all"
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
                 </div>
 
-                {/* Content */}
-                <div className="flex-1 overflow-y-auto p-4 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-
-                    {/* Team A Column */}
-                    <div>
-                        <div className="flex items-center gap-4 mb-6 pb-4 border-b border-[#00f2ff]/20">
-                            <div className="w-12 h-12 bg-[#00f2ff]/10 rounded-xl flex items-center justify-center border border-[#00f2ff]/20">
-                                {getTeamLogo(match.teamA) ? (
-                                    <img src={getTeamLogo(match.teamA)} className="w-8 h-8 object-contain" />
-                                ) : <Shield className="text-[#00f2ff]" />}
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-black text-white uppercase leading-none">{getTeamName(match.teamA)}</h3>
-                                <div className="text-xs font-mono text-[#00f2ff] mt-1">{teamAPlayers.length} PLAYERS</div>
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            {teamAPlayers.length > 0 ? (
-                                teamAPlayers.map(p => (
-                                    <div key={p.id} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 group hover:border-[#00f2ff]/30 transition-all">
-                                        <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
-                                            {p.photo ? (
-                                                <img src={p.photo} alt={p.name} className="w-full h-full object-cover" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center bg-[#00f2ff]/10 text-[#00f2ff] font-black">{p.number}</div>
-                                            )}
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="font-bold text-white text-sm">{p.name}</div>
-                                            <div className="text-[10px] text-white/40 font-mono uppercase">{p.position} {p.photo && `// #${p.number}`}</div>
-                                        </div>
-                                    </div>
-                                ))
+                <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
+                    {/* Tactical View */}
+                    <div className="w-full lg:w-3/5 relative flex items-center justify-center bg-black p-4">
+                        <div className={`relative w-full aspect-[3/4] max-w-[450px] border border-[#00d4ff]/20 rounded-2xl overflow-hidden shadow-2xl transition-all duration-700 ${stadiumMode ? 'scale-[1.05]' : ''}`}>
+                            {!stadiumMode ? (
+                                <div className="absolute inset-0 bg-gradient-to-b from-[#1a0033] via-[#0a0a20] to-[#00d4ff10]" />
                             ) : (
-                                <div className="p-4 text-center border font-mono text-xs uppercase text-white/30 border-dashed border-white/10 rounded-xl">No lineup data available</div>
+                                <div className="absolute inset-0 bg-black">
+                                    <img src="/stadium_bg.png" className="w-full h-full object-cover opacity-60 scale-110" alt="Stadium" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black" />
+                                </div>
                             )}
+
+                            {/* Field Lines */}
+                            <div className="absolute inset-0 pointer-events-none opacity-30">
+                                <div className="absolute inset-4 border border-[#00d4ff] rounded-lg" />
+                                <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-[#00d4ff]" />
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border border-[#00d4ff] rounded-full" />
+                                <div className="absolute top-4 left-1/2 -translate-x-1/2 w-1/2 h-[80px] border-b border-x border-[#00d4ff]" />
+                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-1/2 h-[80px] border-t border-x border-[#00d4ff]" />
+                            </div>
+
+                            {/* Players */}
+                            {tacticalLineup.map((pos) => (
+                                <div
+                                    key={pos.id}
+                                    className="absolute transform -translate-x-1/2 -translate-y-1/2"
+                                    style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+                                >
+                                    <PlayerMinNode player={pos.player} color={currentTeam?.color || '#00d4ff'} />
+                                </div>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Team B Column */}
-                    <div>
-                        <div className="flex items-center justify-end gap-4 mb-6 pb-4 border-b border-red-500/20 text-right">
-                            <div>
-                                <h3 className="text-xl font-black text-white uppercase leading-none">{getTeamName(match.teamB)}</h3>
-                                <div className="text-xs font-mono text-red-500 mt-1">{teamBPlayers.length} PLAYERS</div>
-                            </div>
-                            <div className="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center border border-red-500/20">
-                                {getTeamLogo(match.teamB) ? (
-                                    <img src={getTeamLogo(match.teamB)} className="w-8 h-8 object-contain" />
-                                ) : <Shield className="text-red-500" />}
+                    {/* Roster List Split View */}
+                    <div className="w-full lg:w-2/5 md:grid md:grid-cols-2 lg:flex lg:flex-col bg-[#0a0a1a] border-l border-white/5 overflow-auto custom-scrollbar">
+                        {/* Team A List */}
+                        <div className="p-6 border-b border-white/5">
+                            <h4 className="text-[10px] font-black text-[#00d4ff] uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <div className="w-1 h-1 bg-[#00d4ff] animate-pulse" /> {getTeamName(match.teamA)}
+                            </h4>
+                            <div className="space-y-1.5">
+                                {teamAPlayers.map(p => <RosterItem key={p.id} player={p} />)}
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            {teamBPlayers.length > 0 ? (
-                                teamBPlayers.map(p => (
-                                    <div key={p.id} className="flex flex-row-reverse items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 text-right group hover:border-red-500/30 transition-all">
-                                        <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
-                                            {p.photo ? (
-                                                <img src={p.photo} alt={p.name} className="w-full h-full object-cover" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center bg-red-500/10 text-red-500 font-black">{p.number}</div>
-                                            )}
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="font-bold text-white text-sm">{p.name}</div>
-                                            <div className="text-[10px] text-white/40 font-mono uppercase">{p.position} {p.photo && `// #${p.number}`}</div>
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="p-4 text-center border font-mono text-xs uppercase text-white/30 border-dashed border-white/10 rounded-xl">No lineup data available</div>
-                            )}
+                        {/* Team B List */}
+                        <div className="p-6">
+                            <h4 className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-4 flex items-center gap-2 text-right justify-end">
+                                {getTeamName(match.teamB)} <div className="w-1 h-1 bg-red-500 animate-pulse" />
+                            </h4>
+                            <div className="space-y-1.5">
+                                {teamBPlayers.map(p => <RosterItem key={p.id} player={p} reverse />)}
+                            </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
     );
 };
+
+const PlayerMinNode = ({ player, color }) => {
+    if (!player) return <div className="w-6 h-1 bg-white/10 rounded-full" />;
+    return (
+        <div className="flex flex-col items-center gap-1 group/p">
+            <div
+                className="w-10 h-10 rounded-full border border-white/20 bg-black/60 backdrop-blur-sm p-0.5 shadow-lg group-hover/p:scale-110 transition-transform"
+                style={{ borderColor: `${color}60` }}
+            >
+                <div className="w-full h-full rounded-full overflow-hidden bg-[#ffffff05] flex items-center justify-center">
+                    {player.photo ? (
+                        <img src={player.photo} className="w-full h-full object-cover" alt="" />
+                    ) : <span className="text-[10px] font-black text-white">{player.number}</span>}
+                </div>
+            </div>
+            <div className="px-1.5 py-0.5 bg-black/80 border border-white/10 rounded-sm skew-x-[-10deg]">
+                <span className="text-[8px] font-black text-white uppercase block skew-x-[10deg]">{player.name.split(' ').pop()}</span>
+            </div>
+        </div>
+    );
+};
+
+const RosterItem = ({ player, reverse }) => (
+    <div className={`flex items-center gap-3 p-2 rounded-lg bg-white/[0.02] border border-white/[0.03] ${reverse ? 'flex-row-reverse text-right' : ''}`}>
+        <div className="w-8 h-8 rounded-lg bg-black border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+            {player.photo ? <img src={player.photo} className="w-full h-full object-cover" /> : <span className="text-[10px] font-black text-white">{player.number}</span>}
+        </div>
+        <div className="flex-1 min-w-0">
+            <div className="text-[10px] font-black text-white uppercase truncate">{player.name}</div>
+            <div className="text-[8px] font-mono text-white/30 uppercase">{player.position}</div>
+        </div>
+    </div>
+);
 
 export default MatchLineupDisplay;

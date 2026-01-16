@@ -8,6 +8,11 @@ import teamRoutes from './routes/teams.js';
 import playerRoutes from './routes/players.js';
 import matchRoutes from './routes/matches.js';
 import standingsRoutes from './routes/standings.js';
+import uploadRoutes from './routes/upload.js';
+import { createServer } from 'http';
+import { initSocket } from './socket.js';
+
+
 
 import fs from 'fs';
 
@@ -15,6 +20,7 @@ console.log(">>> [LOG]: SERVER BOOT SEQUENCE INITIATED");
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
+const httpServer = createServer(app);
 const PORT = process.env.PORT || 3001;
 
 async function bootstrap() {
@@ -31,6 +37,9 @@ async function bootstrap() {
         await initDB();
         console.log(">>> [LOG]: Database Loaded Successfully.");
 
+        console.log(">>> [LOG]: Initializing Socket.io...");
+        initSocket(httpServer);
+
         // API Routes
         console.log(">>> [LOG]: Mounting API Routes...");
         app.use('/api/admin', adminRoutes);
@@ -38,6 +47,8 @@ async function bootstrap() {
         app.use('/api/players', playerRoutes);
         app.use('/api/matches', matchRoutes);
         app.use('/api/standings', standingsRoutes);
+        app.use('/api/upload', uploadRoutes);
+
 
         // Files
         app.use('/uploads', express.static(join(process.cwd(), 'uploads')));
@@ -73,7 +84,7 @@ async function bootstrap() {
         }
 
         console.log(`>>> [LOG]: Attempting to bind to PORT: ${PORT}`);
-        app.listen(PORT, () => {
+        httpServer.listen(PORT, () => {
             console.log(`>>> [SUCCESS]: Server live on port ${PORT}`);
             console.log(`>>> [LOG]: Current Working Directory: ${process.cwd()}`);
         });

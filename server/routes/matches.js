@@ -1,5 +1,6 @@
 import express from 'express';
 import { Match, Team, Player, Standing } from '../db.js';
+import { emitUpdate } from '../socket.js';
 
 const router = express.Router();
 
@@ -180,7 +181,13 @@ async function recalculateAll() {
 
         // 6. Update Standings collection
         await Standing.deleteMany({});
-        await Standing.insertMany(Object.values(standingsMap));
+        const newStandings = Object.values(standingsMap);
+        await Standing.insertMany(newStandings);
+
+        // 7. Emit Real-time Updates
+        emitUpdate('matches', matches);
+        emitUpdate('standings', newStandings);
+        emitUpdate('players', players);
 
     } catch (err) {
         console.error("Error in recalculateAll:", err);

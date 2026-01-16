@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import PlayerDetailModal from './PlayerDetailModal';
+import { X, Users, MapPin, Eye, Zap, Shield, Circle, Layout as LayoutIcon, User } from 'lucide-react';
 
 const RosterOverlay = ({ team, onClose }) => {
     const [selectedPlayer, setSelectedPlayer] = useState(null);
     const [players, setPlayers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [stadiumMode, setStadiumMode] = useState(false);
 
     const fetchPlayers = React.useCallback(async () => {
         try {
@@ -27,197 +29,207 @@ const RosterOverlay = ({ team, onClose }) => {
 
     if (!team) return null;
 
-    const getFormation = () => {
-        // Ideal distribution for 4-4-2
-        const formation = {
-            gk: [],
-            df: [],
-            mf: [],
-            fw: []
-        };
+    const getTacticalLayout = () => {
+        // Precise Coordinates for 4-4-2 as requested
+        const positions = [
+            { id: 'gk', role: 'GK', x: 50, y: 85, label: 'GOALKEEPER' },
+            { id: 'ld', role: 'DF', x: 75, y: 70, label: 'RIGHT BACK' },
+            { id: 'c1', role: 'DF', x: 40, y: 70, label: 'CENTER BACK' },
+            { id: 'c2', role: 'DF', x: 60, y: 70, label: 'CENTER BACK' },
+            { id: 'li', role: 'DF', x: 25, y: 70, label: 'LEFT BACK' },
+            { id: 'md', role: 'MF', x: 75, y: 50, label: 'RIGHT MID' },
+            { id: 'id', role: 'MF', x: 60, y: 50, label: 'INT RIGHT' },
+            { id: 'ii', role: 'MF', x: 40, y: 50, label: 'INT LEFT' },
+            { id: 'mi', role: 'MF', x: 25, y: 50, label: 'LEFT MID' },
+            { id: 'd1', role: 'FW', x: 40, y: 30, label: 'STRIKER' },
+            { id: 'd2', role: 'FW', x: 60, y: 30, label: 'STRIKER' }
+        ];
 
-        // If we don't have players yet
-        if (!players.length) return formation;
+        if (!players.length) return positions.map(pos => ({ ...pos, player: null }));
 
-        // 1. Try to find actual GKs, DFs, etc among the first 11 or explicitly marked starters
-        // For simplicity, let's take the first 11 players as the "Starters" if no 'isStarter' flag is reliable
-        // Or if 'isStarter' exists, use it.
         let pool = players.filter(p => p.isStarter);
         if (pool.length < 11) {
-            // Fill with subs if not enough starters marked
             const nonStarters = players.filter(p => !p.isStarter);
             pool = [...pool, ...nonStarters].slice(0, 11);
         }
 
         const remaining = [...pool];
-
-        // Specific Position Filling Helper
-        const fillSlot = (targetRole, count, exactPosKey) => {
-            for (let i = 0; i < count; i++) {
-                const idx = remaining.findIndex(p => p.position === exactPosKey);
-                if (idx !== -1) {
-                    formation[targetRole].push(remaining[idx]);
-                    remaining.splice(idx, 1);
-                }
-            }
-        };
-
-        // Try to fill designated spots first
-        fillSlot('gk', 1, 'GK');
-        fillSlot('df', 4, 'DF');
-        fillSlot('mf', 4, 'MF');
-        fillSlot('fw', 2, 'FW');
-
-        // Fill remaining slots with whoever is left (out of position players)
-        while (formation.gk.length < 1 && remaining.length > 0) formation.gk.push(remaining.shift());
-        while (formation.df.length < 4 && remaining.length > 0) formation.df.push(remaining.shift());
-        while (formation.mf.length < 4 && remaining.length > 0) formation.mf.push(remaining.shift());
-        while (formation.fw.length < 2 && remaining.length > 0) formation.fw.push(remaining.shift());
-
-        return formation;
+        return positions.map(pos => {
+            const idx = remaining.findIndex(p => {
+                if (pos.role === 'GK') return p.position === 'GK';
+                if (pos.role === 'DF') return p.position === 'DF' || p.position === 'Defender';
+                if (pos.role === 'MF') return p.position === 'MF' || p.position === 'Mediocampista' || p.position === 'Midfielder';
+                if (pos.role === 'FW') return p.position === 'FW' || p.position === 'Forward' || p.position === 'Delantero';
+                return false;
+            });
+            const p = idx !== -1 ? remaining.splice(idx, 1)[0] : remaining.shift();
+            return { ...pos, player: p };
+        });
     };
 
-    const formation = getFormation();
-
-    if (!team) return null;
+    const tacticalLineup = getTacticalLayout();
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
-            {/* Backdrop */}
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 md:p-8">
+            {/* Holographic Background Layer */}
             <div
-                className="absolute inset-0 bg-[#050510]/95 backdrop-blur-xl"
+                className="absolute inset-0 bg-[#050510]/98 backdrop-blur-3xl"
                 onClick={onClose}
-            />
+            >
+                <div className="absolute inset-0 opacity-20 pointer-events-none"
+                    style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #00d4ff 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+            </div>
 
-            <div className="relative w-full max-w-7xl h-full max-h-[90vh] bg-[#0a0a1a] border border-[#ffffff10] rounded-3xl overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col">
+            <div className="relative w-full max-w-7xl h-full max-h-[92vh] bg-[#0a0a1a] border border-[#00d4ff]/20 rounded-[2.5rem] overflow-hidden shadow-[0_0_150px_rgba(0,0,0,0.9)] flex flex-col group/modal">
 
-                {/* Header */}
-                <div className="p-6 border-b border-[#ffffff10] flex justify-between items-center bg-[#ffffff02]">
-                    <div className="flex items-center gap-6">
-                        <div className="w-16 h-16 flex items-center justify-center bg-[#ffffff05] rounded-2xl border border-[#ffffff10]">
-                            {team.logo && team.logo.startsWith('data:') ? (
-                                <img src={team.logo} alt={team.name} className="w-full h-full object-contain p-2" />
-                            ) : (
-                                <span className="text-3xl">{team.logo || '🛡️'}</span>
-                            )}
+                {/* HUD Header */}
+                <div className="px-8 py-6 border-b border-[#00d4ff]/10 flex justify-between items-center bg-gradient-to-r from-[#00d4ff0a] to-transparent">
+                    <div className="flex items-center gap-8">
+                        <div className="relative">
+                            <div className="w-16 h-16 bg-black border border-[#00d4ff]/30 rounded-2xl flex items-center justify-center p-2 overflow-hidden group-hover:border-[#00d4ff] transition-all duration-500">
+                                {team.logo && team.logo.startsWith('data:') ? (
+                                    <img src={team.logo} className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(0,212,255,0.4)]" />
+                                ) : <Shield className="text-[#00d4ff] w-10 h-10" />}
+                            </div>
+                            <div className="absolute -inset-2 border-2 border-[#00d4ff]/10 rounded-[1.25rem] animate-[spin_10s_linear_infinite]" />
                         </div>
                         <div>
-                            <h2 className="text-3xl font-black text-white uppercase tracking-tighter">
-                                {team.name}
-                            </h2>
-                            <div className="text-[10px] font-mono text-[#ffffff40] uppercase tracking-[0.3em]">
-                                Tactical Overview & Roster
+                            <div className="flex items-center gap-3">
+                                <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">
+                                    {team.name}
+                                </h2>
+                                <div className="px-2 py-0.5 bg-[#00d4ff] text-[#050510] text-[10px] font-black rounded-sm skew-x-[-20deg]">TACTICAL HUD v2.0</div>
+                            </div>
+                            <div className="flex items-center gap-4 mt-2">
+                                <div className="text-[10px] font-mono text-[#00d4ff] uppercase tracking-[0.4em] flex items-center gap-2">
+                                    <Zap size={10} className="animate-pulse" /> SQUAD SYNCHRONIZED
+                                </div>
+                                <div className="h-1 w-24 bg-[#ffffff05] rounded-full overflow-hidden">
+                                    <div className="h-full bg-[#00d4ff] w-3/4 animate-[pulse_2s_infinite]" />
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <button
-                        onClick={onClose}
-                        className="w-12 h-12 flex items-center justify-center rounded-xl bg-[#ffffff05] text-[#ffffff40] hover:bg-red-500/10 hover:text-red-500 transition-colors"
-                    >
-                        ✕
-                    </button>
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => setStadiumMode(!stadiumMode)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl border font-black text-[10px] uppercase transition-all duration-300 ${stadiumMode
+                                ? 'bg-[#00d4ff] text-[#050510] border-[#00f2ff] shadow-[0_0_20px_#00d4ff40]'
+                                : 'bg-white/5 text-white/40 border-white/10 hover:border-[#00d4ff]/50'
+                                }`}
+                        >
+                            {stadiumMode ? <LayoutIcon size={14} /> : <Eye size={14} />}
+                            {stadiumMode ? 'DATA INTERFACE' : 'STADIUM MODE'}
+                        </button>
+                        <button
+                            onClick={onClose}
+                            className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 text-white/20 hover:bg-red-500/10 hover:text-red-500 border border-white/5 hover:border-red-500/30 transition-all duration-300 group/close"
+                        >
+                            <X className="group-hover/close:rotate-90 transition-transform duration-500" />
+                        </button>
+                    </div>
                 </div>
 
-                <div className="flex-grow overflow-hidden flex flex-col md:flex-row">
-                    {/* Left Column: Tactical Field */}
-                    <div className="w-full md:w-1/2 lg:w-3/5 relative bg-[#0a1512] p-8 flex items-center justify-center border-r border-[#ffffff10]">
-                        {/* Field Graphic */}
-                        <div className="relative w-full h-full border-2 border-[#ffffff10] rounded-xl bg-[#0f2922] shadow-2xl overflow-hidden">
-                            {/* Grass Pattern */}
-                            <div className="absolute inset-0 opacity-10"
-                                style={{
-                                    backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 40px, #ffffff 40px, #ffffff 41px)'
-                                }}
-                            />
-
-                            {/* Center Circle */}
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-[#ffffff20] rounded-full" />
-                            <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-[#ffffff20]" />
-
-                            {/* Penalty Areas */}
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/5 h-[15%] border-b-2 border-x-2 border-[#ffffff20]" />
-                            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/5 h-[15%] border-t-2 border-x-2 border-[#ffffff20]" />
-
-                            {/* Corner Arcs */}
-                            <div className="absolute top-0 left-0 w-8 h-8 border-b-2 border-r-2 border-[#ffffff20] rounded-br-full" />
-                            <div className="absolute top-0 right-0 w-8 h-8 border-b-2 border-l-2 border-[#ffffff20] rounded-bl-full" />
-                            <div className="absolute bottom-0 left-0 w-8 h-8 border-t-2 border-r-2 border-[#ffffff20] rounded-tr-full" />
-                            <div className="absolute bottom-0 right-0 w-8 h-8 border-t-2 border-l-2 border-[#ffffff20] rounded-tl-full" />
-
-                            {/* PLAYERS ON FIELD (4-4-2) */}
-                            {/* Goalkeeper (Bottom) */}
-                            <div className="absolute bottom-[5%] left-0 right-0 flex justify-center">
-                                {formation.gk.map(p => <PlayerNode key={p.id} player={p} color={team.color || '#ffff00'} isGK />)}
-                            </div>
-
-                            {/* Defenders */}
-                            <div className="absolute bottom-[25%] left-0 right-0 flex justify-around px-12">
-                                {formation.df.map(p => <PlayerNode key={p.id} player={p} color={team.color || '#00f2ff'} />)}
-                            </div>
-
-                            {/* Midfielders */}
-                            <div className="absolute top-[45%] left-0 right-0 flex justify-around px-8">
-                                {formation.mf.map(p => <PlayerNode key={p.id} player={p} color={team.color || '#00f2ff'} />)}
-                            </div>
-
-                            {/* Forwards */}
-                            <div className="absolute top-[15%] left-0 right-0 flex justify-around px-32">
-                                {formation.fw.map(p => <PlayerNode key={p.id} player={p} color={team.color || '#00f2ff'} />)}
-                            </div>
-
-                            {loading && (
-                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm z-10">
-                                    <div className="text-[#00f2ff] animate-pulse font-mono tracking-widest text-xs">SUMMONING SQUAD...</div>
+                <div className="flex-grow overflow-hidden flex flex-col lg:flex-row">
+                    {/* Tactical Theater */}
+                    <div className="w-full lg:w-2/3 relative flex items-center justify-center overflow-hidden bg-black border-r border-white/5 p-4 md:p-8">
+                        {/* THE PITCH */}
+                        <div className={`relative w-full aspect-[3/4] max-w-[500px] border-2 border-[#00d4ff]/20 rounded-2xl overflow-hidden transition-all duration-700 ${stadiumMode ? 'scale-[1.05] shadow-[0_0_80px_rgba(0,0,0,0.8)]' : ''
+                            }`}>
+                            {/* Background Layers */}
+                            {!stadiumMode ? (
+                                <div className="absolute inset-0 bg-gradient-to-b from-[#1a0033] via-[#0a0a20] to-[#00d4ff10]">
+                                    <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(90deg, #00d4ff 0, #00d4ff 1px, transparent 1px, transparent 50px)' }} />
+                                    <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(0deg, #00d4ff 0, #00d4ff 1px, transparent 1px, transparent 50px)' }} />
+                                </div>
+                            ) : (
+                                <div className="absolute inset-0 bg-black">
+                                    <img src="/stadium_bg.png" className="w-full h-full object-cover opacity-60 scale-110" alt="Stadium" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black" />
                                 </div>
                             )}
+
+                            {/* Neon Pitch Lines */}
+                            <div className="absolute inset-0 pointer-events-none opacity-40">
+                                <div className="absolute inset-4 border border-[#00d4ff] rounded-lg shadow-[inset_0_0_20px_#00d4ff20]" />
+                                <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-[#00d4ff]" />
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-[#00d4ff] rounded-full shadow-[0_0_15px_#00d4ff20]" />
+                                {/* Penalty Areas */}
+                                <div className="absolute top-4 left-1/2 -translate-x-1/2 w-3/5 h-[120px] border-b border-x border-[#00d4ff]" />
+                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-3/5 h-[120px] border-t border-x border-[#00d4ff]" />
+                            </div>
+
+                            {/* PLAYERS GRID Rendering */}
+                            {tacticalLineup.map((pos) => (
+                                <div
+                                    key={pos.id}
+                                    className="absolute transition-all duration-1000 ease-in-out z-20"
+                                    style={{ left: `${pos.x}%`, top: `${pos.y}%`, transform: 'translate(-50%, -50%)' }}
+                                >
+                                    <PlayerHUDNode
+                                        player={pos.player}
+                                        roleLabel={pos.label}
+                                        color={team.color || '#00d4ff'}
+                                        onClick={() => pos.player && setSelectedPlayer(pos.player)}
+                                    />
+                                </div>
+                            ))}
+
+                            {/* Floating Particles Mask */}
+                            <div className="absolute inset-0 pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03]" />
                         </div>
                     </div>
 
-                    {/* Right Column: Roster List */}
-                    <div className="w-full md:w-1/2 lg:w-2/5 overflow-auto bg-[#0a0a1a]">
-                        <div className="p-6">
-                            <h3 className="text-sm font-mono text-[#ffffff40] uppercase tracking-widest mb-6 border-b border-[#ffffff10] pb-2">Full Roster</h3>
+                    {/* Roster Scanner */}
+                    <div className="w-full lg:w-1/3 bg-[#0a0a1a] flex flex-col border-l border-[#00d4ff]/10">
+                        <div className="p-8 pb-4 flex items-center justify-between">
+                            <h3 className="text-sm font-black text-white/30 uppercase tracking-[0.5em] flex items-center gap-3">
+                                <div className="w-1.5 h-1.5 bg-[#00d4ff] rounded-full animate-ping" />
+                                Operation Squad
+                            </h3>
+                            <div className="text-[10px] font-mono text-[#00d4ff]">{players.length} Operatives</div>
+                        </div>
 
-                            <div className="space-y-2">
-                                {players.map(p => (
-                                    <div
-                                        key={p.id}
-                                        onClick={() => setSelectedPlayer(p)}
-                                        className="flex items-center gap-4 p-3 rounded-xl bg-[#ffffff03] hover:bg-[#ffffff08] border border-transparent hover:border-[#00f2ff]/30 cursor-pointer transition-all group"
-                                    >
-                                        <div className="w-10 h-10 rounded-lg bg-[#ffffff05] flex items-center justify-center font-black text-[#00f2ff] border border-[#ffffff10] group-hover:bg-[#00f2ff] group-hover:text-black transition-colors overflow-hidden">
-                                            {p.photo ? (
-                                                <img src={p.photo} alt={p.number} className="w-full h-full object-cover" />
-                                            ) : (
-                                                p.number
-                                            )}
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="font-bold text-white group-hover:text-[#00f2ff] transition-colors">{p.name}</div>
-                                            <div className="text-[10px] font-mono text-[#ffffff40] uppercase">{p.position} // {p.nickname}</div>
-                                        </div>
-                                        {p.stats && (
-                                            <div className="flex gap-3 text-center">
-                                                <div>
-                                                    <div className="text-[10px] text-[#ffffff30] uppercase">G</div>
-                                                    <div className="text-xs font-bold text-white">{p.stats.goals}</div>
-                                                </div>
-                                                <div>
-                                                    <div className="text-[10px] text-[#ffffff30] uppercase">A</div>
-                                                    <div className="text-xs font-bold text-white">{p.stats.assists}</div>
-                                                </div>
-                                            </div>
-                                        )}
+                        <div className="flex-1 overflow-auto px-8 pb-8 space-y-3 custom-scrollbar">
+                            {players.map((p, idx) => (
+                                <div
+                                    key={p.id}
+                                    onClick={() => setSelectedPlayer(p)}
+                                    className="group/item relative flex items-center gap-5 p-4 bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-[#00d4ff]/40 rounded-2xl cursor-pointer transition-all duration-300"
+                                >
+                                    <div className="w-12 h-12 rounded-xl bg-black border border-white/10 flex items-center justify-center font-black text-[#00d4ff] text-lg overflow-hidden relative">
+                                        {p.photo ? (
+                                            <img src={p.photo} className="w-full h-full object-cover grayscale group-hover/item:grayscale-0 transition-all duration-500" alt={p.number} />
+                                        ) : p.number}
+                                        <div className="absolute top-0 right-0 w-2 h-2 bg-[#00d4ff] scale-0 group-hover/item:scale-100 transition-transform" style={{ clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }} />
                                     </div>
-                                ))}
-                            </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-black text-white uppercase group-hover/item:text-[#00d4ff] transition-colors">{p.name}</span>
+                                            {p.isStarter && <span className="text-[8px] bg-[#00d4ff15] text-[#00d4ff] px-1.5 py-0.5 rounded font-black uppercase">Start</span>}
+                                        </div>
+                                        <div className="text-[9px] font-mono text-white/30 uppercase mt-1 flex items-center gap-2">
+                                            {p.position} <span className="text-white/10">|</span> <span className="text-[#00d4ff]/40">{p.nickname || 'NO NICKNAME'}</span>
+                                        </div>
+                                    </div>
+                                    <div className="text-right flex flex-col gap-1">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[9px] text-white/20 font-black">G</span>
+                                            <span className="text-xs font-bold text-white leading-none">{p.stats?.goals || 0}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[9px] text-white/20 font-black">A</span>
+                                            <span className="text-xs font-bold text-white/60 leading-none">{p.stats?.assists || 0}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Floating Player Details */}
             {selectedPlayer && (
                 <PlayerDetailModal
                     player={selectedPlayer}
@@ -228,35 +240,64 @@ const RosterOverlay = ({ team, onClose }) => {
     );
 };
 
-const PlayerNode = ({ player, color, isGK, onClick }) => (
-    <div className="relative group cursor-pointer flex flex-col items-center" onClick={onClick}>
-        {/* Holographic Circle */}
-        <div
-            className={`
-                w-10 h-10 md:w-12 md:h-12 rounded-full border border-[#ffffff40] 
-                bg-black/40 backdrop-blur-sm flex items-center justify-center 
-                transition-all duration-300 group-hover:scale-110 
-                shadow-lg hover:shadow-[0_0_15px_var(--player-ptr-color)]
-                overflow-hidden
-                ${isGK ? 'border-yellow-400' : ''}
-            `}
-            style={{
-                '--player-ptr-color': color,
-                backgroundColor: isGK ? 'rgba(255, 200, 0, 0.2)' : 'rgba(0, 0, 0, 0.4)'
-            }}
-        >
-            {player.photo ? (
-                <img src={player.photo} alt={player.name} className="w-full h-full object-cover" />
-            ) : (
-                <span className="text-xs font-black text-white">{player.number || '?'}</span>
-            )}
+const PlayerHUDNode = ({ player, roleLabel, color, onClick }) => {
+    if (!player) return (
+        <div className="group/node flex flex-col items-center gap-2 opacity-20 filter grayscale">
+            <div className="w-10 h-10 rounded-full border border-dashed border-white/40 flex items-center justify-center">
+                <LayoutIcon size={16} className="text-white" />
+            </div>
+            <span className="text-[8px] font-mono text-white uppercase text-center px-2 bg-white/10 rounded">{roleLabel}</span>
         </div>
+    );
 
-        {/* Player Name Tag */}
-        <div className="mt-1 px-2 py-0.5 bg-black/60 rounded text-[9px] font-bold text-white uppercase tracking-wider backdrop-blur-md border border-[#ffffff10]">
-            {player.name.split(' ').pop()}
+    return (
+        <div
+            className="group/node cursor-pointer flex flex-col items-center transition-all duration-500 hover:z-50"
+            onClick={onClick}
+        >
+            {/* Holographic Avatar Circle */}
+            <div className="relative">
+                <div
+                    className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 p-1 bg-black/40 backdrop-blur-md transition-all duration-500 group-hover/node:scale-125 group-hover/node:shadow-[0_0_20px_var(--glow-color)]"
+                    style={{
+                        borderColor: `${color}40`,
+                        '--glow-color': color
+                    }}
+                >
+                    <div className="w-full h-full rounded-full overflow-hidden border border-white/10 bg-gradient-to-br from-white/10 to-transparent flex items-center justify-center">
+                        {player.photo ? (
+                            <img src={player.photo} className="w-full h-full object-cover group-hover/node:scale-110 transition-transform duration-700" alt={player.name} />
+                        ) : (
+                            <span className="text-lg font-black text-white">{player.number}</span>
+                        )}
+                    </div>
+                </div>
+
+                {/* HUD Rings */}
+                <div className="absolute -inset-1 border border-[#00d4ff]/10 rounded-full group-hover/node:animate-spin-slow transition-all group-hover/node:border-[#00d4ff]/40" />
+                <div className="absolute -inset-2 border border-white/5 rounded-full group-hover/node:scale-110 transition-all" />
+
+                {/* Position Marker */}
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#00d4ff] rounded border-2 border-black flex items-center justify-center text-[8px] font-black text-black z-20">
+                    {player.number}
+                </div>
+            </div>
+
+            {/* Floating Info Plate */}
+            <div className="mt-3 relative flex flex-col items-center">
+                <div className="px-3 py-1 bg-black/80 backdrop-blur-md border border-[#00d4ff]/20 rounded-md shadow-2xl skew-x-[-15deg] group-hover/node:border-[#00d4ff] group-hover/node:bg-[#00d4ff] group-hover/node:text-black transition-all duration-300">
+                    <span className="text-[10px] font-black uppercase tracking-tight whitespace-nowrap block skew-x-[15deg]">{player.name.split(' ').pop()}</span>
+                </div>
+
+                {/* HUD Data Bits */}
+                <div className="flex gap-1 mt-1 opacity-0 group-hover/node:opacity-100 transition-all duration-500 translate-y-2 group-hover/node:translate-y-0">
+                    <div className="w-1.5 h-0.5 bg-[#00d4ff] shadow-[0_0_5px_#00d4ff]" />
+                    <div className="w-1.5 h-0.5 bg-[#00d4ff] shadow-[0_0_5px_#00d4ff]" />
+                    <div className="w-1.5 h-0.5 bg-[#00d4ff] shadow-[0_0_5px_#00d4ff]" />
+                </div>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 export default RosterOverlay;

@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { X, Search, ChevronRight, ChevronLeft, Save, Shield, GripVertical } from 'lucide-react';
+import { FORMATIONS } from '../../utils/formations';
+
 
 const LineupModal = ({ match, teams = [], onClose, onSave }) => {
     const [allPlayers, setAllPlayers] = useState([]);
     const [teamARoster, setTeamARoster] = useState([]);
     const [teamBRoster, setTeamBRoster] = useState([]);
+    const [formationA, setFormationA] = useState(match.formations?.teamA || '4-4-2');
+    const [formationB, setFormationB] = useState(match.formations?.teamB || '4-4-2');
     const [availablePlayers, setAvailablePlayers] = useState([]);
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
@@ -88,7 +92,11 @@ const LineupModal = ({ match, teams = [], onClose, onSave }) => {
     const handleSave = () => {
         onSave({
             teamA: teamARoster.map(p => p.id),
-            teamB: teamBRoster.map(p => p.id)
+            teamB: teamBRoster.map(p => p.id),
+            formations: {
+                teamA: formationA,
+                teamB: formationB
+            }
         });
     };
 
@@ -140,7 +148,17 @@ const LineupModal = ({ match, teams = [], onClose, onSave }) => {
                     >
                         <div className="flex-none p-4 text-center border-b border-[#00f2ff]/20 bg-[#00f2ff]/10">
                             <h3 className="text-[#00f2ff] font-black uppercase text-xl">{teamAName}</h3>
-                            <div className="text-xs font-mono text-[#00f2ff]/60">{teamARoster.length} UNITS ASSIGNED</div>
+                            <div className="mt-2 mb-1 flex items-center justify-center gap-2">
+                                <span className="text-[10px] text-white/40 font-mono uppercase">Formation:</span>
+                                <select
+                                    value={formationA}
+                                    onChange={(e) => setFormationA(e.target.value)}
+                                    className="bg-black/40 border border-[#00f2ff]/30 text-[#00f2ff] text-[10px] font-black uppercase px-2 py-0.5 rounded outline-none"
+                                >
+                                    {Object.keys(FORMATIONS).map(f => <option key={f} value={f}>{f}</option>)}
+                                </select>
+                            </div>
+                            <div className="text-xs font-mono text-[#00f2ff]/60 uppercase tracking-widest">{teamARoster.length} UNITS ASSIGNED</div>
                         </div>
                         <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-0">
                             {filterList(teamARoster).map(p => (
@@ -198,7 +216,17 @@ const LineupModal = ({ match, teams = [], onClose, onSave }) => {
                     >
                         <div className="flex-none p-4 text-center border-b border-[#00f2ff]/20 bg-[#00f2ff]/10">
                             <h3 className="text-[#00f2ff] font-black uppercase text-xl">{teamBName}</h3>
-                            <div className="text-xs font-mono text-[#00f2ff]/60">{teamBRoster.length} UNITS ASSIGNED</div>
+                            <div className="mt-2 mb-1 flex items-center justify-center gap-2">
+                                <span className="text-[10px] text-white/40 font-mono uppercase">Formation:</span>
+                                <select
+                                    value={formationB}
+                                    onChange={(e) => setFormationB(e.target.value)}
+                                    className="bg-black/40 border border-[#00f2ff]/30 text-[#00f2ff] text-[10px] font-black uppercase px-2 py-0.5 rounded outline-none"
+                                >
+                                    {Object.keys(FORMATIONS).map(f => <option key={f} value={f}>{f}</option>)}
+                                </select>
+                            </div>
+                            <div className="text-xs font-mono text-[#00f2ff]/60 uppercase tracking-widest">{teamBRoster.length} UNITS ASSIGNED</div>
                         </div>
                         <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-0">
                             {filterList(teamBRoster).map(p => (

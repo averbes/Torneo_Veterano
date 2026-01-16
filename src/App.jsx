@@ -7,6 +7,7 @@ import StandingsTable from './components/StandingsTable'
 import TopStats from './components/TopStats'
 import DisciplineTable from './components/DisciplineTable'
 import MatchLineupDisplay from './components/MatchLineupDisplay'
+import { useSocket } from './hooks/useSocket'
 import { Users, User } from 'lucide-react'
 
 function App() {
@@ -17,6 +18,20 @@ function App() {
   const [selectedMatchShow, setSelectedMatchShow] = useState(null);
   const [loading, setLoading] = useState(true);
   const [matches, setMatches] = useState([]);
+
+  // Socket listener
+  useSocket((update) => {
+    console.log(">>> [UI]: Real-time update received:", update.type);
+
+    if (update.type === 'matches') setMatches(update.data);
+    if (update.type === 'standings') setStandings(update.data);
+    if (update.type === 'players') setPlayers(update.data);
+
+    // If it's standings, we need to re-enrich teams in 'data'
+    if (update.type === 'standings' || update.type === 'teams') {
+      fetchDashboardData(); // Simplest way to keep everything in sync
+    }
+  });
 
   // Fetch dashboard data on mount
   useEffect(() => {

@@ -30,10 +30,10 @@ Este documento detalla el estado actual del proyecto, las tareas completadas rec
 
 ## 🚀 Hoja de Ruta (Próximos Pasos)
 
-- [ ] **Fotos de Jugadores:** Implementar subida de imágenes para reemplazar avatares genéricos.
-- [ ] **Formaciones Dinámicas:** Permitir al admin elegir entre 4-4-2, 4-3-3, etc.
-- [ ] **Seguridad:** Implementar JWT para el login de administrador.
-- [ ] **WebSockets:** Actualización en tiempo real para clientes conectados.
+- [x] **Fotos de Jugadores:** Implementada subida de imágenes con multer y almacenamiento en servidor.
+- [x] **Formaciones Dinámicas:** Implementadas (4-4-2, 4-3-3, 3-5-2, 5-4-1) con selección en panel admin.
+- [x] **Seguridad:** Implementado JWT para el login de administrador y protección de rutas críticas.
+- [x] **WebSockets:** Implementada actualización en tiempo real con Socket.io para matches, jugadores y tablas.
 
 ---
 

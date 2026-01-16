@@ -18,10 +18,11 @@ const Login = ({ onLogin }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ password })
             });
-            await res.json();
+            const data = await res.json();
 
             if (res.ok) {
                 localStorage.setItem('neo-veterans-admin', 'true');
+                localStorage.setItem('admin-token', data.token);
                 onLogin();
                 navigate('/admin/dashboard');
             } else {

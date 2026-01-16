@@ -3,6 +3,7 @@ import multer from 'multer';
 import fs from 'fs';
 import csv from 'csv-parser';
 import { Team, Player } from '../db.js';
+import { emitUpdate } from '../socket.js';
 
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
@@ -32,6 +33,8 @@ router.post('/', async (req, res) => {
         });
 
         await newTeam.save();
+        const allTeams = await Team.find();
+        emitUpdate('teams', allTeams);
         res.status(201).json(newTeam);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -85,6 +88,9 @@ router.post('/upload', upload.single('roster'), async (req, res) => {
                 // Clean up file
                 fs.unlinkSync(req.file.path);
 
+                const allPlayers = await Player.find();
+                emitUpdate('players', allPlayers);
+
                 res.json({ success: true, count: newPlayers.length, players: newPlayers });
             });
     } catch (err) {
@@ -112,6 +118,8 @@ router.put('/:id', async (req, res) => {
         );
 
         if (!updatedTeam) return res.status(404).json({ error: "Team not found" });
+        const allTeams = await Team.find();
+        emitUpdate('teams', allTeams);
         res.json(updatedTeam);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -128,6 +136,11 @@ router.delete('/:id', async (req, res) => {
 
         // Also delete players from this team
         await Player.deleteMany({ teamId: id });
+
+        const allTeams = await Team.find();
+        const allPlayers = await Player.find();
+        emitUpdate('teams', allTeams);
+        emitUpdate('players', allPlayers);
 
         res.json({ message: "Team and its players removed" });
     } catch (err) {
