@@ -39,10 +39,10 @@ const TopStats = ({ players }) => {
 
     return (
         <div className="bg-[#ffffff05] border border-[#ffffff10] rounded-2xl backdrop-blur-sm overflow-hidden h-full flex flex-col">
-            <div className="p-6 border-b border-[#ffffff05] bg-white/5">
+            <div className="p-4 md:p-6 border-b border-[#ffffff05] bg-white/5">
                 <div className="flex items-center gap-3 mb-4">
-                    <div className="w-1 h-6 bg-[#7000ff]" />
-                    <h2 className="text-xl font-bold text-white uppercase tracking-tighter">Battle Stats</h2>
+                    <div className="w-1 h-5 md:h-6 bg-[#7000ff]" />
+                    <h2 className="text-lg md:text-xl font-bold text-white uppercase tracking-tighter">Battle Stats</h2>
                 </div>
 
                 {/* Category Picker */}
@@ -52,8 +52,8 @@ const TopStats = ({ players }) => {
                             key={key}
                             onClick={() => setActiveCategory(key)}
                             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${activeCategory === key
-                                    ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.05)]'
-                                    : 'text-white/30 hover:text-white/60'
+                                ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.05)]'
+                                : 'text-white/30 hover:text-white/60'
                                 }`}
                         >
                             {cat.icon}

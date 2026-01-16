@@ -70,7 +70,7 @@ const RosterOverlay = ({ team, onClose }) => {
     const tacticalLineup = getTacticalLayout();
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 md:p-8">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-8">
             {/* Holographic Background Layer */}
             <div
                 className="absolute inset-0 bg-[#050510]/98 backdrop-blur-3xl"
@@ -80,60 +80,60 @@ const RosterOverlay = ({ team, onClose }) => {
                     style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #00d4ff 1px, transparent 0)', backgroundSize: '40px 40px' }} />
             </div>
 
-            <div className="relative w-full max-w-7xl h-full max-h-[92vh] bg-[#0a0a1a] border border-[#00d4ff]/20 rounded-[2.5rem] overflow-hidden shadow-[0_0_150px_rgba(0,0,0,0.9)] flex flex-col group/modal">
+            <div className="relative w-full lg:max-w-7xl h-full lg:max-h-[92vh] bg-[#0a0a1a] border-t lg:border border-[#00d4ff]/20 lg:rounded-[2.5rem] overflow-hidden shadow-[0_0_150px_rgba(0,0,0,0.9)] flex flex-col group/modal">
 
                 {/* HUD Header */}
-                <div className="px-8 py-6 border-b border-[#00d4ff]/10 flex justify-between items-center bg-gradient-to-r from-[#00d4ff0a] to-transparent">
-                    <div className="flex items-center gap-8">
-                        <div className="relative">
-                            <div className="w-16 h-16 bg-black border border-[#00d4ff]/30 rounded-2xl flex items-center justify-center p-2 overflow-hidden group-hover:border-[#00d4ff] transition-all duration-500">
+                <div className="px-4 md:px-8 py-4 md:py-6 border-b border-[#00d4ff]/10 flex justify-between items-center bg-gradient-to-r from-[#00d4ff0a] to-transparent shrink-0">
+                    <div className="flex items-center gap-3 md:gap-8 overflow-hidden">
+                        <div className="relative shrink-0">
+                            <div className="w-10 h-10 md:w-16 md:h-16 bg-black border border-[#00d4ff]/30 rounded-xl md:rounded-2xl flex items-center justify-center p-1.5 md:p-2 overflow-hidden group-hover:border-[#00d4ff] transition-all duration-500">
                                 {team.logo && team.logo.startsWith('data:') ? (
                                     <img src={team.logo} className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(0,212,255,0.4)]" />
-                                ) : <Shield className="text-[#00d4ff] w-10 h-10" />}
+                                ) : <Shield className="text-[#00d4ff] w-6 h-6 md:w-10 md:h-10" />}
                             </div>
-                            <div className="absolute -inset-2 border-2 border-[#00d4ff]/10 rounded-[1.25rem] animate-[spin_10s_linear_infinite]" />
+                            <div className="absolute -inset-1.5 border-2 border-[#00d4ff]/10 rounded-xl md:rounded-[1.25rem] animate-[spin_10s_linear_infinite] hidden md:block" />
                         </div>
-                        <div>
-                            <div className="flex items-center gap-3">
-                                <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">
+                        <div className="min-w-0">
+                            <div className="flex items-center gap-2 md:gap-3">
+                                <h2 className="text-xl md:text-4xl font-black text-white uppercase tracking-tighter leading-none italic truncate">
                                     {team.name}
                                 </h2>
-                                <div className="px-2 py-0.5 bg-[#00d4ff] text-[#050510] text-[10px] font-black rounded-sm skew-x-[-20deg]">TACTICAL HUD v2.0</div>
+                                <div className="hidden sm:block px-2 py-0.5 bg-[#00d4ff] text-[#050510] text-[8px] md:text-[10px] font-black rounded-sm skew-x-[-20deg] shrink-0">TACTICAL HUD</div>
                             </div>
-                            <div className="flex items-center gap-4 mt-2">
-                                <div className="text-[10px] font-mono text-[#00d4ff] uppercase tracking-[0.4em] flex items-center gap-2">
-                                    <Zap size={10} className="animate-pulse" /> SQUAD SYNCHRONIZED
+                            <div className="flex items-center gap-2 md:gap-4 mt-1 md:mt-2">
+                                <div className="text-[7px] md:text-[10px] font-mono text-[#00d4ff] uppercase tracking-[0.2em] md:tracking-[0.4em] flex items-center gap-1 md:gap-2">
+                                    <Zap size={8} className="animate-pulse" /> <span className="hidden xs:inline">SQUAD SYNCHRONIZED</span>
                                 </div>
-                                <div className="h-1 w-24 bg-[#ffffff05] rounded-full overflow-hidden">
+                                <div className="h-0.5 md:h-1 w-12 md:w-24 bg-[#ffffff05] rounded-full overflow-hidden">
                                     <div className="h-full bg-[#00d4ff] w-3/4 animate-[pulse_2s_infinite]" />
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 md:gap-4 shrink-0">
                         <button
                             onClick={() => setStadiumMode(!stadiumMode)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl border font-black text-[10px] uppercase transition-all duration-300 ${stadiumMode
+                            className={`flex items-center gap-1.5 md:gap-2 px-2 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl border font-black text-[8px] md:text-[10px] uppercase transition-all duration-300 ${stadiumMode
                                 ? 'bg-[#00d4ff] text-[#050510] border-[#00f2ff] shadow-[0_0_20px_#00d4ff40]'
                                 : 'bg-white/5 text-white/40 border-white/10 hover:border-[#00d4ff]/50'
                                 }`}
                         >
-                            {stadiumMode ? <LayoutIcon size={14} /> : <Eye size={14} />}
-                            {stadiumMode ? 'DATA INTERFACE' : 'STADIUM MODE'}
+                            {stadiumMode ? <LayoutIcon size={12} /> : <Eye size={12} />}
+                            <span className="hidden xs:inline">{stadiumMode ? 'DATA' : 'STADIUM'}</span>
                         </button>
                         <button
                             onClick={onClose}
-                            className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 text-white/20 hover:bg-red-500/10 hover:text-red-500 border border-white/5 hover:border-red-500/30 transition-all duration-300 group/close"
+                            className="w-8 h-8 md:w-12 md:h-12 flex items-center justify-center rounded-lg md:rounded-2xl bg-white/5 text-white/20 hover:bg-red-500/10 hover:text-red-500 border border-white/5 hover:border-red-500/30 transition-all duration-300 group/close"
                         >
-                            <X className="group-hover/close:rotate-90 transition-transform duration-500" />
+                            <X size={18} className="group-hover/close:rotate-90 transition-transform duration-500" />
                         </button>
                     </div>
                 </div>
 
-                <div className="flex-grow overflow-hidden flex flex-col lg:flex-row">
+                <div className="flex-grow overflow-y-auto lg:overflow-hidden flex flex-col lg:flex-row">
                     {/* Tactical Theater */}
-                    <div className="w-full lg:w-2/3 relative flex items-center justify-center overflow-hidden bg-black border-r border-white/5 p-4 md:p-8">
+                    <div className="w-full lg:w-2/3 relative flex items-center justify-center overflow-hidden bg-black border-b lg:border-r border-white/5 p-4 md:p-8 shrink-0 min-h-[450px]">
                         {/* THE PITCH */}
                         <div className={`relative w-full aspect-[3/4] max-w-[500px] border-2 border-[#00d4ff]/20 rounded-2xl overflow-hidden transition-all duration-700 ${stadiumMode ? 'scale-[1.05] shadow-[0_0_80px_rgba(0,0,0,0.8)]' : ''
                             }`}>

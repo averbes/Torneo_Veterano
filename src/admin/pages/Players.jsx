@@ -189,28 +189,28 @@ const Players = () => {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* Header Area */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-3xl font-black text-white tracking-tighter">PLAYER <span className="text-[#00f2ff]">ROSTER</span></h2>
-                    <p className="text-[#ffffff50] text-sm font-mono mt-1 uppercase tracking-wider">Management & Authentication Protocol</p>
+                    <h2 className="text-2xl md:text-3xl font-black text-white tracking-tighter">PLAYER <span className="text-[#00f2ff]">ROSTER</span></h2>
+                    <p className="text-[#ffffff50] text-[10px] md:text-sm font-mono mt-1 uppercase tracking-wider">Management & Authentication Protocol</p>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#ffffff30]" size={18} />
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <div className="relative flex-grow">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#ffffff30]" size={16} />
                         <input
                             type="text"
-                            placeholder="SEARCH BY NAME or TEAM..."
+                            placeholder="SEARCH AGENT..."
                             value={search}
                             onChange={handleSearch}
-                            className="bg-[#ffffff05] border border-[#ffffff10] rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:border-[#00f2ff] outline-none transition-all w-64 font-mono"
+                            className="bg-[#ffffff05] border border-[#ffffff10] rounded-xl pl-10 pr-4 py-2.5 text-xs text-white focus:border-[#00f2ff] outline-none transition-all w-full lg:w-64 font-mono"
                         />
                     </div>
                     <button
                         onClick={openCreateModal}
-                        className="bg-[#00f2ff] hover:bg-[#00f2ff]/80 text-[#050510] font-black px-6 py-2 rounded-xl text-sm flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(0,242,255,0.2)]"
+                        className="bg-[#00f2ff] hover:bg-[#00f2ff]/80 text-[#050510] font-black px-6 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(0,242,255,0.2)]"
                     >
-                        <Plus size={18} />
+                        <Plus size={16} />
                         ENLIST PLAYER
                     </button>
                 </div>

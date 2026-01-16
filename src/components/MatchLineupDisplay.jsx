@@ -67,47 +67,47 @@ const MatchLineupDisplay = ({ match, onClose }) => {
     const teamBPlayers = players.filter(p => match.rosters?.teamB?.includes(p.id));
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 md:p-8 animate-in fade-in zoom-in duration-300">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-4 lg:p-8 animate-in fade-in zoom-in duration-300">
             <div className="absolute inset-0 bg-[#050510]/98 backdrop-blur-3xl" onClick={onClose} />
 
-            <div className="relative w-full max-w-6xl h-full max-h-[92vh] bg-[#0a0a1a] border border-[#00d4ff]/20 rounded-[2.5rem] overflow-hidden shadow-[0_0_150px_rgba(0,0,0,0.9)] flex flex-col">
+            <div className="relative w-full md:w-[95%] lg:max-w-6xl h-full md:h-[92vh] bg-[#0a0a1a] border-t md:border border-[#00d4ff]/20 rounded-none md:rounded-[2.5rem] overflow-hidden shadow-[0_0_150px_rgba(0,0,0,0.9)] flex flex-col">
 
                 {/* Header */}
-                <div className="px-8 py-5 border-b border-white/5 flex justify-between items-center bg-white/5">
-                    <div className="flex items-center gap-6">
-                        <div className="flex -space-x-4">
-                            <div className="w-12 h-12 bg-black border border-[#00d4ff]/30 rounded-full flex items-center justify-center p-1.5 z-10 shadow-[0_0_15px_#00d4ff20]">
-                                <img src={getTeamLogo(match.teamA)} className="w-full h-full object-contain" fallback={<Shield />} />
+                <div className="px-4 md:px-8 py-4 border-b border-white/5 flex justify-between items-center bg-white/5 shrink-0">
+                    <div className="flex items-center gap-3 md:gap-6">
+                        <div className="flex -space-x-3 md:-space-x-4">
+                            <div className="w-8 h-8 md:w-12 md:h-12 bg-black border border-[#00d4ff]/30 rounded-full flex items-center justify-center p-1 md:p-1.5 z-10 shadow-[0_0_15px_#00d4ff20]">
+                                <img src={getTeamLogo(match.teamA)} className="w-full h-full object-contain" />
                             </div>
-                            <div className="w-12 h-12 bg-black border border-red-500/30 rounded-full flex items-center justify-center p-1.5 z-0">
-                                <img src={getTeamLogo(match.teamB)} className="w-full h-full object-contain" fallback={<Shield />} />
+                            <div className="w-8 h-8 md:w-12 md:h-12 bg-black border border-red-500/30 rounded-full flex items-center justify-center p-1 md:p-1.5 z-0">
+                                <img src={getTeamLogo(match.teamB)} className="w-full h-full object-contain" />
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-2xl font-black text-white uppercase tracking-tighter leading-none italic">TACTICAL BATTLEFIELD</h2>
-                            <div className="text-[9px] font-mono text-[#00d4ff] uppercase tracking-[0.3em] mt-1 flex items-center gap-2">
-                                <Zap size={8} className="animate-pulse" /> OFFICIAL MATCH LINEUP // <User size={8} /> {match.referee || 'AutoRef'}
+                            <h2 className="text-sm md:text-2xl font-black text-white uppercase tracking-tighter leading-none italic">TACTICAL BATTLEFIELD</h2>
+                            <div className="text-[7px] md:text-[9px] font-mono text-[#00d4ff] uppercase tracking-[0.2em] md:tracking-[0.3em] mt-1 flex items-center gap-1 md:gap-2">
+                                <Zap size={6} className="animate-pulse" /> <span className="hidden sm:inline">OFFICIAL MATCH LINEUP // </span> <User size={6} /> {match.referee || 'AutoRef'}
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 md:gap-4">
                         <button
                             onClick={() => setStadiumMode(!stadiumMode)}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border font-black text-[9px] uppercase transition-all duration-300 ${stadiumMode
+                            className={`flex items-center gap-1.5 px-2 md:px-3 py-1 md:py-1.5 rounded-lg border font-black text-[8px] md:text-[9px] uppercase transition-all duration-300 ${stadiumMode
                                 ? 'bg-[#00d4ff] text-[#050510] border-[#00f2ff] shadow-[0_0_15px_#00d4ff40]'
                                 : 'bg-white/5 text-white/40 border-white/10 hover:border-[#00d4ff]/50'
                                 }`}
                         >
-                            {stadiumMode ? <LayoutIcon size={12} /> : <Eye size={12} />}
-                            {stadiumMode ? 'DATA' : 'STADIUM'}
+                            {stadiumMode ? <LayoutIcon size={10} /> : <Eye size={10} />}
+                            <span className="hidden xs:inline">{stadiumMode ? 'DATA' : 'STADIUM'}</span>
                         </button>
-                        <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                        <div className="hidden sm:flex bg-white/5 p-1 rounded-xl border border-white/10">
                             {[match.teamA, match.teamB].map(id => (
                                 <button
                                     key={id}
                                     onClick={() => setActiveTeamId(id)}
-                                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all duration-300 ${activeTeamId === id
+                                    className={`px-3 md:px-4 py-1.5 rounded-lg text-[9px] md:text-[10px] font-black uppercase transition-all duration-300 ${activeTeamId === id
                                         ? 'bg-[#00d4ff] text-[#050510] shadow-[0_0_15px_#00d4ff40]'
                                         : 'text-white/40 hover:text-white'
                                         }`}
@@ -118,17 +118,33 @@ const MatchLineupDisplay = ({ match, onClose }) => {
                         </div>
                         <button
                             onClick={onClose}
-                            className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 text-white/20 hover:text-red-500 transition-all"
+                            className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-lg md:rounded-xl bg-white/5 text-white/20 hover:text-red-500 transition-all"
                         >
-                            <X size={20} />
+                            <X size={18} />
                         </button>
                     </div>
                 </div>
 
-                <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
+                <div className="flex-1 overflow-y-auto lg:overflow-hidden flex flex-col lg:flex-row">
                     {/* Tactical View */}
-                    <div className="w-full lg:w-3/5 relative flex items-center justify-center bg-black p-4">
-                        <div className={`relative w-full aspect-[3/4] max-w-[450px] border border-[#00d4ff]/20 rounded-2xl overflow-hidden shadow-2xl transition-all duration-700 ${stadiumMode ? 'scale-[1.05]' : ''}`}>
+                    <div className="w-full lg:w-3/5 relative flex items-center justify-center bg-black p-4 shrink-0 min-h-[450px]">
+                        {/* Team Toggle for Mobile */}
+                        <div className="sm:hidden absolute top-4 left-1/2 -translate-x-1/2 z-20 flex bg-white/5 p-1 rounded-xl border border-white/10 backdrop-blur-md">
+                            {[match.teamA, match.teamB].map(id => (
+                                <button
+                                    key={id}
+                                    onClick={() => setActiveTeamId(id)}
+                                    className={`px-6 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all duration-300 ${activeTeamId === id
+                                        ? 'bg-[#00d4ff] text-[#050510]'
+                                        : 'text-white/40'
+                                        }`}
+                                >
+                                    {getTeamName(id).split(' ')[0]}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className={`relative w-full aspect-[3/4] max-w-[360px] md:max-w-[450px] border border-[#00d4ff]/20 rounded-2xl overflow-hidden shadow-2xl transition-all duration-700 ${stadiumMode ? 'scale-[1.02]' : ''}`}>
                             {!stadiumMode ? (
                                 <div className="absolute inset-0 bg-gradient-to-b from-[#1a0033] via-[#0a0a20] to-[#00d4ff10]" />
                             ) : (

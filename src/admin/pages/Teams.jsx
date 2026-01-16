@@ -164,14 +164,14 @@ const Teams = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h2 className="text-3xl font-black text-white tracking-tighter">SQUAD <span className="text-[#00f2ff]">CONTROL</span></h2>
-                    <p className="text-[#ffffff50] text-sm font-mono mt-1 uppercase">Franchise Management & Rosters</p>
+                    <h2 className="text-2xl md:text-3xl font-black text-white tracking-tighter">SQUAD <span className="text-[#00f2ff]">CONTROL</span></h2>
+                    <p className="text-[#ffffff50] text-[10px] md:text-sm font-mono mt-1 uppercase">Franchise Management & Rosters</p>
                 </div>
                 <button
                     onClick={openCreateModal}
-                    className="bg-[#00f2ff] text-[#050510] px-6 py-2 rounded-xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_20px_rgba(0,242,255,0.2)]"
+                    className="w-full sm:w-auto bg-[#00f2ff] text-[#050510] px-6 py-2.5 rounded-xl font-black text-xs hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_20px_rgba(0,242,255,0.2)]"
                 >
                     + NEW SQUAD
                 </button>

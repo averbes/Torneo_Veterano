@@ -15,20 +15,27 @@ const AdminFrontend = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
     useEffect(() => {
         const adminFlag = localStorage.getItem('neo-veterans-admin');
         if (adminFlag === 'true') {
             setIsAuthenticated(true);
         } else {
-            // If not authenticated and trying to access other than login, redirect
             if (location.pathname !== '/admin/login') {
                 navigate('/admin/login');
             }
         }
     }, [location, navigate]);
 
+    // Close sidebar on navigation (mobile)
+    useEffect(() => {
+        setIsSidebarOpen(false);
+    }, [location.pathname]);
+
     const handleLogout = () => {
         localStorage.removeItem('neo-veterans-admin');
+        localStorage.removeItem('admin-token');
         setIsAuthenticated(false);
         navigate('/admin/login');
     };
@@ -43,10 +50,21 @@ const AdminFrontend = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#050510] text-white flex">
+        <div className="min-h-screen bg-[#050510] text-white flex flex-col md:flex-row">
+            {/* Mobile Header */}
+            <header className="md:hidden flex items-center justify-between p-4 bg-[#0a0a1a] border-b border-[#ffffff10] sticky top-0 z-50">
+                <h1 className="text-lg font-bold tracking-tighter text-[#00f2ff]">NEO<span className="text-white">ADMIN</span></h1>
+                <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-white/60">
+                    <LayoutDashboard size={24} />
+                </button>
+            </header>
+
             {/* Sidebar */}
-            <aside className="w-64 border-r border-[#ffffff10] bg-[#0a0a1a] flex flex-col">
-                <div className="p-6 border-b border-[#ffffff10]">
+            <aside className={`
+                fixed inset-y-0 left-0 z-40 w-64 border-r border-[#ffffff10] bg-[#0a0a1a] flex flex-col transform transition-transform duration-300 md:translate-x-0 md:relative
+                ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+            `}>
+                <div className="hidden md:block p-6 border-b border-[#ffffff10]">
                     <h1 className="text-xl font-bold tracking-tighter text-[#00f2ff]">NEO<span className="text-white">ADMIN</span></h1>
                 </div>
 
@@ -70,16 +88,20 @@ const AdminFrontend = () => {
                 </div>
             </aside>
 
+            {/* Overlay for mobile sidebar */}
+            {isSidebarOpen && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden" onClick={() => setIsSidebarOpen(false)} />
+            )}
+
             {/* Main Content */}
-            <main className="flex-grow overflow-auto bg-gradient-to-br from-[#0a0a1a] to-[#050510]">
-                <div className="p-8">
+            <main className="flex-grow min-w-0 bg-gradient-to-br from-[#0a0a1a] to-[#050510]">
+                <div className="p-4 md:p-8">
                     <Routes>
                         <Route path="dashboard" element={<Dashboard />} />
                         <Route path="teams" element={<Teams />} />
                         <Route path="players" element={<Players />} />
                         <Route path="matches" element={<Matches />} />
                         <Route path="standings" element={<Standings />} />
-                        {/* Default to dashboard */}
                         <Route path="*" element={<Navigate to="/admin/dashboard" />} />
                     </Routes>
                 </div>

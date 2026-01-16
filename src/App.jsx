@@ -97,16 +97,16 @@ function App() {
     <Layout>
       <Header />
 
-      <div className="mt-12">
-        <div className="flex justify-between items-end mb-8">
+      <div className="mt-8 md:mt-12">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
           <div>
-            <h2 className="text-sm font-mono text-[#00f2ff] uppercase tracking-[0.3em] mb-2">Active Divisions</h2>
-            <h3 className="text-3xl font-black text-white">Tourney Groups</h3>
+            <h2 className="text-xs md:text-sm font-mono text-[#00f2ff] uppercase tracking-[0.3em] mb-1 md:mb-2">Active Divisions</h2>
+            <h3 className="text-2xl md:text-3xl font-black text-white">Tourney Groups</h3>
           </div>
-          <div className="hidden md:block text-right">
-            <div className="text-[10px] font-mono text-[#ffffff40] uppercase">System Status</div>
-            <div className="text-xs font-bold text-green-500 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          <div className="text-left md:text-right">
+            <div className="text-[9px] md:text-[10px] font-mono text-[#ffffff40] uppercase">System Status</div>
+            <div className="text-[11px] md:text-xs font-bold text-green-500 flex items-center gap-2">
+              <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-green-500 animate-pulse" />
               {loading ? 'Synchronizing Uplink...' : 'All Systems Operational'}
             </div>
           </div>
@@ -114,11 +114,11 @@ function App() {
 
         {loading ? (
           <div className="h-64 flex flex-col items-center justify-center gap-4">
-            <div className="w-12 h-12 border-4 border-[#00f2ff] border-t-transparent rounded-full animate-spin" />
-            <span className="text-xs font-mono text-[#00f2ff] animate-pulse">Establishing Neural Link...</span>
+            <div className="w-10 h-10 md:w-12 md:h-12 border-4 border-[#00f2ff] border-t-transparent rounded-full animate-spin" />
+            <span className="text-[10px] md:text-xs font-mono text-[#00f2ff] animate-pulse">Establishing Neural Link...</span>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
             {data.teams.length > 0 ? (
               data.teams.map(team => (
                 <TeamCard
@@ -128,8 +128,8 @@ function App() {
                 />
               ))
             ) : (
-              <div className="md:col-span-2 p-12 border border-dashed border-[#ffffff10] rounded-2xl text-center">
-                <p className="text-[#ffffff30] font-mono uppercase text-xs">No Active Teams Found In Database</p>
+              <div className="md:col-span-2 p-8 md:p-12 border border-dashed border-[#ffffff10] rounded-2xl text-center">
+                <p className="text-[#ffffff30] font-mono uppercase text-[10px] md:text-xs">No Active Teams Found In Database</p>
                 <button
                   onClick={() => fetchDashboardData()}
                   className="mt-4 px-6 py-2 bg-[#ffffff05] border border-[#ffffff10] text-xs text-white rounded-lg hover:bg-[#ffffff10]"
@@ -155,50 +155,42 @@ function App() {
                 {matches.map(match => {
                   const homeTeam = data.teams.find(t => t.id === match.teamA);
                   const awayTeam = data.teams.find(t => t.id === match.teamB);
-                  const hasLineup = match.rosters && (match.rosters.teamA?.length > 0 || match.rosters.teamB?.length > 0);
 
                   return (
-                    <div key={match.id} className="p-4 bg-[#00000020] border border-[#ffffff05] rounded-xl hover:border-[#ffffff10] transition-colors relative group">
-                      <div className="flex justify-between items-center mb-2">
-                        <div className="flex items-center gap-4 flex-1">
-                          <div className="text-right flex-1">
-                            <span className="text-white font-bold hidden md:block">{homeTeam?.name || 'Unknown'}</span>
-                            <span className="text-white font-bold md:hidden">{homeTeam?.name?.substring(0, 3) || '???'}</span>
+                    <div key={match.id} className="p-3 md:p-4 bg-[#00000020] border border-[#ffffff05] rounded-xl hover:border-[#ffffff10] transition-colors relative group">
+                      <div className="flex justify-between items-center mb-1 md:mb-2 gap-2">
+                        <div className="flex items-center gap-2 md:gap-4 flex-1 overflow-hidden">
+                          <div className="text-right flex-1 min-w-0">
+                            <span className="text-white text-xs md:text-sm font-bold truncate block">{homeTeam?.name || 'Unknown'}</span>
                           </div>
-                          <div className="w-10 h-10 flex items-center justify-center bg-[#ffffff05] rounded-full border border-[#ffffff10]">
-                            {homeTeam?.logo && homeTeam.logo.startsWith('data:') ? (
+                          <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center bg-[#ffffff05] rounded-full border border-[#ffffff10] shrink-0">
+                            {homeTeam?.logo ? (
                               <img src={homeTeam.logo} alt={homeTeam.name} className="w-full h-full object-contain p-1" />
                             ) : (
-                              <span className="text-lg">{homeTeam?.logo || '🛡️'}</span>
+                              <span className="text-sm md:text-lg">🛡️</span>
                             )}
                           </div>
                         </div>
 
-                        <div className="px-4 flex flex-col items-center min-w-[100px]">
-                          <div className="text-2xl font-black text-white tracking-widest">
+                        <div className="px-2 md:px-4 flex flex-col items-center min-w-[70px] md:min-w-[100px]">
+                          <div className="text-lg md:text-2xl font-black text-white tracking-widest shrink-0">
                             {match.status === 'finished' ? `${match.score.teamA} - ${match.score.teamB}` : 'VS'}
                           </div>
-                          <div className="text-[10px] font-mono uppercase text-[#ffffff40] mt-1">
-                            {match.status === 'finished' ? 'Final Score' : match.time}
+                          <div className="text-[8px] md:text-[10px] font-mono uppercase text-[#ffffff40] mt-0.5">
+                            {match.status === 'finished' ? 'Final' : match.time}
                           </div>
-                          {match.referee && (
-                            <div className="text-[8px] font-mono uppercase text-[#ffffff20] mt-1 flex items-center gap-1">
-                              <User size={8} /> {match.referee}
-                            </div>
-                          )}
                         </div>
 
-                        <div className="flex items-center gap-4 flex-1">
-                          <div className="w-10 h-10 flex items-center justify-center bg-[#ffffff05] rounded-full border border-[#ffffff10]">
-                            {awayTeam?.logo && awayTeam.logo.startsWith('data:') ? (
+                        <div className="flex items-center gap-2 md:gap-4 flex-1 overflow-hidden">
+                          <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center bg-[#ffffff05] rounded-full border border-[#ffffff10] shrink-0">
+                            {awayTeam?.logo ? (
                               <img src={awayTeam.logo} alt={awayTeam.name} className="w-full h-full object-contain p-1" />
                             ) : (
-                              <span className="text-lg">{awayTeam?.logo || '🛡️'}</span>
+                              <span className="text-sm md:text-lg">🛡️</span>
                             )}
                           </div>
-                          <div className="text-left flex-1">
-                            <span className="text-white font-bold hidden md:block">{awayTeam?.name || 'Unknown'}</span>
-                            <span className="text-white font-bold md:hidden">{awayTeam?.name?.substring(0, 3) || '???'}</span>
+                          <div className="text-left flex-1 min-w-0">
+                            <span className="text-white text-xs md:text-sm font-bold truncate block">{awayTeam?.name || 'Unknown'}</span>
                           </div>
                         </div>
                       </div>

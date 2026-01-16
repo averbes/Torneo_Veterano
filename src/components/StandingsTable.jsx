@@ -3,9 +3,9 @@ import React from 'react';
 const StandingsTable = ({ standings, teams }) => {
     return (
         <div className="bg-[#ffffff05] border border-[#ffffff10] rounded-2xl backdrop-blur-sm overflow-hidden">
-            <div className="p-6 border-b border-[#ffffff05]">
-                <h2 className="text-xl font-bold text-[#00f2ff] flex items-center gap-3">
-                    <div className="w-1 h-6 bg-[#00f2ff]" />
+            <div className="p-4 md:p-6 border-b border-[#ffffff05]">
+                <h2 className="text-lg md:text-xl font-bold text-[#00f2ff] flex items-center gap-3">
+                    <div className="w-1 h-5 md:h-6 bg-[#00f2ff]" />
                     League Standings
                 </h2>
             </div>
