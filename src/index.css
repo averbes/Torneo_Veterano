@@ -134,13 +134,18 @@ select {
   padding-right: 4rem !important;
 }
 
-/* Enlarge Native Calendar & Time Pickers */
+/* Enlarge Native Calendar & Time Pickers for Desktop */
+@media (min-width: 1024px) {
+  input[type="date"],
+  input[type="time"] {
+    zoom: 1.8;
+  }
+}
+
 input[type="date"],
 input[type="time"] {
   position: relative;
   cursor: pointer;
-  /* Extreme zoom to force major scaling of the native picker popup */
-  zoom: 1.8;
   font-weight: 900 !important;
 }
 

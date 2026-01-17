@@ -361,15 +361,15 @@ const Players = () => {
             {isModalOpen && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-[#000000a0] backdrop-blur-md" onClick={() => setIsModalOpen(false)}></div>
-                    <div className="relative bg-[#0a0a1a] border border-[#ffffff15] rounded-3xl w-full max-w-6xl overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)] animate-in zoom-in-95 duration-200">
-                        <div className="px-10 py-8 border-b border-[#ffffff10] flex items-center justify-between bg-[#ffffff03]">
-                            <h3 className="text-4xl font-black text-white uppercase tracking-tighter">
+                    <div className="relative bg-[#0a0a1a] border border-[#ffffff15] rounded-3xl w-full max-w-6xl max-h-[95vh] flex flex-col overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)] animate-in zoom-in-95 duration-200">
+                        <div className="px-6 py-4 md:px-10 md:py-8 border-b border-[#ffffff10] flex items-center justify-between bg-[#ffffff03] shrink-0">
+                            <h3 className="text-xl md:text-4xl font-black text-white uppercase tracking-tighter">
                                 {editingPlayer ? 'RECONFIGURE' : 'ENLIST'} PLAYER <span className="text-[#00f2ff]">DEVICES</span>
                             </h3>
-                            <button onClick={() => setIsModalOpen(false)} className="text-[#ffffff40] hover:text-[#ff0055] transition-colors p-2 hover:bg-white/5 rounded-full"><X size={32} /></button>
+                            <button onClick={() => setIsModalOpen(false)} className="text-[#ffffff40] hover:text-[#ff0055] transition-colors p-2 hover:bg-white/5 rounded-full"><X size={24} className="md:hidden" /><X size={32} className="hidden md:block" /></button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-6">
+                        <form onSubmit={handleSubmit} className="p-4 md:p-10 overflow-y-auto custom-scrollbar">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {/* Basic Info */}
                                 <div className="space-y-4">

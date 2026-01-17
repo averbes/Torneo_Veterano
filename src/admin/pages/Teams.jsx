@@ -247,12 +247,12 @@ const Teams = () => {
             {isModalOpen && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-[#000000a0] backdrop-blur-md" onClick={() => setIsModalOpen(false)}></div>
-                    <div className="relative bg-[#0a0a1a] border border-[#ffffff15] rounded-3xl w-full max-w-4xl overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)] animate-in zoom-in-95 duration-200">
-                        <div className="px-10 py-8 border-b border-[#ffffff10] flex items-center justify-between font-black uppercase text-white tracking-widest text-3xl bg-[#ffffff03]">
+                    <div className="relative bg-[#0a0a1a] border border-[#ffffff15] rounded-3xl w-full max-w-4xl max-h-[95vh] flex flex-col overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)] animate-in zoom-in-95 duration-200">
+                        <div className="px-6 py-4 md:px-10 md:py-8 border-b border-[#ffffff10] flex items-center justify-between font-black uppercase text-white tracking-widest text-xl md:text-3xl bg-[#ffffff03] shrink-0">
                             <span>{editingTeam ? 'COMMAND' : 'INITIALIZE'} SQUAD</span>
-                            <button onClick={() => setIsModalOpen(false)} className="text-[#ffffff20] hover:text-[#ff0055] transition-colors p-2 hover:bg-white/5 rounded-full"><X size={36} /></button>
+                            <button onClick={() => setIsModalOpen(false)} className="text-[#ffffff20] hover:text-[#ff0055] transition-colors p-2 hover:bg-white/5 rounded-full"><X size={24} className="md:hidden" /><X size={36} className="hidden md:block" /></button>
                         </div>
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                        <form onSubmit={handleSubmit} className="p-4 md:p-10 space-y-4 overflow-y-auto custom-scrollbar">
                             <div>
                                 <label className="block text-lg font-black text-[#ffffff60] mb-3 font-mono uppercase tracking-widest">Squad Name</label>
                                 <input name="name" value={formData.name} onChange={handleInputChange} required className="w-full bg-[#ffffff05] border-2 border-[#ffffff10] rounded-2xl px-8 py-6 text-3xl text-white outline-none focus:border-[#00f2ff] focus:bg-[#ffffff08] transition-all font-black" />
@@ -313,7 +313,7 @@ const Teams = () => {
                             )}
 
                             <div className="pt-4">
-                                <button type="submit" className="w-full py-8 bg-[#00f2ff] text-[#050510] font-black uppercase tracking-[0.3em] rounded-2xl text-4xl hover:scale-[1.03] active:scale-95 transition-all shadow-[0_0_60px_rgba(0,242,255,0.5)]">
+                                <button type="submit" className="w-full py-4 md:py-8 bg-[#00f2ff] text-[#050510] font-black uppercase tracking-[0.3em] rounded-2xl text-xl md:text-4xl hover:scale-[1.03] active:scale-95 transition-all shadow-[0_0_60px_rgba(0,242,255,0.5)]">
                                     {editingTeam ? 'CONFIRM SYNC' : 'INITIALIZE SQUAD'}
                                 </button>
                             </div>
