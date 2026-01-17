@@ -16,7 +16,8 @@ Forzar la instalación de los binarios de Linux añadiéndolos explícitamente a
 ```json
 "optionalDependencies": {
   "@rollup/rollup-linux-x64-gnu": "^4.22.4",
-  "lightningcss-linux-x64-gnu": "^1.30.2"
+  "lightningcss-linux-x64-gnu": "^1.30.2",
+  "@tailwindcss/oxide-linux-x64-gnu": "4.1.18"
 }
 ```
 
