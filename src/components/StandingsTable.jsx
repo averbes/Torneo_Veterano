@@ -41,7 +41,7 @@ const StandingsTable = ({ standings, teams }) => {
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 flex items-center justify-center bg-[#ffffff05] rounded-lg border border-[#ffffff10] p-1">
-                                                {team?.logo && team.logo.startsWith('data:') ? (
+                                                {team?.logo && (team.logo.startsWith('data:') || team.logo.startsWith('http')) ? (
                                                     <img src={team.logo} alt={team.name} className="w-full h-full object-contain" />
                                                 ) : (
                                                     <span className="text-sm">{team?.logo || '🛡️'}</span>
