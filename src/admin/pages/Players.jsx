@@ -489,8 +489,14 @@ const Players = () => {
                                                     onChange={async (e) => {
                                                         const file = e.target.files[0];
                                                         if (file) {
+                                                            if (file.size > 5 * 1024 * 1024) {
+                                                                setFormError("IMAGE TOO LARGE (MAX 5MB)");
+                                                                return;
+                                                            }
+
                                                             const formDataUpload = new FormData();
                                                             formDataUpload.append('image', file);
+
                                                             try {
                                                                 const res = await fetch('/api/upload/image', {
                                                                     method: 'POST',
@@ -499,13 +505,18 @@ const Players = () => {
                                                                     },
                                                                     body: formDataUpload
                                                                 });
+
                                                                 const data = await res.json();
-                                                                if (data.url) {
+
+                                                                if (res.ok && data.url) {
                                                                     setFormData(prev => ({ ...prev, photo: data.url }));
+                                                                    setFormError('');
+                                                                } else {
+                                                                    setFormError(data.error || "PHOTO UPLOAD FAILED");
                                                                 }
                                                             } catch (err) {
                                                                 console.error("Upload failed", err);
-                                                                setFormError("Photo upload failed");
+                                                                setFormError("CONNECTION ERROR: UPLOAD INTERRUPTED");
                                                             }
                                                         }
                                                     }}

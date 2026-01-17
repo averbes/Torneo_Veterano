@@ -18,15 +18,33 @@ const AdminFrontend = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     useEffect(() => {
-        const adminFlag = localStorage.getItem('neo-veterans-admin');
-        if (adminFlag === 'true') {
-            setIsAuthenticated(true);
-        } else {
-            if (location.pathname !== '/admin/login') {
-                navigate('/admin/login');
+        const verifyToken = async () => {
+            const token = localStorage.getItem('admin-token');
+            const adminFlag = localStorage.getItem('neo-veterans-admin');
+
+            if (!token || adminFlag !== 'true') {
+                if (location.pathname !== '/admin/login') {
+                    navigate('/admin/login');
+                }
+                return;
             }
-        }
-    }, [location, navigate]);
+
+            try {
+                const res = await fetch('/api/admin/verify', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    setIsAuthenticated(true);
+                } else {
+                    handleLogout();
+                }
+            } catch (_) {
+                handleLogout();
+            }
+        };
+
+        verifyToken();
+    }, [location.pathname]); // Only re-run when path changes
 
     // Close sidebar on navigation (mobile)
     useEffect(() => {
