@@ -13,9 +13,10 @@ router.get('/', async (req, res) => {
     try {
         const { data: teams, error } = await supabase.from('teams').select('*');
         if (error) throw error;
-        res.json(teams);
+        res.json(teams || []);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error(">>> [API ERROR] /api/teams:", err.message);
+        res.json([]);
     }
 });
 

@@ -10,16 +10,16 @@ router.get('/', async (req, res) => {
         if (error) throw error;
 
         // Map team stats to standing format
-        const standings = teams.map(t => ({
+        const standings = (teams || []).map(t => ({
             teamId: t.id,
-            points: t.wins * 3 + t.draws,
-            played: t.wins + t.draws + t.losses,
-            won: t.wins,
-            drawn: t.draws,
-            lost: t.losses,
-            gf: t.goals_for,
-            ga: t.goals_against,
-            gd: t.goals_for - t.goals_against,
+            points: (t.wins || 0) * 3 + (t.draws || 0),
+            played: (t.wins || 0) + (t.draws || 0) + (t.losses || 0),
+            won: t.wins || 0,
+            drawn: t.draws || 0,
+            lost: t.losses || 0,
+            gf: t.goals_for || 0,
+            ga: t.goals_against || 0,
+            gd: (t.goals_for || 0) - (t.goals_against || 0),
             team: t
         }));
 
@@ -28,7 +28,8 @@ router.get('/', async (req, res) => {
 
         res.json(standings);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error(">>> [API ERROR] /api/standings:", err.message);
+        res.json([]);
     }
 });
 

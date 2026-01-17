@@ -21,14 +21,15 @@ router.get('/', async (req, res) => {
         const { data: players, error } = await query;
         if (error) throw error;
 
-        const playersWithTeamInfo = players.map(p => ({
+        const playersWithTeamInfo = (players || []).map(p => ({
             ...p,
             teamName: p.teams?.name || 'Unknown'
         }));
 
         res.json(playersWithTeamInfo);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error(">>> [API ERROR] /api/players:", err.message);
+        res.json([]);
     }
 });
 

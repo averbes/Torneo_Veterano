@@ -13,17 +13,18 @@ router.get('/', async (req, res) => {
         // Fetch events for each match (simplified for now, can be optimized with a join)
         const { data: events } = await supabase.from('match_events').select('*');
 
-        const enrichedMatches = matches.map(m => ({
+        const enrichedMatches = (matches || []).map(m => ({
             ...m,
             teamA: m.team_a, // Compatibility with frontend if it expects teamA
             teamB: m.team_b,
             score: { teamA: m.score_a, teamB: m.score_b },
-            events: events.filter(e => e.match_id === m.id)
+            events: (events || []).filter(e => e.match_id === m.id)
         }));
 
         res.json(enrichedMatches);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error(">>> [API ERROR] /api/matches:", err.message);
+        res.json([]);
     }
 });
 
