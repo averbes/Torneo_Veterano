@@ -50,6 +50,12 @@ async function bootstrap() {
         app.use('/api/standings', standingsRoutes);
         app.use('/api/upload', uploadRoutes);
 
+        // Global Error Logger for API
+        app.use('/api', (err, req, res, next) => {
+            console.error(`>>> [API ERROR] ${req.method} ${req.path}:`, err);
+            res.status(500).json({ error: err.message || 'Internal Server Error' });
+        });
+
 
         // Files
         app.use('/uploads', express.static(join(process.cwd(), 'uploads')));

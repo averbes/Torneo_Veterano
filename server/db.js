@@ -4,11 +4,27 @@ import 'dotenv/config';
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 
+let supabase;
+
 if (!supabaseUrl || !supabaseKey) {
-    console.error(">>> [DB]: MISSING SUPABASE CREDENTIALS IN .ENV");
+    console.error(">>> [DB]: ERROR - SUPABASE_URL or SUPABASE_KEY is missing in environment variables!");
+    // We create a proxy or a dummy client that throws a helpful message when used
+    supabase = {
+        from: () => ({
+            select: () => ({
+                insert: () => ({ select: () => ({ single: () => Promise.resolve({ error: { message: 'Supabase credentials missing safely' } }) }) }),
+                eq: () => ({ single: () => Promise.resolve({ error: { message: 'Supabase credentials missing safely' } }) }),
+                limit: () => Promise.resolve({ error: { message: 'Supabase credentials missing safely' } })
+            }),
+            delete: () => ({ eq: () => Promise.resolve({ error: { message: 'Supabase credentials missing safely' } }) })
+        }),
+        storage: { from: () => ({ upload: () => Promise.resolve({ error: { message: 'Supabase credentials missing safely' } }) }) }
+    };
+} else {
+    supabase = createClient(supabaseUrl, supabaseKey);
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export { supabase };
 
 export async function initDB() {
     console.log(`>>> [DB]: Initializing Supabase Connection...`);
