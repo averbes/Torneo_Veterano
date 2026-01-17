@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, X, Calendar, MapPin, User, Info, CheckCircle, Clock, Users, Play } from 'lucide-react';
+import { Plus, X, Calendar, MapPin, User, Info, CheckCircle, Clock, Users, Play, Download } from 'lucide-react';
+import ReportGenerator from '../components/ReportGenerator';
 import LineupModal from '../components/LineupModal';
 
 const Matches = () => {
@@ -234,31 +235,34 @@ const Matches = () => {
             <div className="flex justify-between items-center">
                 <div>
                     <h2 className="text-3xl font-black text-white tracking-tighter">BATTLE <span className="text-[#00f2ff]">LOGS</span></h2>
-                    <p className="text-[#ffffff50] text-sm font-mono mt-1 uppercase">Match Scheduling & Results</p>
+                    <p className="text-[#ffffff50] text-sm font-mono mt-1 uppercase">Match Scheduling & Results Protocol</p>
                 </div>
-                <button
-                    onClick={() => {
-                        setEditingMatch(null);
-                        setFormData({
-                            teamA: teams[0]?.id || '',
-                            teamB: teams[1]?.id || '',
-                            date: '',
-                            time: '',
-                            field: 'Neo Stadium',
-                            referee: 'AutoRef',
-                            status: 'scheduled',
-                            scoreA: 0,
-                            scoreB: 0
-                        });
-                        setIsModalOpen(true);
-                    }}
-                    className="bg-[#00f2ff] text-[#050510] px-6 py-2 rounded-xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_20px_rgba(0,242,255,0.2)]"
-                >
-                    + ADD FIXTURE
-                </button>
+                <div className="flex gap-4 items-center">
+                    <ReportGenerator targetId="matches-report" fileName="CALENDARIO_PARTIDOS" title="FIXTURES EXPORT" />
+                    <button
+                        onClick={() => {
+                            setEditingMatch(null);
+                            setFormData({
+                                teamA: teams[0]?.id || '',
+                                teamB: teams[1]?.id || '',
+                                date: '',
+                                time: '',
+                                field: 'Neo Stadium',
+                                referee: 'AutoRef',
+                                status: 'scheduled',
+                                scoreA: 0,
+                                scoreB: 0
+                            });
+                            setIsModalOpen(true);
+                        }}
+                        className="bg-[#00f2ff] text-[#050510] px-6 py-2 rounded-xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_20px_rgba(0,242,255,0.2)]"
+                    >
+                        + ADD FIXTURE
+                    </button>
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <div id="matches-report" className="grid grid-cols-1 xl:grid-cols-2 gap-4 bg-[#050510] p-4 rounded-3xl border border-white/5">
                 {matches.map(match => (
                     <div key={match.id} className="bg-[#ffffff02] border border-[#ffffff08] rounded-2xl p-6 backdrop-blur-sm relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-2 flex gap-2">
@@ -287,7 +291,7 @@ const Matches = () => {
                         <div className="flex items-center justify-between gap-4 mb-6">
                             <div className="flex-1 text-center">
                                 <div className="w-20 h-20 mx-auto mb-3 flex items-center justify-center bg-[#ffffff05] rounded-2xl border border-[#ffffff10] overflow-hidden">
-                                    {teams.find(t => t.id === match.teamA)?.logo && teams.find(t => t.id === match.teamA)?.logo.startsWith('data:') ? (
+                                    {teams.find(t => t.id === match.teamA)?.logo && (teams.find(t => t.id === match.teamA)?.logo.startsWith('data:') || teams.find(t => t.id === match.teamA)?.logo.startsWith('http')) ? (
                                         <img src={teams.find(t => t.id === match.teamA)?.logo} alt="Logo" className="w-full h-full object-contain p-2" />
                                     ) : (
                                         <span className="text-4xl">{teams.find(t => t.id === match.teamA)?.logo || '🛡️'}</span>
@@ -306,7 +310,7 @@ const Matches = () => {
 
                             <div className="flex-1 text-center">
                                 <div className="w-20 h-20 mx-auto mb-3 flex items-center justify-center bg-[#ffffff05] rounded-2xl border border-[#ffffff10] overflow-hidden">
-                                    {teams.find(t => t.id === match.teamB)?.logo && teams.find(t => t.id === match.teamB)?.logo.startsWith('data:') ? (
+                                    {teams.find(t => t.id === match.teamB)?.logo && (teams.find(t => t.id === match.teamB)?.logo.startsWith('data:') || teams.find(t => t.id === match.teamB)?.logo.startsWith('http')) ? (
                                         <img src={teams.find(t => t.id === match.teamB)?.logo} alt="Logo" className="w-full h-full object-contain p-2" />
                                     ) : (
                                         <span className="text-4xl">{teams.find(t => t.id === match.teamB)?.logo || '🛡️'}</span>

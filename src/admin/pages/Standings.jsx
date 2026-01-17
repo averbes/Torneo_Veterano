@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy, ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import ReportGenerator from '../components/ReportGenerator';
 
 const Standings = () => {
     const [standings, setStandings] = useState([]);
@@ -128,100 +129,108 @@ const Standings = () => {
 
     return (
         <div className="space-y-6">
-            <div>
-                <h2 className="text-3xl font-black text-white tracking-tighter">LEAGUE <span className="text-[#00f2ff]">STANDINGS</span></h2>
-                <p className="text-[#ffffff50] text-sm font-mono mt-1 uppercase tracking-widest">Global Ranking & Division Stats</p>
-            </div>
-
-            <div className="bg-[#ffffff02] border border-[#ffffff08] rounded-2xl overflow-hidden backdrop-blur-sm">
-                <table className="w-full text-left">
-                    <thead className="bg-[#ffffff05] border-b border-[#ffffff08]">
-                        <tr>
-                            <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center w-16">Rank</th>
-                            <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase">Squad Identity</th>
-                            <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center">P</th>
-                            <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center">W</th>
-                            <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center">D</th>
-                            <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center">L</th>
-                            <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center">GF</th>
-                            <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center">GA</th>
-                            <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center">GD</th>
-                            <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center font-bold text-white">PTS</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[#ffffff05]">
-                        {standings.length > 0 ? (
-                            standings.map((entry, index) => {
-                                const team = getTeamInfo(entry.teamId);
-                                return (
-                                    <tr key={entry.teamId} className={`group transition-colors ${index < 3 ? 'bg-[#00f2ff]/05' : 'hover:bg-[#ffffff02]'}`}>
-                                        <td className="p-4 text-center">
-                                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black mx-auto ${index === 0 ? 'bg-yellow-500/20 text-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.3)]' :
-                                                index === 1 ? 'bg-slate-300/20 text-slate-300' :
-                                                    index === 2 ? 'bg-amber-700/20 text-amber-600' :
-                                                        'text-[#ffffff20] font-mono'
-                                                }`}>
-                                                {index + 1}
-                                            </div>
-                                        </td>
-                                        <td className="p-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 flex items-center justify-center bg-[#ffffff05] rounded-xl border border-[#ffffff10] overflow-hidden">
-                                                    {team.logo && team.logo.startsWith('data:') ? (
-                                                        <img src={team.logo} alt="Logo" className="w-full h-full object-contain p-1" />
-                                                    ) : (
-                                                        <span className="text-2xl">{team.logo || '🛡️'}</span>
-                                                    )}
-                                                </div>
-                                                <span className="font-bold text-white uppercase tracking-tight">{team.name}</span>
-                                            </div>
-                                        </td>
-                                        <td className="p-4 text-center font-mono text-[#ffffff50]">{entry.played}</td>
-                                        <td className="p-4 text-center font-mono text-[#ffffff50]">{entry.won}</td>
-                                        <td className="p-4 text-center font-mono text-[#ffffff50]">{entry.drawn}</td>
-                                        <td className="p-4 text-center font-mono text-[#ffffff50]">{entry.lost}</td>
-                                        <td className="p-4 text-center font-mono text-[#ffffff50]">{entry.gf}</td>
-                                        <td className="p-4 text-center font-mono text-[#ffffff50]">{entry.ga}</td>
-                                        <td className="p-4 text-center font-mono">
-                                            <span className={`font-bold ${entry.gd > 0 ? 'text-green-400' : entry.gd < 0 ? 'text-red-400' : 'text-[#ffffff50]'}`}>
-                                                {entry.gd > 0 ? '+' : ''}{entry.gd}
-                                            </span>
-                                        </td>
-                                        <td className="p-4 text-center">
-                                            <span className="text-lg font-black text-[#00f2ff] drop-shadow-[0_0_8px_rgba(0,242,255,0.4)]">{entry.points}</span>
-                                        </td>
-                                    </tr>
-                                );
-                            })
-                        ) : (
-                            <tr>
-                                <td colSpan="10" className="p-12 text-center text-[#ffffff20] font-mono uppercase italic">
-                                    No combat data recorded yet...
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
-
-            <div className="bg-[#00f2ff]/05 border border-[#00f2ff]/10 rounded-2xl p-6 flex items-start gap-4">
-                <Trophy className="text-[#00f2ff] shrink-0" size={24} />
+            <div className="flex justify-between items-center">
                 <div>
-                    <h4 className="text-white font-bold uppercase tracking-widest text-sm mb-1">League Protocol</h4>
-                    <p className="text-[#ffffff50] text-xs leading-relaxed">
-                        Standings are updated automatically upon match finalization. Rank priority: Points &gt; Goal Difference &gt; Goals Scored.
-                        Elite squads (Top 1) qualify for the Grand Final Championship.
-                    </p>
+                    <h2 className="text-3xl font-black text-white tracking-tighter">LEAGUE <span className="text-[#00f2ff]">STANDINGS</span></h2>
+                    <p className="text-[#ffffff50] text-sm font-mono mt-1 uppercase tracking-widest">Global Ranking & Division Stats</p>
+                </div>
+                <ReportGenerator targetId="standings-report" fileName="TABLA_POSICIONES" title="STANDINGS EXPORT" />
+            </div>
+
+            <div id="standings-report" className="space-y-6 bg-[#050510] p-4 rounded-3xl border border-white/5">
+                <div className="bg-[#ffffff02] border border-[#ffffff08] rounded-2xl overflow-hidden backdrop-blur-sm">
+                    <table className="w-full text-left">
+                        <thead className="bg-[#ffffff05] border-b border-[#ffffff08]">
+                            <tr>
+                                <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center w-16">Rank</th>
+                                <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase">Squad Identity</th>
+                                <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center">P</th>
+                                <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center">W</th>
+                                <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center">D</th>
+                                <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center">L</th>
+                                <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center">GF</th>
+                                <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center">GA</th>
+                                <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center">GD</th>
+                                <th className="p-4 text-[10px] font-mono text-[#ffffff30] uppercase text-center font-bold text-white">PTS</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#ffffff05]">
+                            {standings.length > 0 ? (
+                                standings.map((entry, index) => {
+                                    const team = getTeamInfo(entry.teamId);
+                                    return (
+                                        <tr key={entry.teamId} className={`group transition-colors ${index < 3 ? 'bg-[#00f2ff]/05' : 'hover:bg-[#ffffff02]'}`}>
+                                            <td className="p-4 text-center">
+                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black mx-auto ${index === 0 ? 'bg-yellow-500/20 text-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.3)]' :
+                                                    index === 1 ? 'bg-slate-300/20 text-slate-300' :
+                                                        index === 2 ? 'bg-amber-700/20 text-amber-600' :
+                                                            'text-[#ffffff20] font-mono'
+                                                    }`}>
+                                                    {index + 1}
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 flex items-center justify-center bg-[#ffffff05] rounded-xl border border-[#ffffff10] overflow-hidden">
+                                                        {team.logo && (team.logo.startsWith('data:') || team.logo.startsWith('http')) ? (
+                                                            <img src={team.logo} alt="Logo" className="w-full h-full object-contain p-1" />
+                                                        ) : (
+                                                            <span className="text-2xl">{team.logo || '🛡️'}</span>
+                                                        )}
+                                                    </div>
+                                                    <span className="font-bold text-white uppercase tracking-tight">{team.name}</span>
+                                                </div>
+                                            </td>
+                                            <td className="p-4 text-center font-mono text-[#ffffff50]">{entry.played}</td>
+                                            <td className="p-4 text-center font-mono text-[#ffffff50]">{entry.won}</td>
+                                            <td className="p-4 text-center font-mono text-[#ffffff50]">{entry.drawn}</td>
+                                            <td className="p-4 text-center font-mono text-[#ffffff50]">{entry.lost}</td>
+                                            <td className="p-4 text-center font-mono text-[#ffffff50]">{entry.gf}</td>
+                                            <td className="p-4 text-center font-mono text-[#ffffff50]">{entry.ga}</td>
+                                            <td className="p-4 text-center font-mono">
+                                                <span className={`font-bold ${entry.gd > 0 ? 'text-green-400' : entry.gd < 0 ? 'text-red-400' : 'text-[#ffffff50]'}`}>
+                                                    {entry.gd > 0 ? '+' : ''}{entry.gd}
+                                                </span>
+                                            </td>
+                                            <td className="p-4 text-center">
+                                                <span className="text-lg font-black text-[#00f2ff] drop-shadow-[0_0_8px_rgba(0,242,255,0.4)]">{entry.points}</span>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            ) : (
+                                <tr>
+                                    <td colSpan="10" className="p-12 text-center text-[#ffffff20] font-mono uppercase italic">
+                                        No combat data recorded yet...
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div className="bg-[#00f2ff]/05 border border-[#00f2ff]/10 rounded-2xl p-6 flex items-start gap-4">
+                    <Trophy className="text-[#00f2ff] shrink-0" size={24} />
+                    <div>
+                        <h4 className="text-white font-bold uppercase tracking-widest text-sm mb-1">League Protocol</h4>
+                        <p className="text-[#ffffff50] text-xs leading-relaxed">
+                            Standings are updated automatically upon match finalization. Rank priority: Points &gt; Goal Difference &gt; Goals Scored.
+                            Elite squads (Top 1) qualify for the Grand Final Championship.
+                        </p>
+                    </div>
                 </div>
             </div>
 
             {/* Player Goals Table */}
-            <div className="mt-8">
-                <div className="mb-4">
+            <div className="flex justify-between items-center mt-8 mb-4">
+                <div>
                     <h2 className="text-3xl font-black text-white tracking-tighter">TOP SCORERS <span className="text-[#00f2ff]">MANAGER</span></h2>
                     <p className="text-[#ffffff50] text-sm font-mono mt-1 uppercase tracking-widest">Player Goals Registry</p>
                 </div>
+                <ReportGenerator targetId="top-scorers-report" fileName="TABLA_GOLEO" title="SCORERS EXPORT" />
+            </div>
 
+            <div id="top-scorers-report" className="bg-[#050510] p-4 rounded-3xl border border-white/5">
                 <div className="bg-[#ffffff02] border border-[#ffffff08] rounded-2xl overflow-hidden backdrop-blur-sm">
                     <table className="w-full text-left">
                         <thead className="bg-[#ffffff05] border-b border-[#ffffff08]">
@@ -338,12 +347,15 @@ const Standings = () => {
             </div>
 
             {/* Player Cards Table */}
-            <div className="mt-8">
-                <div className="mb-4">
+            <div className="flex justify-between items-center mt-8 mb-4">
+                <div>
                     <h2 className="text-3xl font-black text-white tracking-tighter">DISCIPLINARY <span className="text-yellow-400">RECORDS</span></h2>
                     <p className="text-[#ffffff50] text-sm font-mono mt-1 uppercase tracking-widest">Player Cards Registry</p>
                 </div>
+                <ReportGenerator targetId="discipline-report" fileName="TABLA_DISCIPLINA" title="CARDS EXPORT" />
+            </div>
 
+            <div id="discipline-report" className="bg-[#050510] p-4 rounded-3xl border border-white/5">
                 <div className="bg-[#ffffff02] border border-[#ffffff08] rounded-2xl overflow-hidden backdrop-blur-sm">
                     <table className="w-full text-left">
                         <thead className="bg-[#ffffff05] border-b border-[#ffffff08]">

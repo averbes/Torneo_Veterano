@@ -80,6 +80,16 @@ router.put('/:id', async (req, res) => {
         if (error) throw error;
         if (!match) return res.status(404).json({ error: "Match not found" });
 
+        if (updates.status === 'finished') {
+            const { data: teamA } = await supabase.from('teams').select('name').eq('id', match.team_a).single();
+            const { data: teamB } = await supabase.from('teams').select('name').eq('id', match.team_b).single();
+            emitUpdate('alert', {
+                type: 'MATCH_END',
+                message: `FINAL WHISTLE: ${teamA?.name} ${match.score_a} - ${match.score_b} ${teamB?.name}`,
+                matchId: id
+            });
+        }
+
         await recalculateAll();
         res.json(match);
     } catch (err) {
@@ -112,6 +122,37 @@ router.post('/:id/events', async (req, res) => {
             else if (match.team_b === teamId) updates.score_b = match.score_b + 1;
 
             await supabase.from('matches').update(updates).eq('id', id);
+        }
+
+        // NEW: Emit rich alert for the frontend
+        try {
+            const { data: player } = await supabase.from('players').select('name, nickname').eq('id', playerId).single();
+            const { data: team } = await supabase.from('teams').select('name').eq('id', teamId).single();
+
+            let alertMsg = "";
+            let alertType = "INFO";
+
+            if (type === 'goal') {
+                alertMsg = `GOAL! ${player?.nickname || player?.name} scores for ${team?.name}!`;
+                alertType = "GOAL";
+            } else if (type === 'yellow_card') {
+                alertMsg = `YELLOW CARD: ${player?.name} (${team?.name})`;
+                alertType = "CARD";
+            } else if (type === 'red_card') {
+                alertMsg = `RED CARD! ${player?.name} sent off! (${team?.name})`;
+                alertType = "CARD";
+            } else if (type === 'assist') {
+                alertMsg = `AST: ${player?.name} provided a tactical assist.`;
+            }
+
+            emitUpdate('alert', {
+                type: alertType,
+                message: alertMsg,
+                matchId: id,
+                minute: minute || '??'
+            });
+        } catch (alertErr) {
+            console.error("Alert generation failed:", alertErr);
         }
 
         await recalculateAll();

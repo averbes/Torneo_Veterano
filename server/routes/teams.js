@@ -11,9 +11,16 @@ const upload = multer({ dest: 'uploads/' });
 // GET /teams
 router.get('/', async (req, res) => {
     try {
-        const { data: teams, error } = await supabase.from('teams').select('*');
+        const { data: teams, error } = await supabase.from('teams').select('*').order('name');
         if (error) throw error;
-        res.json(teams || []);
+
+        const mappedTeams = (teams || []).map(t => ({
+            ...t,
+            franchiseId: t.franchise_id,
+            // Keep snake_case keys too for safety, but provide camelCase
+        }));
+
+        res.json(mappedTeams);
     } catch (err) {
         console.error(">>> [API ERROR] /api/teams:", err.message);
         res.json([]);

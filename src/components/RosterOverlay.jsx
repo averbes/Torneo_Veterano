@@ -87,7 +87,7 @@ const RosterOverlay = ({ team, onClose }) => {
                     <div className="flex items-center gap-3 md:gap-8 overflow-hidden">
                         <div className="relative shrink-0">
                             <div className="w-10 h-10 md:w-16 md:h-16 bg-black border border-[#00d4ff]/30 rounded-xl md:rounded-2xl flex items-center justify-center p-1.5 md:p-2 overflow-hidden group-hover:border-[#00d4ff] transition-all duration-500">
-                                {team.logo && team.logo.startsWith('data:') ? (
+                                {team.logo && (team.logo.startsWith('data:') || team.logo.startsWith('http')) ? (
                                     <img src={team.logo} className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(0,212,255,0.4)]" />
                                 ) : <Shield className="text-[#00d4ff] w-6 h-6 md:w-10 md:h-10" />}
                             </div>

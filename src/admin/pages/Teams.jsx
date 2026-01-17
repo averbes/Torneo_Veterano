@@ -24,7 +24,13 @@ const Teams = () => {
         try {
             const res = await fetch('/api/teams');
             const data = await res.json();
-            setTeams(data || []);
+            // Map snake_case from DB to camelCase for frontend
+            const mappedTeams = (data || []).map(t => ({
+                ...t,
+                franchiseId: t.franchise_id,
+                logo: t.logo || '🛡️'
+            }));
+            setTeams(mappedTeams);
         } catch (_) {
             console.error("Error fetching teams");
         } finally {
@@ -44,7 +50,7 @@ const Teams = () => {
         setEditingTeam(team);
         setFormData({
             name: team.name,
-            franchiseId: team.franchiseId || '',
+            franchiseId: team.franchiseId || team.franchise_id || '',
             logo: team.logo || '',
             status: team.status || 'active'
         });
@@ -192,7 +198,7 @@ const Teams = () => {
                             <tr key={team.id} className="group hover:bg-[#ffffff03] transition-colors">
                                 <td className="p-4 flex items-center gap-6">
                                     <div className="w-16 h-16 flex items-center justify-center bg-[#ffffff05] rounded-xl border border-[#ffffff10] overflow-hidden">
-                                        {team.logo && team.logo.startsWith('data:') ? (
+                                        {team.logo && (team.logo.startsWith('data:') || team.logo.startsWith('http')) ? (
                                             <img src={team.logo} alt={team.name} className="w-full h-full object-contain" />
                                         ) : (
                                             <span className="text-3xl">{team.logo || '🛡️'}</span>
@@ -266,8 +272,10 @@ const Teams = () => {
                                     <label className="block text-lg font-black text-[#ffffff60] mb-3 font-mono uppercase tracking-widest">Team Identity Logo</label>
                                     <div className="relative group">
                                         <div className="w-full h-56 bg-[#ffffff05] border-2 border-dashed border-[#ffffff15] rounded-3xl flex flex-col items-center justify-center overflow-hidden transition-all group-hover:border-[#00f2ff]/30">
-                                            {logoPreview ? (
+                                            {logoPreview && (logoPreview.startsWith('http') || logoPreview.startsWith('data:')) ? (
                                                 <img src={logoPreview} className="w-full h-full object-contain p-4" alt="Preview" />
+                                            ) : logoPreview ? (
+                                                <div className="text-8xl flex items-center justify-center">{logoPreview}</div>
                                             ) : (
                                                 <div className="flex flex-col items-center gap-4 text-[#ffffff20]">
                                                     <Upload size={48} />

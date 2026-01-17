@@ -7,11 +7,14 @@ import StandingsTable from './components/StandingsTable'
 import TopStats from './components/TopStats'
 import DisciplineTable from './components/DisciplineTable'
 import MatchLineupDisplay from './components/MatchLineupDisplay'
+import StatsDashboard from './components/StatsDashboard'
+import NotificationOverlay from './components/NotificationOverlay'
 import { useSocket } from './hooks/useSocket'
-import { Users, User } from 'lucide-react'
+import { Users, User, BarChart3, LayoutGrid } from 'lucide-react'
 
 function App() {
   const [data, setData] = useState({ teams: [] });
+  const [viewMode, setViewMode] = useState('standard');
   const [standings, setStandings] = useState([]);
   const [players, setPlayers] = useState([]);
   const [selectedTeam, setSelectedTeam] = useState(null);
@@ -100,8 +103,26 @@ function App() {
       <div className="mt-8 md:mt-12">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
           <div>
-            <h2 className="text-xs md:text-sm font-mono text-[#00f2ff] uppercase tracking-[0.3em] mb-1 md:mb-2">Active Divisions</h2>
-            <h3 className="text-2xl md:text-3xl font-black text-white">Tourney Groups</h3>
+            <h2 className="text-xs md:text-sm font-mono text-[#00f2ff] uppercase tracking-[0.3em] mb-1 md:mb-2 text-glow">Tactical Terminal</h2>
+            <div className="flex items-center gap-4">
+              <h3 className="text-2xl md:text-3xl font-black text-white">Tourney Overview</h3>
+              <div className="flex bg-[#ffffff05] rounded-lg p-1 border border-[#ffffff10]">
+                <button
+                  onClick={() => setViewMode('standard')}
+                  className={`p-1.5 rounded-md transition-all ${viewMode === 'standard' ? 'bg-[#00f2ff] text-[#050510]' : 'text-[#ffffff40] hover:text-white'}`}
+                  title="Standard View"
+                >
+                  <LayoutGrid size={18} />
+                </button>
+                <button
+                  onClick={() => setViewMode('advanced')}
+                  className={`p-1.5 rounded-md transition-all ${viewMode === 'advanced' ? 'bg-[#00f2ff] text-[#050510]' : 'text-[#ffffff40] hover:text-white'}`}
+                  title="Advanced Analytics"
+                >
+                  <BarChart3 size={18} />
+                </button>
+              </div>
+            </div>
           </div>
           <div className="text-left md:text-right">
             <div className="text-[9px] md:text-[10px] font-mono text-[#ffffff40] uppercase">System Status</div>
@@ -112,33 +133,37 @@ function App() {
           </div>
         </div>
 
-        {loading ? (
-          <div className="h-64 flex flex-col items-center justify-center gap-4">
-            <div className="w-10 h-10 md:w-12 md:h-12 border-4 border-[#00f2ff] border-t-transparent rounded-full animate-spin" />
-            <span className="text-[10px] md:text-xs font-mono text-[#00f2ff] animate-pulse">Establishing Neural Link...</span>
-          </div>
+        {viewMode === 'advanced' ? (
+          <StatsDashboard matches={matches} teams={data.teams} />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-            {data.teams.length > 0 ? (
-              data.teams.map(team => (
-                <TeamCard
-                  key={team.id}
-                  team={team}
-                  onManage={handleManageRoster}
-                />
-              ))
-            ) : (
-              <div className="md:col-span-2 p-8 md:p-12 border border-dashed border-[#ffffff10] rounded-2xl text-center">
-                <p className="text-[#ffffff30] font-mono uppercase text-[10px] md:text-xs">No Active Teams Found In Database</p>
-                <button
-                  onClick={() => fetchDashboardData()}
-                  className="mt-4 px-6 py-2 bg-[#ffffff05] border border-[#ffffff10] text-xs text-white rounded-lg hover:bg-[#ffffff10]"
-                >
-                  Retry Scan
-                </button>
-              </div>
-            )}
-          </div>
+          loading ? (
+            <div className="h-64 flex flex-col items-center justify-center gap-4">
+              <div className="w-10 h-10 md:w-12 md:h-12 border-4 border-[#00f2ff] border-t-transparent rounded-full animate-spin" />
+              <span className="text-[10px] md:text-xs font-mono text-[#00f2ff] animate-pulse">Establishing Neural Link...</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+              {data.teams.length > 0 ? (
+                data.teams.map(team => (
+                  <TeamCard
+                    key={team.id}
+                    team={team}
+                    onManage={handleManageRoster}
+                  />
+                ))
+              ) : (
+                <div className="md:col-span-2 p-8 md:p-12 border border-dashed border-[#ffffff10] rounded-2xl text-center">
+                  <p className="text-[#ffffff30] font-mono uppercase text-[10px] md:text-xs">No Active Teams Found In Database</p>
+                  <button
+                    onClick={() => fetchDashboardData()}
+                    className="mt-4 px-6 py-2 bg-[#ffffff05] border border-[#ffffff10] text-xs text-white rounded-lg hover:bg-[#ffffff10]"
+                  >
+                    Retry Scan
+                  </button>
+                </div>
+              )}
+            </div>
+          )
         )}
       </div>
 
@@ -243,6 +268,8 @@ function App() {
           onClose={() => setSelectedMatchShow(null)}
         />
       )}
+
+      <NotificationOverlay />
 
     </Layout>
   );

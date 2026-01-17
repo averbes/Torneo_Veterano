@@ -10,17 +10,26 @@
   --animate-glitch-2: glitch-2 2s linear infinite;
 
   @keyframes scan {
+
     0%,
     100% {
       transform: translateY(0);
       opacity: 0;
     }
-    10% { opacity: 0.5; }
+
+    10% {
+      opacity: 0.5;
+    }
+
     50% {
       transform: translateY(280px);
       opacity: 0.5;
     }
-    90% { opacity: 0.5; }
+
+    90% {
+      opacity: 0.5;
+    }
+
     100% {
       transform: translateY(280px);
       opacity: 0;
@@ -28,11 +37,13 @@
   }
 
   @keyframes scan-modal {
+
     0%,
     100% {
       transform: translateY(0);
       opacity: 0;
     }
+
     50% {
       transform: translateY(400px);
       opacity: 0.3;
@@ -40,11 +51,13 @@
   }
 
   @keyframes pulse-slow {
+
     0%,
     100% {
       opacity: 0.3;
       transform: scale(1);
     }
+
     50% {
       opacity: 0.5;
       transform: scale(1.05);
@@ -52,26 +65,67 @@
   }
 
   @keyframes pulse-fast {
-    0%, 100% { opacity: 0.4; }
-    50% { opacity: 1; }
+
+    0%,
+    100% {
+      opacity: 0.4;
+    }
+
+    50% {
+      opacity: 1;
+    }
   }
 
   @keyframes glitch-1 {
-    0% { transform: translate(0); }
-    20% { transform: translate(-2px, 2px); }
-    40% { transform: translate(-2px, -2px); }
-    60% { transform: translate(2px, 2px); }
-    80% { transform: translate(2px, -2px); }
-    100% { transform: translate(0); }
+    0% {
+      transform: translate(0);
+    }
+
+    20% {
+      transform: translate(-2px, 2px);
+    }
+
+    40% {
+      transform: translate(-2px, -2px);
+    }
+
+    60% {
+      transform: translate(2px, 2px);
+    }
+
+    80% {
+      transform: translate(2px, -2px);
+    }
+
+    100% {
+      transform: translate(0);
+    }
   }
 
   @keyframes glitch-2 {
-    0% { transform: translate(0); }
-    20% { transform: translate(2px, -2px); }
-    40% { transform: translate(2px, 2px); }
-    60% { transform: translate(-2px, -2px); }
-    80% { transform: translate(-2px, 2px); }
-    100% { transform: translate(0); }
+    0% {
+      transform: translate(0);
+    }
+
+    20% {
+      transform: translate(2px, -2px);
+    }
+
+    40% {
+      transform: translate(2px, 2px);
+    }
+
+    60% {
+      transform: translate(-2px, -2px);
+    }
+
+    80% {
+      transform: translate(-2px, 2px);
+    }
+
+    100% {
+      transform: translate(0);
+    }
   }
 }
 
@@ -136,6 +190,7 @@ select {
 
 /* Enlarge Native Calendar & Time Pickers for Desktop */
 @media (min-width: 1024px) {
+
   input[type="date"],
   input[type="time"] {
     zoom: 1.8;
@@ -177,4 +232,96 @@ input:focus,
 select:focus {
   background-color: rgba(255, 255, 255, 0.08) !important;
   box-shadow: 0 0 30px rgba(0, 242, 255, 0.15);
+}
+
+@keyframes scan-notif {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes progress-notif {
+  0% {
+    width: 100%;
+  }
+
+  100% {
+    width: 0%;
+  }
+}
+
+@keyframes glitch-1 {
+  0% {
+    transform: translate(0)
+  }
+
+  20% {
+    transform: translate(-2px, 2px)
+  }
+
+  40% {
+    transform: translate(-2px, -2px)
+  }
+
+  60% {
+    transform: translate(2px, 2px)
+  }
+
+  80% {
+    transform: translate(2px, -2px)
+  }
+
+  100% {
+    transform: translate(0)
+  }
+}
+
+@keyframes glitch-2 {
+  0% {
+    transform: translate(0)
+  }
+
+  20% {
+    transform: translate(2px, -2px)
+  }
+
+  40% {
+    transform: translate(2px, 2px)
+  }
+
+  60% {
+    transform: translate(-2px, -2px)
+  }
+
+  80% {
+    transform: translate(-2px, 2px)
+  }
+
+  100% {
+    transform: translate(0)
+  }
+}
+
+.animate-scan-notif {
+  animation: scan-notif 3s linear infinite;
+}
+
+.animate-progress-notif {
+  animation: progress-notif 8s linear forwards;
+}
+
+.animate-glitch-1 {
+  animation: glitch-1 2s linear infinite;
+}
+
+.animate-glitch-2 {
+  animation: glitch-2 2s linear infinite;
+}
+
+.animate-spin-slow {
+  animation: spin 8s linear infinite;
 }

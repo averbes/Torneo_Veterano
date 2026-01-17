@@ -22,7 +22,7 @@ const TeamCard = ({ team, onManage }) => {
                 <div className="flex justify-between items-start mb-6">
                     <div className="flex items-center gap-6">
                         <div className="w-28 h-28 flex items-center justify-center bg-[#ffffff05] rounded-3xl border border-[#ffffff10] overflow-hidden shadow-2xl">
-                            {team.logo && team.logo.startsWith('data:') ? (
+                            {team.logo && (team.logo.startsWith('data:') || team.logo.startsWith('http')) ? (
                                 <img src={team.logo} alt={team.name} className="w-full h-full object-contain p-2" />
                             ) : (
                                 <span className="text-6xl filter drop-shadow-[0_0_15px_var(--team-color)]">{team.logo || '🛡️'}</span>

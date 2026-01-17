@@ -23,7 +23,22 @@ router.get('/', async (req, res) => {
 
         const playersWithTeamInfo = (players || []).map(p => ({
             ...p,
-            teamName: p.teams?.name || 'Unknown'
+            teamName: p.teams?.name || 'Unknown',
+            // Map snake_case from DB back to camelCase for frontend consistency
+            attrPace: p.attr_pace,
+            attrShooting: p.attr_shooting,
+            attrPassing: p.attr_passing,
+            attrDribbling: p.attr_dribbling,
+            attrDefending: p.attr_defending,
+            attrPhysical: p.attr_physical,
+            // Stats mapping
+            stats: {
+                goals: p.goals || 0,
+                assists: p.assists || 0,
+                yellowCards: p.yellow_cards || 0,
+                redCards: p.red_cards || 0,
+                minutes: p.minutes || 0
+            }
         }));
 
         res.json(playersWithTeamInfo);
@@ -52,7 +67,8 @@ router.post('/', async (req, res) => {
     const {
         name, nickname, photo, birthDate, position, teamId,
         number, nationality, height, weight, preferredFoot,
-        joinDate, status
+        joinDate, status,
+        attrPace, attrShooting, attrPassing, attrDribbling, attrDefending, attrPhysical
     } = req.body;
 
     if (!name) return res.status(400).json({ error: "Name is required" });
@@ -88,7 +104,13 @@ router.post('/', async (req, res) => {
             assists: 0,
             yellow_cards: 0,
             red_cards: 0,
-            minutes: 0
+            minutes: 0,
+            attr_pace: parseInt(attrPace) || 50,
+            attr_shooting: parseInt(attrShooting) || 50,
+            attr_passing: parseInt(attrPassing) || 50,
+            attr_dribbling: parseInt(attrDribbling) || 50,
+            attr_defending: parseInt(attrDefending) || 50,
+            attr_physical: parseInt(attrPhysical) || 50
         }).select().single();
 
         if (error) throw error;
@@ -114,6 +136,12 @@ router.put('/:id', async (req, res) => {
     if (updates.joinDate) { mappedUpdates.join_date = updates.joinDate; delete mappedUpdates.joinDate; }
     if (updates.yellowCards) { mappedUpdates.yellow_cards = updates.yellowCards; delete mappedUpdates.yellowCards; }
     if (updates.redCards) { mappedUpdates.red_cards = updates.redCards; delete mappedUpdates.redCards; }
+    if (updates.attrPace) { mappedUpdates.attr_pace = updates.attrPace; delete mappedUpdates.attrPace; }
+    if (updates.attrShooting) { mappedUpdates.attr_shooting = updates.attrShooting; delete mappedUpdates.attrShooting; }
+    if (updates.attrPassing) { mappedUpdates.attr_passing = updates.attrPassing; delete mappedUpdates.attrPassing; }
+    if (updates.attrDribbling) { mappedUpdates.attr_dribbling = updates.attrDribbling; delete mappedUpdates.attrDribbling; }
+    if (updates.attrDefending) { mappedUpdates.attr_defending = updates.attrDefending; delete mappedUpdates.attrDefending; }
+    if (updates.attrPhysical) { mappedUpdates.attr_physical = updates.attrPhysical; delete mappedUpdates.attrPhysical; }
 
     try {
         const { data: player, error: fetchError } = await supabase.from('players').select('*').eq('id', id).single();
@@ -147,6 +175,66 @@ router.put('/:id', async (req, res) => {
         emitUpdate('players', allPlayers);
         res.json(updatedPlayer);
     } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// GET /players/:id/history - Get player's match performance
+router.get('/:id/history', async (req, res) => {
+    try {
+        const { id } = req.params;
+        // Fetch events for this player including match data
+        const { data: events, error } = await supabase
+            .from('match_events')
+            .select(`
+                *,
+                matches (
+                    id,
+                    date,
+                    time,
+                    team_a,
+                    team_b,
+                    score_a,
+                    score_b,
+                    teams_a:team_a(name),
+                    teams_b:team_b(name)
+                )
+            `)
+            .eq('player_id', id)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Group by match
+        const historyMap = (events || []).reduce((acc, event) => {
+            const m = event.matches;
+            if (!m) return acc;
+
+            if (!acc[m.id]) {
+                const isTeamA = m.team_a === event.team_id;
+                acc[m.id] = {
+                    matchId: m.id,
+                    date: m.date,
+                    result: `${m.score_a} - ${m.score_b}`,
+                    opponent: isTeamA ? m.teams_b?.name : m.teams_a?.name,
+                    goals: 0,
+                    assists: 0,
+                    yellowCards: 0,
+                    redCards: 0
+                };
+            }
+
+            if (event.type === 'goal') acc[m.id].goals++;
+            if (event.type === 'assist') acc[m.id].assists++;
+            if (event.type === 'yellow_card') acc[m.id].yellowCards++;
+            if (event.type === 'red_card') acc[m.id].redCards++;
+
+            return acc;
+        }, {});
+
+        res.json(Object.values(historyMap));
+    } catch (err) {
+        console.error("History Error:", err.message);
         res.status(500).json({ error: err.message });
     }
 });

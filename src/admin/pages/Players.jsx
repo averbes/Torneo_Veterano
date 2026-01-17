@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import {
     Search, Plus, Edit, Trash2, Eye,
     X, ChevronLeft, ChevronRight, Info,
-    User, Shield, MapPin, Ruler, Weight, Footprints, Calendar, Hash
+    User, Shield, MapPin, Ruler, Weight, Footprints, Calendar, Hash, Target, Zap, Activity
 } from 'lucide-react';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 
 const Players = () => {
     const [players, setPlayers] = useState([]);
@@ -18,6 +19,15 @@ const Players = () => {
     const [selectedPlayer, setSelectedPlayer] = useState(null);
     const [formError, setFormError] = useState('');
 
+    const radarData = selectedPlayer ? [
+        { subject: 'PAC', A: selectedPlayer.attrPace || 50, fullMark: 100 },
+        { subject: 'SHO', A: selectedPlayer.attrShooting || 50, fullMark: 100 },
+        { subject: 'PAS', A: selectedPlayer.attrPassing || 50, fullMark: 100 },
+        { subject: 'DRI', A: selectedPlayer.attrDribbling || 50, fullMark: 100 },
+        { subject: 'DEF', A: selectedPlayer.attrDefending || 50, fullMark: 100 },
+        { subject: 'PHY', A: selectedPlayer.attrPhysical || 50, fullMark: 100 },
+    ] : [];
+
     const [formData, setFormData] = useState({
         name: '',
         nickname: '',
@@ -30,7 +40,14 @@ const Players = () => {
         weight: '',
         preferredFoot: 'Right',
         joinDate: new Date().toISOString().split('T')[0],
-        status: 'Active'
+        status: 'Active',
+        photo: '',
+        attrPace: 50,
+        attrShooting: 50,
+        attrPassing: 50,
+        attrDribbling: 50,
+        attrDefending: 50,
+        attrPhysical: 50
     });
 
     useEffect(() => {
@@ -87,7 +104,13 @@ const Players = () => {
             preferredFoot: 'Right',
             joinDate: new Date().toISOString().split('T')[0],
             status: 'Active',
-            photo: ''
+            photo: '',
+            attrPace: 50,
+            attrShooting: 50,
+            attrPassing: 50,
+            attrDribbling: 50,
+            attrDefending: 50,
+            attrPhysical: 50
         });
         setFormError('');
         setIsModalOpen(true);
@@ -108,7 +131,13 @@ const Players = () => {
             preferredFoot: player.preferredFoot || 'Right',
             joinDate: player.joinDate || new Date().toISOString().split('T')[0],
             status: player.status || 'Active',
-            photo: player.photo || ''
+            photo: player.photo || '',
+            attrPace: player.attrPace || 50,
+            attrShooting: player.attrShooting || 50,
+            attrPassing: player.attrPassing || 50,
+            attrDribbling: player.attrDribbling || 50,
+            attrDefending: player.attrDefending || 50,
+            attrPhysical: player.attrPhysical || 50
         });
         setFormError('');
         setIsModalOpen(true);
@@ -500,6 +529,37 @@ const Players = () => {
                                 </div>
                             </div>
 
+                            {/* Attributes Section */}
+                            <div className="mt-8 pt-8 border-t border-[#ffffff10]">
+                                <h4 className="text-lg font-mono text-[#00f2ff] uppercase tracking-widest mb-6 text-center">BATTLE PROTOCOL (ATTRIBUTES)</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                    {[
+                                        { label: 'RITMO (PAC)', key: 'attrPace', color: '#00f2ff' },
+                                        { label: 'TIRO (SHO)', key: 'attrShooting', color: '#ff0055' },
+                                        { label: 'PASE (PAS)', key: 'attrPassing', color: '#00ff88' },
+                                        { label: 'REGATE (DRI)', key: 'attrDribbling', color: '#ffd700' },
+                                        { label: 'DEFENSA (DEF)', key: 'attrDefending', color: '#7000ff' },
+                                        { label: 'FÍSICO (PHY)', key: 'attrPhysical', color: '#ff8800' }
+                                    ].map((attr) => (
+                                        <div key={attr.key} className="space-y-4 bg-[#ffffff03] p-6 rounded-2xl border border-[#ffffff05]">
+                                            <div className="flex justify-between items-center">
+                                                <label className="text-xs font-black text-[#ffffff40] font-mono tracking-widest">{attr.label}</label>
+                                                <span className="text-2xl font-black italic font-mono" style={{ color: attr.color }}>{formData[attr.key]}</span>
+                                            </div>
+                                            <input
+                                                type="range"
+                                                name={attr.key}
+                                                min="0"
+                                                max="99"
+                                                value={formData[attr.key]}
+                                                onChange={handleInputChange}
+                                                className="w-full h-2 bg-[#ffffff10] rounded-lg appearance-none cursor-pointer accent-[#00f2ff]"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
                             {formError && (
                                 <div className="mt-6 flex items-center gap-2 text-red-500 bg-red-500/10 border border-red-500/20 px-4 py-2 rounded-xl text-xs font-mono">
                                     <Info size={14} /> {formError.toUpperCase()}
@@ -573,6 +633,36 @@ const Players = () => {
                                 <div className="text-center space-y-1">
                                     <div className="text-[8px] font-mono text-[#ffffff20] uppercase">Drive Foot</div>
                                     <div className="text-[#00f2ff] font-black">{selectedPlayer.preferredFoot}</div>
+                                </div>
+                            </div>
+
+                            {/* FIFA Style Radar Chart */}
+                            <div className="bg-[#00000030] border border-[#ffffff05] rounded-2xl p-4 relative overflow-hidden group">
+                                <div className="absolute inset-0 bg-gradient-to-br from-[#00f2ff05] to-transparent opacity-50"></div>
+                                <h4 className="text-[10px] font-mono text-[#ffffff40] uppercase tracking-[0.3em] mb-4 text-center">QUANTUM ABILITY MESH</h4>
+                                <div className="h-64 w-full">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+                                            <PolarGrid stroke="#ffffff10" />
+                                            <PolarAngleAxis dataKey="subject" tick={{ fill: '#ffffff40', fontSize: 10, fontWeight: 'bold' }} />
+                                            <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                                            <Radar
+                                                name={selectedPlayer.name}
+                                                dataKey="A"
+                                                stroke="#00f2ff"
+                                                fill="#00f2ff"
+                                                fillOpacity={0.5}
+                                            />
+                                        </RadarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                                <div className="grid grid-cols-3 gap-2 mt-2">
+                                    {radarData.map(d => (
+                                        <div key={d.subject} className="flex flex-col items-center p-2 bg-white/5 rounded-lg border border-white/5">
+                                            <span className="text-[8px] font-mono text-white/30">{d.subject}</span>
+                                            <span className="text-sm font-black text-[#00f2ff]">{d.A}</span>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
 
