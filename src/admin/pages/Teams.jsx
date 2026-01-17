@@ -83,14 +83,19 @@ const Teams = () => {
                     },
                     body: formDataUpload
                 });
+
                 const data = await res.json();
-                if (data.url) {
+
+                if (res.ok && data.url) {
                     setLogoPreview(data.url);
                     setFormData(prev => ({ ...prev, logo: data.url }));
+                    setFormError('');
+                } else {
+                    setFormError(data.error || "IMAGE UPLOAD REJECTED");
                 }
             } catch (err) {
                 console.error("Upload failed", err);
-                setFormError("Logo upload failed");
+                setFormError("CONNECTION ERROR: UPLOAD INTERRUPTED");
             }
         }
     };

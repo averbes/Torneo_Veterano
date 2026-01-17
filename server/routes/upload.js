@@ -31,9 +31,11 @@ router.post('/image', authenticateToken, upload.single('image'), async (req, res
 
     try {
         const file = req.file;
+        console.log(`>>> [UPLOAD]: Processing file: ${file.originalname} (${file.size} bytes)`);
+
         const fileExt = path.extname(file.originalname);
         const fileName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${fileExt}`;
-        const filePath = `uploads/${fileName}`;
+        const filePath = fileName; // Upload directly to bucket root for testing
 
         const { data, error } = await supabase.storage
             .from('player-photos')
@@ -52,7 +54,7 @@ router.post('/image', authenticateToken, upload.single('image'), async (req, res
         res.json({ url: publicUrl });
     } catch (err) {
         console.error(">>> [UPLOAD]: Error uploading to Supabase:", err.message);
-        res.status(500).json({ error: "Failed to upload image to Supabase Storage" });
+        res.status(500).json({ error: err.message || "Failed to upload image to Supabase Storage" });
     }
 });
 
