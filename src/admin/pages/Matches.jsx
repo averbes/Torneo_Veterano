@@ -388,13 +388,13 @@ const Matches = () => {
             {isEventModalOpen && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-[#000000a0] backdrop-blur-md" onClick={() => setIsEventModalOpen(false)}></div>
-                    <div className="relative bg-[#0a0a1a] border border-[#ffffff15] rounded-3xl w-full max-w-2xl overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)] animate-in zoom-in-95 duration-200">
-                        <div className="px-10 py-8 border-b border-[#ffffff10] flex items-center justify-between font-black uppercase text-white tracking-widest text-2xl bg-[#ffffff03]">
+                    <div className="relative bg-[#0a0a1a] border border-[#ffffff15] rounded-3xl w-full max-w-2xl max-h-[95vh] flex flex-col overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)] animate-in zoom-in-95 duration-200">
+                        <div className="px-6 py-4 md:px-10 md:py-8 border-b border-[#ffffff10] flex items-center justify-between font-black uppercase text-white tracking-widest text-xl md:text-2xl bg-[#ffffff03] shrink-0">
                             <span>Record Battlefield Event</span>
-                            <button onClick={() => setIsEventModalOpen(false)} className="text-[#ffffff20] hover:text-[#ff0055] transition-colors"><X size={32} /></button>
+                            <button onClick={() => setIsEventModalOpen(false)} className="text-[#ffffff20] hover:text-[#ff0055] transition-colors"><X size={24} className="md:hidden" /><X size={32} className="hidden md:block" /></button>
                         </div>
-                        <form onSubmit={handleEventSubmit} className="p-8 space-y-6">
-                            <div className="grid grid-cols-2 gap-6">
+                        <form onSubmit={handleEventSubmit} className="p-4 md:p-8 space-y-6 overflow-y-auto custom-scrollbar">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label className="block text-sm font-black text-[#ffffff40] mb-3 font-mono uppercase">Event Type</label>
                                     <select
@@ -451,7 +451,7 @@ const Matches = () => {
                                 </select>
                             </div>
 
-                            <button type="submit" className="w-full py-6 bg-[#00f2ff] text-[#050510] font-black uppercase tracking-widest rounded-2xl text-xl hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_30px_rgba(0,242,255,0.3)]">
+                            <button type="submit" className="w-full py-4 md:py-6 bg-[#00f2ff] text-[#050510] font-black uppercase tracking-widest rounded-2xl text-lg md:text-xl hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_30px_rgba(0,242,255,0.3)]">
                                 LOG TO SYSTEM
                             </button>
                         </form>
@@ -463,12 +463,12 @@ const Matches = () => {
             {isModalOpen && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-[#000000a0] backdrop-blur-md" onClick={() => setIsModalOpen(false)}></div>
-                    <div className="relative bg-[#0a0a1a] border border-[#ffffff15] rounded-3xl w-full max-w-4xl overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)] animate-in zoom-in-95 duration-200">
-                        <div className="px-10 py-8 border-b border-[#ffffff10] flex items-center justify-between font-black uppercase text-white tracking-widest text-3xl bg-[#ffffff03]">
+                    <div className="relative bg-[#0a0a1a] border border-[#ffffff15] rounded-3xl w-full max-w-4xl max-h-[95vh] flex flex-col overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)] animate-in zoom-in-95 duration-200">
+                        <div className="px-6 py-4 md:px-10 md:py-8 border-b border-[#ffffff10] flex items-center justify-between font-black uppercase text-white tracking-widest text-xl md:text-3xl bg-[#ffffff03] shrink-0">
                             <span>{editingMatch ? 'EDIT BATTLE LOG' : 'ADD NEW FIXTURE'}</span>
-                            <button onClick={() => { setIsModalOpen(false); setEditingMatch(null); }} className="text-[#ffffff20] hover:text-[#ff0055] transition-colors p-2 hover:bg-white/5 rounded-full"><X size={36} /></button>
+                            <button onClick={() => { setIsModalOpen(false); setEditingMatch(null); }} className="text-[#ffffff20] hover:text-[#ff0055] transition-colors p-2 hover:bg-white/5 rounded-full"><X size={24} className="md:hidden" /><X size={36} className="hidden md:block" /></button>
                         </div>
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                        <form onSubmit={handleSubmit} className="p-4 md:p-6 space-y-4 overflow-y-auto custom-scrollbar">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-lg font-black text-[#ffffff60] mb-3 font-mono uppercase tracking-widest">Home Team</label>
@@ -536,7 +536,7 @@ const Matches = () => {
                             )}
 
                             <div className="pt-4">
-                                <button type="submit" className="w-full py-8 bg-[#00f2ff] text-[#050510] font-black uppercase tracking-[0.3em] rounded-2xl text-4xl hover:scale-[1.03] active:scale-95 transition-all shadow-[0_0_60px_rgba(0,242,255,0.5)]">
+                                <button type="submit" className="w-full py-4 md:py-8 bg-[#00f2ff] text-[#050510] font-black uppercase tracking-[0.3em] rounded-2xl text-xl md:text-4xl hover:scale-[1.03] active:scale-95 transition-all shadow-[0_0_60px_rgba(0,242,255,0.5)]">
                                     {editingMatch ? 'OVERWRITE LOG' : 'ESTABLISH FIXTURE'}
                                 </button>
                             </div>
