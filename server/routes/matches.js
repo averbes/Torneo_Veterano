@@ -118,8 +118,8 @@ router.post('/:id/events', async (req, res) => {
 
         if (type === 'goal') {
             const updates = {};
-            if (match.team_a === teamId) updates.score_a = match.score_a + 1;
-            else if (match.team_b === teamId) updates.score_b = match.score_b + 1;
+            if (match.team_a === teamId) updates.score_a = (match.score_a || 0) + 1;
+            else if (match.team_b === teamId) updates.score_b = (match.score_b || 0) + 1;
 
             await supabase.from('matches').update(updates).eq('id', id);
         }

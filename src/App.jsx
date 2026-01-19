@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import Header from './components/Header'
 import Layout from './components/Layout'
 import TeamCard from './components/TeamCard'
@@ -13,7 +13,7 @@ import { useSocket } from './hooks/useSocket'
 import { Users, User, BarChart3, LayoutGrid } from 'lucide-react'
 
 function App() {
-  const [data, setData] = useState({ teams: [] });
+  const [teams, setTeams] = useState([]);
   const [viewMode, setViewMode] = useState('standard');
   const [standings, setStandings] = useState([]);
   const [players, setPlayers] = useState([]);
@@ -22,18 +22,31 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [matches, setMatches] = useState([]);
 
+  // Derive enriched teams with stats for cards
+  const enrichedTeams = useMemo(() => {
+    return teams.map(team => {
+      const teamStanding = standings.find(s => s.teamId === team.id);
+      return {
+        ...team,
+        stats: {
+          wins: teamStanding?.won || 0,
+          draws: teamStanding?.drawn || 0,
+          losses: teamStanding?.lost || 0,
+          played: teamStanding?.played || 0,
+          goalsFor: teamStanding?.gf || 0,
+          goalsAgainst: teamStanding?.ga || 0
+        }
+      };
+    });
+  }, [teams, standings]);
+
   // Socket listener
   useSocket((update) => {
     console.log(">>> [UI]: Real-time update received:", update.type);
-
     if (update.type === 'matches') setMatches(update.data);
     if (update.type === 'standings') setStandings(update.data);
     if (update.type === 'players') setPlayers(update.data);
-
-    // If it's standings, we need to re-enrich teams in 'data'
-    if (update.type === 'standings' || update.type === 'teams') {
-      fetchDashboardData(); // Simplest way to keep everything in sync
-    }
+    if (update.type === 'teams') setTeams(update.data);
   });
 
   // Fetch dashboard data on mount
@@ -53,7 +66,7 @@ function App() {
         fetch('/api/players')
       ]);
 
-      const teams = await teamsRes.json();
+      const teamsData = await teamsRes.json();
       const standingsData = await standingsRes.json();
       const matchesData = await matchesRes.json();
       const playersData = await playersRes.json();
@@ -61,25 +74,8 @@ function App() {
       setMatches(matchesData);
       setStandings(standingsData);
       setPlayers(playersData);
+      setTeams(teamsData);
 
-      // Merge standings data into teams
-      const enrichedTeams = teams.map(team => {
-        const teamStanding = standingsData.find(s => s.teamId === team.id);
-
-        return {
-          ...team,
-          stats: {
-            wins: teamStanding?.won || 0,
-            draws: teamStanding?.drawn || 0,
-            losses: teamStanding?.lost || 0,
-            played: teamStanding?.played || 0 || 0,
-            goalsFor: teamStanding?.gf || 0,
-            goalsAgainst: teamStanding?.ga || 0
-          }
-        };
-      });
-
-      setData({ teams: enrichedTeams });
     } catch (err) {
       console.error("Failed to fetch teams:", err);
     } finally {
@@ -88,7 +84,6 @@ function App() {
   };
 
   const handleManageRoster = (team) => {
-    // Open roster overlay for the selected team
     setSelectedTeam(team);
   };
 
@@ -134,7 +129,7 @@ function App() {
         </div>
 
         {viewMode === 'advanced' ? (
-          <StatsDashboard matches={matches} teams={data.teams} />
+          <StatsDashboard matches={matches} teams={enrichedTeams} />
         ) : (
           loading ? (
             <div className="h-64 flex flex-col items-center justify-center gap-4">
@@ -143,8 +138,8 @@ function App() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-              {data.teams.length > 0 ? (
-                data.teams.map(team => (
+              {enrichedTeams.length > 0 ? (
+                enrichedTeams.map(team => (
                   <TeamCard
                     key={team.id}
                     team={team}
@@ -178,8 +173,8 @@ function App() {
             {matches && matches.length > 0 ? (
               <div className="space-y-4">
                 {matches.map(match => {
-                  const homeTeam = data.teams.find(t => t.id === match.teamA);
-                  const awayTeam = data.teams.find(t => t.id === match.teamB);
+                  const homeTeam = teams.find(t => t.id === match.teamA);
+                  const awayTeam = teams.find(t => t.id === match.teamB);
 
                   return (
                     <div key={match.id} className="p-3 md:p-4 bg-[#00000020] border border-[#ffffff05] rounded-xl hover:border-[#ffffff10] transition-colors relative group">
@@ -242,7 +237,7 @@ function App() {
             )}
           </div>
 
-          <StandingsTable standings={standings} teams={data.teams} />
+          <StandingsTable standings={standings} teams={teams} />
         </div>
 
         <div className="space-y-8">
