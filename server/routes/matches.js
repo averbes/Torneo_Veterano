@@ -199,9 +199,9 @@ async function recalculateAll() {
             standingsMap[t.id] = { team_id: t.id, points: 0, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0 };
         });
 
-        // 3. Process finished matches
-        const finishedMatches = matches.filter(m => m.status === 'finished');
-        finishedMatches.forEach(match => {
+        // 3. Process finished AND live matches for standings
+        const activeMatches = matches.filter(m => m.status === 'finished' || m.status === 'live');
+        activeMatches.forEach(match => {
             const processTeam = (teamId, goalsFor, goalsAgainst) => {
                 let entry = standingsMap[teamId];
                 if (!entry) return;
@@ -210,6 +210,7 @@ async function recalculateAll() {
                 entry.gf += goalsFor;
                 entry.ga += goalsAgainst;
                 entry.gd = entry.gf - entry.ga;
+
                 if (goalsFor > goalsAgainst) { entry.points += 3; entry.won++; }
                 else if (goalsFor === goalsAgainst) { entry.points += 1; entry.drawn++; }
                 else { entry.lost++; }
@@ -217,13 +218,15 @@ async function recalculateAll() {
             processTeam(match.team_a, match.score_a, match.score_b);
             processTeam(match.team_b, match.score_b, match.score_a);
 
-            // Minutes calculation (simplified: all players in the team get 90 mins if match finished)
-            playerStatsUpdate.forEach(pUpdate => {
-                const player = players.find(p => p.id === pUpdate.id);
-                if (player.team_id === match.team_a || player.team_id === match.team_b) {
-                    pUpdate.minutes += 90;
-                }
-            });
+            // Minutes calculation (if match finished, everyone gets 90)
+            if (match.status === 'finished') {
+                playerStatsUpdate.forEach(pUpdate => {
+                    const player = players.find(p => p.id === pUpdate.id);
+                    if (player && (player.team_id === match.team_a || player.team_id === match.team_b)) {
+                        pUpdate.minutes += 90;
+                    }
+                });
+            }
         });
 
         // 4. Process events
@@ -259,9 +262,36 @@ async function recalculateAll() {
         const { data: finalMatches } = await supabase.from('matches').select('*');
         const { data: finalPlayers } = await supabase.from('players').select('*');
 
-        emitUpdate('matches', finalMatches);
-        emitUpdate('standings', Object.values(standingsMap));
-        emitUpdate('players', finalPlayers);
+        // Enrich standings data for frontend (camelCase)
+        const standingsData = Object.values(standingsMap).map(s => ({
+            teamId: s.team_id,
+            points: s.points,
+            played: s.played,
+            won: s.won,
+            drawn: s.drawn,
+            lost: s.lost,
+            gf: s.gf,
+            ga: s.ga,
+            gd: s.gd
+        }));
+
+        emitUpdate('matches', finalMatches.map(m => ({
+            ...m,
+            teamA: m.team_a,
+            teamB: m.team_b,
+            score: { teamA: m.score_a, teamB: m.score_b }
+        })));
+        emitUpdate('standings', standingsData);
+        emitUpdate('players', finalPlayers.map(p => ({
+            ...p,
+            teamId: p.team_id,
+            stats: {
+                goals: p.goals || 0,
+                assists: p.assists || 0,
+                yellowCards: p.yellow_cards || 0,
+                redCards: p.red_cards || 0
+            }
+        })));
 
     } catch (err) {
         console.error("Error in recalculateAll:", err);

@@ -199,7 +199,7 @@ function App() {
 
                         <div className="px-2 md:px-4 flex flex-col items-center min-w-[70px] md:min-w-[100px]">
                           <div className="text-lg md:text-2xl font-black text-white tracking-widest shrink-0">
-                            {match.status === 'finished' ? `${match.score.teamA} - ${match.score.teamB}` : 'VS'}
+                            {match.status === 'scheduled' ? 'VS' : `${match.score.teamA} - ${match.score.teamB}`}
                           </div>
                           <div className="text-[8px] md:text-[10px] font-mono uppercase text-[#ffffff40] mt-0.5">
                             {match.status === 'finished' ? 'Final' : match.time}

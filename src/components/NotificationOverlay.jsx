@@ -33,16 +33,16 @@ const NotificationOverlay = () => {
             {notifications.map((notif) => (
                 <div
                     key={notif.id}
-                    className="pointer-events-auto relative overflow-hidden bg-[#0a0a1a]/90 backdrop-blur-xl border-l-4 border-r border-t border-b border-[#ffffff10] rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.5)] animate-in slide-in-from-right-10 duration-500 hover:scale-[1.02] transition-transform"
-                    style={{ borderLeftColor: notif.type === 'GOAL' ? '#00f2ff' : notif.type === 'CARD' ? '#fbbf24' : '#7000ff' }}
+                    className="pointer-events-auto relative overflow-hidden bg-[#0a0a1a]/95 backdrop-blur-xl border-l-4 border-r border-t border-b border-[#ffffff10] rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.8)] animate-in slide-in-from-right-10 duration-500 hover:scale-[1.02] transition-transform"
+                    style={{ borderLeftColor: notif.type === 'GOAL' ? '#FF6B35' : notif.type === 'CARD' ? '#fbbf24' : '#FF6B35' }}
                 >
                     {/* Scanner line animation */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.05] to-transparent animate-scan-notif pointer-events-none" />
 
                     <div className="p-4 flex gap-4">
-                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center shrink-0 ${notif.type === 'GOAL' ? 'bg-[#00f2ff]/10 text-[#00f2ff]' :
-                                notif.type === 'CARD' ? 'bg-yellow-500/10 text-yellow-500' :
-                                    'bg-purple-500/10 text-purple-400'
+                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center shrink-0 ${notif.type === 'GOAL' ? 'bg-[#FF6B35]/10 text-[#FF6B35]' :
+                            notif.type === 'CARD' ? 'bg-yellow-500/10 text-yellow-500' :
+                                'bg-[#FF6B35]/10 text-[#FF6B35]'
                             }`}>
                             {notif.type === 'GOAL' ? <Zap size={24} className="animate-pulse" /> :
                                 notif.type === 'CARD' ? <AlertTriangle size={24} /> :
@@ -51,13 +51,13 @@ const NotificationOverlay = () => {
 
                         <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-start">
-                                <span className={`text-[9px] font-black font-mono tracking-[0.2em] uppercase ${notif.type === 'GOAL' ? 'text-[#00f2ff]' : 'text-white/40'
+                                <span className={`text-[9px] font-black font-mono tracking-[0.2em] uppercase ${notif.type === 'GOAL' ? 'text-[#FF6B35]' : 'text-white/40'
                                     }`}>
-                                    System Alert // {notif.type}
+                                    Squad Intel // {notif.type}
                                 </span>
                                 <span className="text-[9px] font-mono text-white/20">{notif.timestamp}</span>
                             </div>
-                            <h4 className="text-sm font-bold text-white mt-1 leading-tight">{notif.message}</h4>
+                            <h4 className="text-sm font-black text-white mt-1 leading-tight italic uppercase tracking-tighter">{notif.message}</h4>
                             {notif.minute && (
                                 <div className="mt-2 flex items-center gap-2">
                                     <div className="h-1 flex-1 bg-white/5 rounded-full overflow-hidden">

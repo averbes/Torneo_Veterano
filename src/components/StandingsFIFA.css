@@ -1,0 +1,103 @@
+/* FIFA Standings Table Styles */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap');
+
+.fifa-table {
+    font-family: 'Orbitron', sans-serif;
+    background: rgba(5, 5, 8, 0.8);
+    border: 1px solid rgba(255, 107, 53, 0.2);
+    border-radius: 24px;
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+}
+
+.fifa-table-header {
+    background: linear-gradient(90deg, rgba(255, 107, 53, 0.1), transparent);
+    border-bottom: 2px solid rgba(255, 107, 53, 0.3);
+    padding: 24px;
+}
+
+.fifa-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgba(255, 255, 255, 0.4);
+    padding: 16px;
+    border-bottom: 1px solid rgba(255, 107, 53, 0.1);
+}
+
+.fifa-table-row {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.fifa-table-row:hover {
+    background: rgba(255, 107, 53, 0.05);
+    transform: translateX(5px);
+    border-left: 4px solid #FF6B35;
+}
+
+.rank-badge {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.rank-top {
+    background: #FF6B35;
+    color: #000;
+    border: none;
+    box-shadow: 0 0 15px rgba(255, 107, 53, 0.4);
+}
+
+.team-name-fifa {
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+.stats-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: #fff;
+}
+
+.pts-high {
+    font-size: 1.25rem;
+    color: #FF6B35;
+    text-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+}
+
+/* Animations */
+@keyframes row-slide {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fifa-table-row {
+    animation: row-slide 0.5s ease backwards;
+}
+
+/* Qualify zones */
+.qualify-item {
+    border-left: 4px solid #00f2ff;
+}
