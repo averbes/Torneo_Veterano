@@ -8,13 +8,15 @@ export const Header = () => {
   const isPublicView = !location.pathname.startsWith('/admin');
 
   return (
-    <header className='sticky top-0 z-50 w-full bg-[#0a0a1a]/80 backdrop-blur-xl border-b border-[#00f2ff]/20 shadow-[0_0_20px_rgba(0,242,255,0.1)]'>
-      <div className='container mx-auto px-4 md:px-6 py-4 flex justify-between items-center'>
-        <Link to="/" className='flex items-center space-x-3' onClick={() => setIsMenuOpen(false)}>
-          <div className='w-8 h-8 bg-gradient-to-br from-[#00f2ff] to-[#7000ff] rounded-sm transform rotate-45 shadow-[0_0_15px_rgba(0,242,255,0.5)]' />
-          <h1 className='text-xl md:text-2xl font-black tracking-tighter text-white'>
-            NEO<span className='text-[#00f2ff]'>LEAGUE</span>
-            <span className='ml-2 text-[10px] font-mono text-[#ffffff50] uppercase tracking-widest hidden sm:inline'>Veterans v1.0</span>
+    <header className='sticky top-0 z-50 w-full bg-[#050510]/90 backdrop-blur-xl border-b border-[#FF6B35]/20 shadow-[0_0_30px_rgba(0,0,0,0.5)]'>
+      <div className='container mx-auto px-4 md:px-6 py-5 flex justify-between items-center'>
+        <Link to="/" className='flex items-center space-x-4' onClick={() => setIsMenuOpen(false)}>
+          <div className='w-10 h-10 bg-gradient-to-br from-[#FF6B35] to-[#7000ff] rounded-lg transform rotate-45 shadow-[0_0_20px_rgba(255,107,53,0.4)] flex items-center justify-center'>
+            <div className="w-4 h-4 bg-black rounded-full animate-pulse" />
+          </div>
+          <h1 className='text-2xl md:text-3xl font-black tracking-tighter text-white uppercase italic' style={{ fontFamily: 'Orbitron, sans-serif' }}>
+            NEO<span className='text-[#FF6B35]'>LEAGUE</span>
+            <span className='ml-3 text-[10px] font-mono text-[#FF6B35]/40 uppercase tracking-[0.3em] hidden lg:inline'>TACTICAL_HUD_v2.0</span>
           </h1>
         </Link>
 

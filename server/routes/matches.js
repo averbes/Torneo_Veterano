@@ -203,18 +203,21 @@ async function recalculateAll() {
         const activeMatches = matches.filter(m => m.status === 'finished' || m.status === 'live');
         activeMatches.forEach(match => {
             const processTeam = (teamId, goalsFor, goalsAgainst) => {
+                if (!teamId) return;
                 let entry = standingsMap[teamId];
                 if (!entry) return;
 
                 entry.played++;
-                entry.gf += goalsFor;
-                entry.ga += goalsAgainst;
+                entry.gf += (goalsFor || 0);
+                entry.ga += (goalsAgainst || 0);
                 entry.gd = entry.gf - entry.ga;
 
                 if (goalsFor > goalsAgainst) { entry.points += 3; entry.won++; }
                 else if (goalsFor === goalsAgainst) { entry.points += 1; entry.drawn++; }
                 else { entry.lost++; }
             };
+
+            // FIX: Use snake_case fields from Supabase
             processTeam(match.team_a, match.score_a, match.score_b);
             processTeam(match.team_b, match.score_b, match.score_a);
 

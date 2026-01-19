@@ -38,11 +38,17 @@ const TopStats = ({ players }) => {
     const current = categories[activeCategory];
 
     return (
-        <div className="bg-[#ffffff05] border border-[#ffffff10] rounded-2xl backdrop-blur-sm overflow-hidden h-full flex flex-col">
-            <div className="p-4 md:p-6 border-b border-[#ffffff05] bg-white/5">
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="w-1 h-5 md:h-6 bg-[#7000ff]" />
-                    <h2 className="text-lg md:text-xl font-bold text-white uppercase tracking-tighter">Battle Stats</h2>
+        <div className="bg-[#0a0a1a]/80 border border-[#FF6B35]/20 rounded-2xl backdrop-blur-xl overflow-hidden h-full flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+            <div className="p-4 md:p-6 border-b border-white/5 bg-white/[0.02]">
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-1 h-6 bg-[#FF6B35] transform skew-x-[-20deg]" />
+                        <h2 className="text-lg md:text-xl font-black text-white uppercase italic tracking-tighter" style={{ fontFamily: 'Orbitron, sans-serif' }}>Battle Stats</h2>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#FF6B35] animate-pulse" />
+                        <span className="text-[8px] font-mono text-[#FF6B35]/40 uppercase tracking-widest">Live Telemetry</span>
+                    </div>
                 </div>
 
                 {/* Category Picker */}
@@ -52,11 +58,12 @@ const TopStats = ({ players }) => {
                             key={key}
                             onClick={() => setActiveCategory(key)}
                             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${activeCategory === key
-                                ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.05)]'
+                                ? 'bg-[#FF6B35] text-black shadow-[0_0_20px_rgba(255,107,53,0.3)]'
                                 : 'text-white/30 hover:text-white/60'
                                 }`}
+                            style={{ fontFamily: 'Orbitron, sans-serif' }}
                         >
-                            {cat.icon}
+                            {activeCategory === key ? React.cloneElement(cat.icon, { className: 'text-black' }) : cat.icon}
                             <span className="hidden sm:inline">{cat.title.split(' ')[0]}</span>
                         </button>
                     ))}
@@ -67,20 +74,20 @@ const TopStats = ({ players }) => {
                 {current.data.map((player, index) => (
                     <div
                         key={player.id}
-                        className="flex items-center gap-4 p-3 rounded-xl bg-[#00000020] border border-[#ffffff05] hover:border-white/10 transition-all group relative overflow-hidden"
+                        className="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-[#FF6B35]/30 hover:bg-[#FF6B35]/5 transition-all group relative overflow-hidden"
                     >
                         {/* Rank Badge */}
                         <div className={`
-                            w-6 h-6 flex items-center justify-center rounded-md font-black text-[10px] z-10
-                            ${index === 0 ? 'bg-[#ffd700] text-black' :
-                                index === 1 ? 'bg-[#c0c0c0] text-black' :
-                                    index === 2 ? 'bg-[#cd7f32] text-black' : 'bg-white/5 text-white/40'}
-                        `}>
+                            w-7 h-7 flex items-center justify-center rounded-lg font-black text-[12px] z-10 italic
+                            ${index === 0 ? 'bg-[#FF6B35] text-black shadow-[0_0_15px_rgba(255,107,53,0.4)]' :
+                                index === 1 ? 'bg-white/20 text-white' :
+                                    index === 2 ? 'bg-white/10 text-white/60' : 'bg-white/5 text-white/30'}
+                        `} style={{ fontFamily: 'Orbitron, sans-serif' }}>
                             {index + 1}
                         </div>
 
                         {/* Player Photo/Avatar */}
-                        <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-black border border-white/10 overflow-hidden flex items-center justify-center transition-transform group-hover:scale-110">
                             {player.photo ? (
                                 <img src={player.photo} className="w-full h-full object-cover" alt={player.name} />
                             ) : (
@@ -89,46 +96,51 @@ const TopStats = ({ players }) => {
                         </div>
 
                         <div className="flex-1 min-w-0">
-                            <div className="text-sm font-bold text-white truncate group-hover:text-[#00f2ff] transition-colors">
+                            <div className="text-sm font-black text-white truncate group-hover:text-[#FF6B35] transition-colors uppercase italic" style={{ fontFamily: 'Orbitron, sans-serif' }}>
                                 {player.name}
                             </div>
-                            <div className="text-[10px] text-[#ffffff30] font-mono uppercase tracking-wider truncate">
-                                {player.teamName}
+                            <div className="text-[9px] text-[#ffffff30] font-mono uppercase tracking-widest truncate">
+                                {player.teamName || 'ELITE_UNIT'}
                             </div>
                         </div>
 
                         <div className="text-right">
                             {activeCategory === 'discipline' ? (
-                                <div className="flex gap-2 items-center">
+                                <div className="flex gap-2 items-center justify-end">
                                     {player.stats.yellowCards > 0 && (
                                         <div className="flex items-center gap-1">
-                                            <div className="w-2 h-3 bg-yellow-400 rounded-sm" />
-                                            <span className="text-xs font-bold text-white/60">{player.stats.yellowCards}</span>
+                                            <div className="w-2 h-3 bg-yellow-400 rounded-sm shadow-[0_0_10px_rgba(250,204,21,0.3)]" />
+                                            <span className="text-xs font-bold text-white/60 font-mono">{player.stats.yellowCards}</span>
                                         </div>
                                     )}
                                     {player.stats.redCards > 0 && (
                                         <div className="flex items-center gap-1">
-                                            <div className="w-2 h-3 bg-red-600 rounded-sm" />
-                                            <span className="text-xs font-black text-red-500">{player.stats.redCards}</span>
+                                            <div className="w-2 h-3 bg-red-600 rounded-sm shadow-[0_0_10px_rgba(220,38,38,0.3)]" />
+                                            <span className="text-xs font-black text-red-500 font-mono">{player.stats.redCards}</span>
                                         </div>
                                     )}
                                 </div>
                             ) : (
                                 <div>
-                                    <div className="text-[10px] font-mono text-white/30 uppercase mb-0.5">{current.label}</div>
-                                    <div className="text-xl font-black italic italic tracking-tighter" style={{ color: current.color }}>
+                                    <div className="text-[8px] font-mono text-white/20 uppercase mb-0.5 tracking-tighter">DATA_VAL</div>
+                                    <div className="text-xl font-black italic tracking-tighter" style={{ color: '#FF6B35', fontFamily: 'Orbitron, sans-serif' }}>
                                         {player.stats[current.statKey]}
                                     </div>
                                 </div>
                             )}
                         </div>
+
+                        {/* Side Accent */}
+                        <div className="absolute left-0 top-0 h-full w-[2px] bg-[#FF6B35] opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                 ))}
 
                 {current.data.length === 0 && (
-                    <div className="h-32 flex flex-col items-center justify-center text-[#ffffff20] font-mono uppercase text-[10px] gap-2">
-                        <Shield size={24} className="opacity-20" />
-                        No data recorded for this sector
+                    <div className="h-32 flex flex-col items-center justify-center text-[#ffffff10] font-mono uppercase text-[9px] gap-3">
+                        <div className="w-8 h-8 rounded-full border border-white/5 flex items-center justify-center animate-spin-slow">
+                            <Shield size={16} />
+                        </div>
+                        Scanning Battlefield Data...
                     </div>
                 )}
             </div>

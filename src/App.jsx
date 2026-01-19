@@ -101,34 +101,34 @@ function App() {
       <Header />
 
       <div className="mt-8 md:mt-12">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
           <div>
-            <h2 className="text-xs md:text-sm font-mono text-[#00f2ff] uppercase tracking-[0.3em] mb-1 md:mb-2 text-glow">Tactical Terminal</h2>
-            <div className="flex items-center gap-4">
-              <h3 className="text-2xl md:text-3xl font-black text-white">Tourney Overview</h3>
-              <div className="flex bg-[#ffffff05] rounded-lg p-1 border border-[#ffffff10]">
+            <h2 className="text-[10px] md:text-xs font-mono text-[#FF6B35] uppercase tracking-[0.5em] mb-1 md:mb-2 text-glow" style={{ fontFamily: 'Orbitron, sans-serif' }}>TACTICAL_TERMINAL // ALPHA</h2>
+            <div className="flex items-center gap-6">
+              <h3 className="text-3xl md:text-4xl font-black text-white italic" style={{ fontFamily: 'Orbitron, sans-serif' }}>TOURNEY <span className="text-[#FF6B35]">OVERVIEW</span></h3>
+              <div className="flex bg-black/60 rounded-xl p-1 border border-white/10 shadow-xl">
                 <button
                   onClick={() => setViewMode('standard')}
-                  className={`p-1.5 rounded-md transition-all ${viewMode === 'standard' ? 'bg-[#00f2ff] text-[#050510]' : 'text-[#ffffff40] hover:text-white'}`}
-                  title="Standard View"
+                  className={`p-2 rounded-lg transition-all ${viewMode === 'standard' ? 'bg-[#FF6B35] text-black shadow-[0_0_15px_rgba(255,107,53,0.4)]' : 'text-white/30 hover:text-white'}`}
+                  title="Tactical Grid"
                 >
-                  <LayoutGrid size={18} />
+                  <LayoutGrid size={20} />
                 </button>
                 <button
                   onClick={() => setViewMode('advanced')}
-                  className={`p-1.5 rounded-md transition-all ${viewMode === 'advanced' ? 'bg-[#00f2ff] text-[#050510]' : 'text-[#ffffff40] hover:text-white'}`}
-                  title="Advanced Analytics"
+                  className={`p-2 rounded-lg transition-all ${viewMode === 'advanced' ? 'bg-[#FF6B35] text-black shadow-[0_0_15px_rgba(255,107,53,0.4)]' : 'text-white/30 hover:text-white'}`}
+                  title="Strategic Analytics"
                 >
-                  <BarChart3 size={18} />
+                  <BarChart3 size={20} />
                 </button>
               </div>
             </div>
           </div>
-          <div className="text-left md:text-right">
-            <div className="text-[9px] md:text-[10px] font-mono text-[#ffffff40] uppercase">System Status</div>
-            <div className="text-[11px] md:text-xs font-bold text-green-500 flex items-center gap-2">
-              <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-green-500 animate-pulse" />
-              {loading ? 'Synchronizing Uplink...' : 'All Systems Operational'}
+          <div className="text-left md:text-right bg-black/40 p-4 rounded-xl border border-white/5 backdrop-blur-md">
+            <div className="text-[9px] md:text-[10px] font-mono text-white/20 uppercase tracking-widest mb-1">DATA_UPLINK_STATUS</div>
+            <div className={`text-[11px] md:text-xs font-black flex items-center gap-3 italic ${loading ? 'text-[#FF6B35]' : 'text-[#00f2ff]'}`} style={{ fontFamily: 'Orbitron, sans-serif' }}>
+              <div className={`w-2 h-2 rounded-full animate-pulse ${loading ? 'bg-[#FF6B35]' : 'bg-[#00f2ff]'}`} />
+              {loading ? 'SYNCHRONIZING...' : 'SYSTEMS_OPERATIONAL'}
             </div>
           </div>
         </div>
