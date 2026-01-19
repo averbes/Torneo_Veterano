@@ -101,7 +101,7 @@ function App() {
       <Header />
 
       <div className="mt-8 md:mt-12">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
           <div>
             <h2 className="text-[10px] md:text-xs font-mono text-[#FF6B35] uppercase tracking-[0.5em] mb-1 md:mb-2 text-glow" style={{ fontFamily: 'Orbitron, sans-serif' }}>TACTICAL_TERMINAL // ALPHA</h2>
             <div className="flex items-center gap-6">

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Shield } from 'lucide-react';
 
 const DisciplineTable = ({ players }) => {
     // Filter players with cards and sort by red cards (desc), then yellow cards (desc)
