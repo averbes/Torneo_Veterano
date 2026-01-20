@@ -10,6 +10,7 @@ import MatchLineupDisplay from './components/MatchLineupDisplay'
 import StatsDashboard from './components/StatsDashboard'
 import NotificationOverlay from './components/NotificationOverlay'
 import { useSocket } from './hooks/useSocket'
+import { normalizePlayers } from './utils/playerHelpers'
 import { Users, User, BarChart3, LayoutGrid } from 'lucide-react'
 
 function App() {
@@ -44,8 +45,11 @@ function App() {
   useSocket((update) => {
     console.log(">>> [UI]: Real-time update received:", update.type);
     if (update.type === 'matches') setMatches(update.data);
-    if (update.type === 'standings') setStandings(update.data);
-    if (update.type === 'players') setPlayers(update.data);
+    // if (update.type === 'standings') setStandings(update.data); // IGNORED: Calculated client-side
+    if (update.type === 'players') {
+      const normalized = normalizePlayers(update.data);
+      setPlayers(normalized);
+    }
     if (update.type === 'teams') setTeams(update.data);
   });
 
@@ -54,27 +58,77 @@ function App() {
     fetchDashboardData();
   }, []);
 
+  // Client-side standings calculation to ensure sync
+  const calculateHeadquartersIntel = (currentMatches, currentTeams) => {
+    if (!currentTeams.length) return [];
+
+    // Initialize stats matrix
+    const stats = {};
+    currentTeams.forEach(t => {
+      stats[String(t.id)] = { teamId: t.id, points: 0, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0 };
+    });
+
+    // Process Mission Reports (Matches)
+    currentMatches.forEach(m => {
+      if (m.status !== 'finished') return;
+
+      const tA = stats[String(m.teamA)];
+      const tB = stats[String(m.teamB)];
+
+      if (!tA || !tB) return;
+
+      const sA = parseInt(m.score?.teamA || 0);
+      const sB = parseInt(m.score?.teamB || 0);
+
+      tA.played++; tB.played++;
+      tA.gf += sA; tA.ga += sB;
+      tB.gf += sB; tB.ga += sA;
+      tA.gd = tA.gf - tA.ga;
+      tB.gd = tB.gf - tB.ga;
+
+      if (sA > sB) {
+        tA.won++; tA.points += 3;
+        tB.lost++;
+      } else if (sB > sA) {
+        tB.won++; tB.points += 3;
+        tA.lost++;
+      } else {
+        tA.drawn++; tA.points += 1;
+        tB.drawn++; tB.points += 1;
+      }
+    });
+
+    return Object.values(stats).sort((a, b) => b.points - a.points || b.gd - a.gd || b.gf - a.gf);
+  };
+
+  // Re-calculate standings whenever matches or teams change to guarantee sync
+  useEffect(() => {
+    if (teams.length > 0 && matches.length > 0) {
+      const calculated = calculateHeadquartersIntel(matches, teams);
+      setStandings(calculated);
+    }
+  }, [matches, teams]);
+
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
 
-      // Fetch teams, standings, matches, and players
-      const [teamsRes, standingsRes, matchesRes, playersRes] = await Promise.all([
+      // Fetch teams, matches, and players (ignore backend standings)
+      const [teamsRes, matchesRes, playersRes] = await Promise.all([
         fetch('/api/teams'),
-        fetch('/api/standings'),
         fetch('/api/matches'),
         fetch('/api/players')
       ]);
 
       const teamsData = await teamsRes.json();
-      const standingsData = await standingsRes.json();
       const matchesData = await matchesRes.json();
       const playersData = await playersRes.json();
 
       setMatches(matchesData);
-      setStandings(standingsData);
-      setPlayers(playersData);
+      const normalizedPlayers = normalizePlayers(playersData);
+      setPlayers(normalizedPlayers);
       setTeams(teamsData);
+      // Standings will be auto-calculated by the useEffect above
 
     } catch (err) {
       console.error("Failed to fetch teams:", err);

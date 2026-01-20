@@ -44,19 +44,42 @@ const MatchLineupDisplay = ({ match, onClose }) => {
         if (!rosterIds || rosterIds.length === 0) return basePositions.map(pos => ({ ...pos, player: null }));
 
         const teamPlayers = players.filter(p => rosterIds.includes(p.id));
-        const remaining = [...teamPlayers];
 
-        return basePositions.map(pos => {
-            const idx = remaining.findIndex(p => {
-                if (pos.role === 'GK') return p.position === 'Arquero' || p.position === 'GK';
-                if (pos.role === 'DF') return p.position === 'Defensa' || p.position === 'DF' || p.position === 'Defender';
-                if (pos.role === 'MF') return p.position === 'Mediocampista' || p.position === 'MF' || p.position === 'Midfielder';
-                if (pos.role === 'FW') return p.position === 'Delantero' || p.position === 'FW' || p.position === 'Forward' || p.position === 'ST';
-                return false;
+        // Smart Assignment Logic to prevent positioning errors
+        const assignedIds = new Set();
+        const matchesRole = (p, role) => {
+            const pos = (p.position || '').toUpperCase();
+            if (role === 'GK') return pos.includes('ARQUERO') || pos.includes('GK');
+            if (role === 'DF') return pos.includes('DEFENSA') || pos.includes('DF');
+            if (role === 'MF') return pos.includes('MEDIO') || pos.includes('MF');
+            if (role === 'FW') return pos.includes('DELANTERO') || pos.includes('FW');
+            return false;
+        };
+
+        const layout = basePositions.map(p => ({ ...p, player: null }));
+
+        // 1. Assign players to their preferred roles first (Strict Match)
+        ['GK', 'DF', 'MF', 'FW'].forEach(role => {
+            const roleSlots = layout.filter(slot => slot.role === role);
+            roleSlots.forEach(slot => {
+                const candidate = teamPlayers.find(p => !assignedIds.has(p.id) && matchesRole(p, role));
+                if (candidate) {
+                    slot.player = candidate;
+                    assignedIds.add(candidate.id);
+                }
             });
-            const p = idx !== -1 ? remaining.splice(idx, 1)[0] : remaining.shift();
-            return { ...pos, player: p };
         });
+
+        // 2. Fill empty slots with remaining players (Fallback)
+        layout.filter(slot => !slot.player).forEach(slot => {
+            const candidate = teamPlayers.find(p => !assignedIds.has(p.id));
+            if (candidate) {
+                slot.player = candidate;
+                assignedIds.add(candidate.id);
+            }
+        });
+
+        return layout;
     };
 
     if (loading) return null;
@@ -170,7 +193,7 @@ const MatchLineupDisplay = ({ match, onClose }) => {
                                     className="absolute transform -translate-x-1/2 -translate-y-1/2"
                                     style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
                                 >
-                                    <PlayerMinNode player={pos.player} color={currentTeam?.color || '#00d4ff'} />
+                                    <PlayerMinNode player={pos.player} color={pos.color || currentTeam?.color || '#00d4ff'} />
                                 </div>
                             ))}
                         </div>

@@ -1,16 +1,16 @@
 export const FORMATIONS = {
     '4-4-2': [
-        { id: 'gk', role: 'GK', x: 50, y: 85, label: 'GOALKEEPER' },
-        { id: 'rb', role: 'DF', x: 80, y: 70, label: 'RIGHT BACK' },
-        { id: 'cb1', role: 'DF', x: 40, y: 70, label: 'CENTER BACK' },
-        { id: 'cb2', role: 'DF', x: 60, y: 70, label: 'CENTER BACK' },
-        { id: 'lb', role: 'DF', x: 20, y: 70, label: 'LEFT BACK' },
-        { id: 'rm', role: 'MF', x: 80, y: 50, label: 'RIGHT MID' },
-        { id: 'cm1', role: 'MF', x: 40, y: 50, label: 'CENTER MID' },
-        { id: 'cm2', role: 'MF', x: 60, y: 50, label: 'CENTER MID' },
-        { id: 'lm', role: 'MF', x: 20, y: 50, label: 'LEFT MID' },
-        { id: 'st1', role: 'FW', x: 40, y: 30, label: 'STRIKER' },
-        { id: 'st2', role: 'FW', x: 60, y: 30, label: 'STRIKER' }
+        { id: 'gk', role: 'GK', x: 50, y: 85, label: '01. PORTERO', color: '#FFD700' },
+        { id: 'rb', role: 'DF', x: 75, y: 70, label: '02. LATERAL DERECHO', color: '#556B2F' },
+        { id: 'cb1', role: 'DF', x: 40, y: 70, label: '03. CENTRAL 1', color: '#556B2F' },
+        { id: 'cb2', role: 'DF', x: 60, y: 70, label: '04. CENTRAL 2', color: '#556B2F' },
+        { id: 'lb', role: 'DF', x: 25, y: 70, label: '05. LATERAL IZQUIERDO', color: '#556B2F' },
+        { id: 'cdm', role: 'MF', x: 50, y: 55, label: '06. MEDIO DEFENSIVO', color: '#FFA500' },
+        { id: 'rm', role: 'MF', x: 70, y: 50, label: '07. INTERIOR DERECHO', color: '#FFA500' },
+        { id: 'lm', role: 'MF', x: 30, y: 50, label: '08. INTERIOR IZQUIERDO', color: '#FFA500' },
+        { id: 'cam', role: 'MF', x: 50, y: 45, label: '10. MEDIO OFENSIVO', color: '#FFA500' },
+        { id: 'st1', role: 'FW', x: 40, y: 25, label: '09. DELANTERO 1', color: '#FF0000' },
+        { id: 'st2', role: 'FW', x: 60, y: 25, label: '11. DELANTERO 2', color: '#FF0000' }
     ],
     '4-3-3': [
         { id: 'gk', role: 'GK', x: 50, y: 85, label: 'GOALKEEPER' },

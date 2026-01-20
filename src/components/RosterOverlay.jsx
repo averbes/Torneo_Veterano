@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { X, Shield, Zap, Target, Activity, ChevronRight, Layout, Info } from 'lucide-react';
+import { useSocket } from '../hooks/useSocket';
+import { normalizePlayers } from '../utils/playerHelpers';
 import './TacticalHUD.css';
 
 const RosterOverlay = ({ team, onClose }) => {
     const [players, setPlayers] = useState([]);
     const [selectedPlayer, setSelectedPlayer] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [dataUpdated, setDataUpdated] = useState(false);
 
     const fetchPlayers = React.useCallback(async () => {
         try {
             setLoading(true);
             const res = await fetch(`/api/players?teamId=${team.id}`);
             const data = await res.json();
-            setPlayers(data);
+            const normalized = normalizePlayers(data);
+            setPlayers(normalized);
             // Default select the first starter if available
-            const firstStarter = data.find(p => p.isStarter) || data[0];
+            const firstStarter = normalized.find(p => p.isStarter) || normalized[0];
             if (firstStarter) setSelectedPlayer(firstStarter);
         } catch (_) {
             console.error("Failed to fetch players");
@@ -23,45 +27,92 @@ const RosterOverlay = ({ team, onClose }) => {
         }
     }, [team.id]);
 
+    // ✅ REAL-TIME SYNC: Listen to WebSocket updates
+    useSocket((update) => {
+        if (update.type === 'players') {
+            console.log('>>> [RosterOverlay]: Received player update via WebSocket');
+            // Filter only players from current team
+            const teamPlayers = update.data.filter(p =>
+                (p.team_id === team.id) || (p.teamId === team.id)
+            );
+            const normalized = normalizePlayers(teamPlayers);
+            setPlayers(normalized);
+
+            // Update selected player if still in list
+            if (selectedPlayer) {
+                const updatedSelected = normalized.find(p => p.id === selectedPlayer.id);
+                if (updatedSelected) setSelectedPlayer(updatedSelected);
+            }
+
+            // Visual feedback
+            setDataUpdated(true);
+            setTimeout(() => setDataUpdated(false), 600);
+        }
+    });
+
     useEffect(() => {
         if (team) fetchPlayers();
     }, [team, fetchPlayers]);
 
-    // 4-4-2 Diamond Positions
+    // 4-4-2 Diamond Positions - UPDATED COORDINATES & LOGIC
     const getDiamondLayout = () => {
+        // Exact coordinates from requirements
         const positions = [
-            { id: 'gk', role: 'GK', x: 50, y: 90, label: '01. GOALKEEPER' },
-            { id: 'rb', role: 'DF', x: 85, y: 75, label: '02. RIGHT BACK' },
-            { id: 'c1', role: 'DF', x: 40, y: 78, label: '03. CENTER BACK' },
-            { id: 'c2', role: 'DF', x: 60, y: 78, label: '04. CENTER BACK' },
-            { id: 'lb', role: 'DF', x: 15, y: 75, label: '05. LEFT BACK' },
-            { id: 'dm', role: 'MF', x: 50, y: 62, label: '06. CDM' },
-            { id: 'rm', role: 'MF', x: 80, y: 50, label: '07. RIGHT MID' },
-            { id: 'lm', role: 'MF', x: 20, y: 50, label: '08. LEFT MID' },
-            { id: 'am', role: 'MF', x: 50, y: 38, label: '09. CAM' },
-            { id: 's1', role: 'FW', x: 38, y: 20, label: '10. STRIKER' },
-            { id: 's2', role: 'FW', x: 62, y: 20, label: '11. STRIKER' }
+            { id: 'gk', role: 'GK', x: 50, y: 85, label: '01. PORTERO', color: '#FFD700' }, // Yellow
+            { id: 'rb', role: 'DF', x: 75, y: 70, label: '02. LATERAL DER', color: '#556B2F' }, // Olive/Green
+            { id: 'cd1', role: 'DF', x: 40, y: 70, label: '03. CENTRAL 1', color: '#556B2F' },
+            { id: 'cd2', role: 'DF', x: 60, y: 70, label: '04. CENTRAL 2', color: '#556B2F' },
+            { id: 'lb', role: 'DF', x: 25, y: 70, label: '05. LATERAL IZQ', color: '#556B2F' },
+            { id: 'md', role: 'MF', x: 50, y: 55, label: '06. MEDIO DEF', color: '#FFA500' }, // Orange
+            { id: 'id', role: 'MF', x: 70, y: 50, label: '07. INT DER', color: '#FFA500' },
+            { id: 'ii', role: 'MF', x: 30, y: 50, label: '08. INT IZQ', color: '#FFA500' },
+            { id: 'mo', role: 'MF', x: 50, y: 45, label: '10. MEDIO OFE', color: '#FFA500' },
+            { id: 'd1', role: 'FW', x: 40, y: 25, label: '09. DELANTERO 1', color: '#FF0000' }, // Red
+            { id: 'd2', role: 'FW', x: 60, y: 25, label: '11. DELANTERO 2', color: '#FF0000' }
         ];
 
         if (!players.length) return positions.map(pos => ({ ...pos, player: null }));
 
-        let starters = players.filter(p => p.isStarter);
-        const fillers = players.filter(p => !p.isStarter);
-        const pool = [...starters, ...fillers].slice(0, 11);
+        // LOGIC: First 11 registered players are TITULARES (Starters)
+        // We assume 'players' array is already in registration/ID order from the API
+        const starters = players.slice(0, 11);
+        const assignedIds = new Set();
 
-        const remaining = [...pool];
-        return positions.map(pos => {
-            const idx = remaining.findIndex(p => {
-                const posUpper = (p.position || '').toUpperCase();
-                if (pos.role === 'GK') return posUpper.includes('ARQUERO') || posUpper.includes('GK');
-                if (pos.role === 'DF') return posUpper.includes('DEFENSA') || posUpper.includes('DF');
-                if (pos.role === 'MF') return posUpper.includes('MEDIO') || posUpper.includes('MF');
-                if (pos.role === 'FW') return posUpper.includes('DELANTERO') || posUpper.includes('FW');
-                return false;
+        // Helper to check role matching
+        const matchesRole = (p, role) => {
+            const pos = (p.position || '').toUpperCase();
+            if (role === 'GK') return pos.includes('ARQUERO') || pos.includes('GK');
+            if (role === 'DF') return pos.includes('DEFENSA') || pos.includes('DF');
+            if (role === 'MF') return pos.includes('MEDIO') || pos.includes('MF');
+            if (role === 'FW') return pos.includes('DELANTERO') || pos.includes('FW');
+            return false;
+        };
+
+        const layout = positions.map(p => ({ ...p, player: null }));
+
+        // 1. Assign players to their preferred roles first (Strict Match)
+        // We process roles in priority order: GK -> DF -> MF -> FW
+        ['GK', 'DF', 'MF', 'FW'].forEach(role => {
+            const roleSlots = layout.filter(slot => slot.role === role);
+            roleSlots.forEach(slot => {
+                const candidate = starters.find(p => !assignedIds.has(p.id) && matchesRole(p, role));
+                if (candidate) {
+                    slot.player = candidate;
+                    assignedIds.add(candidate.id);
+                }
             });
-            const p = idx !== -1 ? remaining.splice(idx, 1)[0] : remaining.shift();
-            return { ...pos, player: p };
         });
+
+        // 2. Fill empty slots with remaining starters (Fallback)
+        layout.filter(slot => !slot.player).forEach(slot => {
+            const candidate = starters.find(p => !assignedIds.has(p.id));
+            if (candidate) {
+                slot.player = candidate;
+                assignedIds.add(candidate.id);
+            }
+        });
+
+        return layout;
     };
 
     const lineup = getDiamondLayout();
@@ -119,7 +170,15 @@ const RosterOverlay = ({ team, onClose }) => {
                         <div className="flex-grow bg-white/[0.02] border border-white/5 rounded-2xl p-6 overflow-hidden flex flex-col">
                             <h3 className="text-[10px] font-military text-[#ffffff30] uppercase tracking-[0.3em] mb-4 flex justify-between items-center">
                                 <span>Operatives List</span>
-                                <span>{players.length} UNITS</span>
+                                <div className="flex items-center gap-2">
+                                    <span>{players.length} UNITS</span>
+                                    {dataUpdated && (
+                                        <div className="flex items-center gap-1 text-[#00f2ff] animate-pulse">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-[#00f2ff]" />
+                                            <span className="text-[8px]">SYNCED</span>
+                                        </div>
+                                    )}
+                                </div>
                             </h3>
                             <div className="flex-grow overflow-y-auto space-y-2 pr-2 custom-scrollbar">
                                 {players.map(p => (
@@ -174,7 +233,10 @@ const RosterOverlay = ({ team, onClose }) => {
                                         onClick={() => pos.player && setSelectedPlayer(pos.player)}
                                         className={`group relative cursor-pointer flex flex-col items-center ${!pos.player ? 'opacity-20' : ''}`}
                                     >
-                                        <div className="player-token flex items-center justify-center bg-black">
+                                        <div
+                                            className="player-token flex items-center justify-center bg-black border-2 transition-colors duration-300 shadow-[0_0_15px_rgba(0,0,0,0.5)]"
+                                            style={{ borderColor: pos.color || '#FF6B35', boxShadow: `0 0 10px ${pos.color}40` }}
+                                        >
                                             {pos.player?.photo ? (
                                                 <img src={pos.player.photo} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                             ) : (
@@ -184,12 +246,21 @@ const RosterOverlay = ({ team, onClose }) => {
 
                                         {/* Label Tag */}
                                         <div className="mt-2 text-center group-hover:scale-110 transition-transform">
-                                            <div className="bg-[#FF6B35]/10 border border-[#FF6B35]/30 px-2 py-0.5 rounded backdrop-blur-sm">
+                                            <div
+                                                className="border px-2 py-0.5 rounded backdrop-blur-sm transition-colors"
+                                                style={{
+                                                    borderColor: `${pos.color || '#FF6B35'}60`,
+                                                    backgroundColor: `${pos.color || '#FF6B35'}20`
+                                                }}
+                                            >
                                                 <span className="text-[10px] font-black text-white whitespace-nowrap uppercase">
                                                     {pos.player?.name.split(' ').pop() || 'EMPTY'}
                                                 </span>
                                             </div>
-                                            <div className="text-[8px] font-military text-[#FF6B35] font-bold mt-0.5 tracking-tighter">
+                                            <div
+                                                className="text-[8px] font-military font-bold mt-0.5 tracking-tighter"
+                                                style={{ color: pos.color || '#FF6B35' }}
+                                            >
                                                 {pos.role}
                                             </div>
                                         </div>
