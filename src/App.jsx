@@ -183,12 +183,12 @@ function App() {
         </div>
 
         {viewMode === 'advanced' ? (
-          <StatsDashboard matches={matches} teams={enrichedTeams} />
+          <StatsDashboard matches={matches} teams={enrichedTeams} players={players} />
         ) : (
           loading ? (
             <div className="h-64 flex flex-col items-center justify-center gap-4">
-              <div className="w-10 h-10 md:w-12 md:h-12 border-4 border-[#00f2ff] border-t-transparent rounded-full animate-spin" />
-              <span className="text-[10px] md:text-xs font-mono text-[#00f2ff] animate-pulse">Establishing Neural Link...</span>
+              <div className="w-10 h-10 md:w-12 md:h-12 border-4 border-[#FF6B35] border-t-transparent rounded-full animate-spin" />
+              <span className="text-[10px] md:text-xs font-mono text-[#FF6B35] animate-pulse">Establishing Neural Link...</span>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
@@ -219,8 +219,8 @@ function App() {
       <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <div className="p-8 bg-[#ffffff05] border border-[#ffffff10] rounded-2xl backdrop-blur-sm mb-8">
-            <h2 className="text-xl font-bold mb-6 text-[#00f2ff] flex items-center gap-3">
-              <div className="w-1 h-6 bg-[#00f2ff]" />
+            <h2 className="text-xl font-bold mb-6 text-[#FF6B35] flex items-center gap-3">
+              <div className="w-1 h-6 bg-[#FF6B35]" />
               Match Telemetry
             </h2>
 
@@ -231,7 +231,7 @@ function App() {
                   const awayTeam = teams.find(t => t.id === match.teamB);
 
                   return (
-                    <div key={match.id} className="p-3 md:p-4 bg-[#00000020] border border-[#ffffff05] rounded-xl hover:border-[#ffffff10] transition-colors relative group">
+                    <div key={match.id} className="p-3 md:p-4 bg-[#00000020] border border-[#ffffff05] rounded-xl hover:border-[#FF6B35]/30 transition-colors relative group">
                       <div className="flex justify-between items-center mb-1 md:mb-2 gap-2">
                         <div className="flex items-center gap-2 md:gap-4 flex-1 overflow-hidden">
                           <div className="text-right flex-1 min-w-0">
@@ -274,7 +274,7 @@ function App() {
                         <div className="flex justify-center mt-2 pt-2 border-t border-white/5">
                           <button
                             onClick={() => setSelectedMatchShow(match)}
-                            className="text-[10px] font-mono uppercase text-[#00f2ff] hover:text-[#00f2ff]/80 flex items-center gap-1.5 transition-colors"
+                            className="text-[10px] font-mono uppercase text-[#FF6B35] hover:text-[#FF6B35]/80 flex items-center gap-1.5 transition-colors"
                           >
                             <Users size={12} /> View Tactical Roster
                           </button>

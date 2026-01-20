@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useSocket } from '../hooks/useSocket';
-import { Zap, AlertTriangle, Info, Bell, X, Shield, Target } from 'lucide-react';
+import { Zap, AlertTriangle, Bell, X } from 'lucide-react';
+import GoalParticles from './GoalParticles';
 
 const NotificationOverlay = () => {
     const [notifications, setNotifications] = useState([]);
+    const [showParticles, setShowParticles] = useState(false);
 
     useSocket((update) => {
         if (update.type === 'alert') {
@@ -14,6 +16,12 @@ const NotificationOverlay = () => {
                 timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             };
             setNotifications(prev => [newNotif, ...prev].slice(0, 5));
+
+            if (update.data.type === 'GOAL') {
+                setShowParticles(false);
+                setTimeout(() => setShowParticles(true), 50);
+                setTimeout(() => setShowParticles(false), 5000);
+            }
 
             // Auto-remove after 8 seconds
             setTimeout(() => {
@@ -26,61 +34,65 @@ const NotificationOverlay = () => {
         setNotifications(prev => prev.filter(n => n.id !== id));
     };
 
-    if (notifications.length === 0) return null;
-
     return (
-        <div className="fixed top-24 right-4 md:right-8 z-[1000] flex flex-col gap-3 w-full max-w-sm pointer-events-none">
-            {notifications.map((notif) => (
-                <div
-                    key={notif.id}
-                    className="pointer-events-auto relative overflow-hidden bg-[#0a0a1a]/95 backdrop-blur-xl border-l-4 border-r border-t border-b border-[#ffffff10] rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.8)] animate-in slide-in-from-right-10 duration-500 hover:scale-[1.02] transition-transform"
-                    style={{ borderLeftColor: notif.type === 'GOAL' ? '#FF6B35' : notif.type === 'CARD' ? '#fbbf24' : '#FF6B35' }}
-                >
-                    {/* Scanner line animation */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.05] to-transparent animate-scan-notif pointer-events-none" />
+        <>
+            <GoalParticles active={showParticles} />
 
-                    <div className="p-4 flex gap-4">
-                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center shrink-0 ${notif.type === 'GOAL' ? 'bg-[#FF6B35]/10 text-[#FF6B35]' :
-                            notif.type === 'CARD' ? 'bg-yellow-500/10 text-yellow-500' :
-                                'bg-[#FF6B35]/10 text-[#FF6B35]'
-                            }`}>
-                            {notif.type === 'GOAL' ? <Zap size={24} className="animate-pulse" /> :
-                                notif.type === 'CARD' ? <AlertTriangle size={24} /> :
-                                    <Bell size={24} />}
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                            <div className="flex justify-between items-start">
-                                <span className={`text-[9px] font-black font-mono tracking-[0.2em] uppercase ${notif.type === 'GOAL' ? 'text-[#FF6B35]' : 'text-white/40'
-                                    }`}>
-                                    Squad Intel // {notif.type}
-                                </span>
-                                <span className="text-[9px] font-mono text-white/20">{notif.timestamp}</span>
-                            </div>
-                            <h4 className="text-sm font-black text-white mt-1 leading-tight italic uppercase tracking-tighter">{notif.message}</h4>
-                            {notif.minute && (
-                                <div className="mt-2 flex items-center gap-2">
-                                    <div className="h-1 flex-1 bg-white/5 rounded-full overflow-hidden">
-                                        <div className="h-full bg-[#00f2ff]/30 w-full animate-progress-notif" />
-                                    </div>
-                                    <span className="text-[8px] font-mono text-[#00f2ff] uppercase">Minute {notif.minute}'</span>
-                                </div>
-                            )}
-                        </div>
-
-                        <button
-                            onClick={() => removeNotification(notif.id)}
-                            className="text-white/10 hover:text-white transition-colors self-start"
+            {notifications.length > 0 && (
+                <div className="fixed top-24 right-4 md:right-8 z-[1000] flex flex-col gap-3 w-full max-w-sm pointer-events-none">
+                    {notifications.map((notif) => (
+                        <div
+                            key={notif.id}
+                            className="pointer-events-auto relative overflow-hidden bg-[#0a0a1a]/95 backdrop-blur-xl border-l-4 border-r border-t border-b border-[#ffffff10] rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.8)] animate-in slide-in-from-right-10 duration-500 hover:scale-[1.02] transition-transform"
+                            style={{ borderLeftColor: notif.type === 'GOAL' ? '#FF6B35' : notif.type === 'CARD' ? '#fbbf24' : '#FF6B35' }}
                         >
-                            <X size={14} />
-                        </button>
-                    </div>
+                            {/* Scanner line animation */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.05] to-transparent animate-scan-notif pointer-events-none" />
 
-                    {/* Inner glowing edge */}
-                    <div className="absolute inset-0 border border-white/5 rounded-xl pointer-events-none" />
+                            <div className="p-4 flex gap-4">
+                                <div className={`w-12 h-12 rounded-lg flex items-center justify-center shrink-0 ${notif.type === 'GOAL' ? 'bg-[#FF6B35]/10 text-[#FF6B35]' :
+                                    notif.type === 'CARD' ? 'bg-yellow-500/10 text-yellow-500' :
+                                        'bg-[#FF6B35]/10 text-[#FF6B35]'
+                                    }`}>
+                                    {notif.type === 'GOAL' ? <Zap size={24} className="animate-pulse" /> :
+                                        notif.type === 'CARD' ? <AlertTriangle size={24} /> :
+                                            <Bell size={24} />}
+                                </div>
+
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex justify-between items-start">
+                                        <span className={`text-[9px] font-black font-mono tracking-[0.2em] uppercase ${notif.type === 'GOAL' ? 'text-[#FF6B35]' : 'text-white/40'
+                                            }`}>
+                                            Squad Intel // {notif.type}
+                                        </span>
+                                        <span className="text-[9px] font-mono text-white/20">{notif.timestamp}</span>
+                                    </div>
+                                    <h4 className="text-sm font-black text-white mt-1 leading-tight italic uppercase tracking-tighter">{notif.message}</h4>
+                                    {notif.minute && (
+                                        <div className="mt-2 flex items-center gap-2">
+                                            <div className="h-1 flex-1 bg-white/5 rounded-full overflow-hidden">
+                                                <div className="h-full bg-[#FF6B35]/30 w-full animate-progress-notif" />
+                                            </div>
+                                            <span className="text-[8px] font-mono text-[#FF6B35] uppercase">Minute {notif.minute}'</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <button
+                                    onClick={() => removeNotification(notif.id)}
+                                    className="text-white/10 hover:text-white transition-colors self-start"
+                                >
+                                    <X size={14} />
+                                </button>
+                            </div>
+
+                            {/* Inner glowing edge */}
+                            <div className="absolute inset-0 border border-white/5 rounded-xl pointer-events-none" />
+                        </div>
+                    ))}
                 </div>
-            ))}
-        </div>
+            )}
+        </>
     );
 };
 

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, Wifi } from 'lucide-react'
+import { Menu, X, Wifi, Search, Command } from 'lucide-react'
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
   const isPublicView = !location.pathname.startsWith('/admin');
 
@@ -36,22 +37,39 @@ export const Header = () => {
   return (
     <header className='sticky top-0 z-50 w-full bg-[#050510]/95 backdrop-blur-xl border-b border-[#FF6B35]/20 shadow-[0_0_30px_rgba(0,0,0,0.5)]'>
       <div className='container mx-auto px-4 md:px-6 py-4 flex justify-between items-center'>
-        <Link to="/" className='flex items-center space-x-4' onClick={() => setIsMenuOpen(false)}>
-          <div className='relative w-10 h-10 md:w-12 md:h-12'>
-            <div className='absolute inset-0 bg-gradient-to-br from-[#FF6B35] to-[#7000ff] rounded-lg transform rotate-45 shadow-[0_0_20px_rgba(255,107,53,0.4)] animate-pulse-slow' />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-4 h-4 bg-black rounded-full animate-pulse" />
+        <div className="flex items-center gap-8">
+          <Link to="/" className='flex items-center space-x-4' onClick={() => setIsMenuOpen(false)}>
+            <div className='relative w-10 h-10 md:w-12 md:h-12 shrink-0'>
+              <div className='absolute inset-0 bg-gradient-to-br from-[#FF6B35] to-[#7000ff] rounded-lg transform rotate-45 shadow-[0_0_20px_rgba(255,107,53,0.4)] animate-pulse-slow' />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-4 h-4 bg-black rounded-full animate-pulse" />
+              </div>
+            </div>
+            <div className="hidden xs:block">
+              <h1 className='text-xl md:text-3xl font-black tracking-tighter text-white uppercase italic' style={{ fontFamily: 'Orbitron, sans-serif' }}>
+                NEO<span className='text-[#FF6B35]'>LEAGUE</span>
+              </h1>
+              <div className='text-[8px] md:text-[10px] font-mono text-[#FF6B35]/40 uppercase tracking-[0.2em]'>
+                TACTICAL_HUD_v3.0.1
+              </div>
+            </div>
+          </Link>
+
+          {/* Tactical Search Bar */}
+          <div className="hidden lg:flex items-center relative group">
+            <div className="absolute left-3 text-[#FF6B35]/50 group-hover:text-[#FF6B35] transition-colors">
+              <Search size={16} />
+            </div>
+            <input
+              type="text"
+              placeholder="QUICK_DATA_SEARCH..."
+              className="bg-black/60 border border-[#FF6B35]/20 rounded-xl py-2 pl-10 pr-12 text-[10px] font-mono text-white placeholder-white/20 w-64 focus:w-80 focus:border-[#FF6B35] focus:outline-none focus:ring-1 focus:ring-[#FF6B35]/50 transition-all duration-500"
+            />
+            <div className="absolute right-3 flex items-center gap-1 px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[8px] font-mono text-white/30">
+              <Command size={8} /> K
             </div>
           </div>
-          <div>
-            <h1 className='text-xl md:text-3xl font-black tracking-tighter text-white uppercase italic' style={{ fontFamily: 'Orbitron, sans-serif' }}>
-              NEO<span className='text-[#FF6B35]'>LEAGUE</span>
-            </h1>
-            <div className='text-[8px] md:text-[10px] font-mono text-[#FF6B35]/40 uppercase tracking-[0.2em]'>
-              TACTICAL_HUD_v2.8.4
-            </div>
-          </div>
-        </Link>
+        </div>
 
         {/* Desktop Nav + Clock */}
         <div className='hidden md:flex items-center gap-8'>
@@ -85,13 +103,18 @@ export const Header = () => {
           </nav>
         </div>
 
-        {/* Mobile Menu Toggle */}
-        <button
-          className="md:hidden text-white p-2 border border-[#FF6B35]/30 rounded-lg hover:bg-[#FF6B35]/10 transition-colors"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        {/* Mobile Actions */}
+        <div className="flex items-center gap-4 md:hidden">
+          <button className="text-[#FF6B35]/60 hover:text-[#FF6B35] transition-colors">
+            <Search size={22} />
+          </button>
+          <button
+            className="text-white p-2 border border-[#FF6B35]/30 rounded-lg hover:bg-[#FF6B35]/10 transition-colors"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Nav Overlay */}

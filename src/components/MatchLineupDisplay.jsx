@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Users, Shield, User, Zap, Layout as LayoutIcon, Eye } from 'lucide-react';
+import { X, Users, Shield, User, Zap, Layout as LayoutIcon, Eye, Target } from 'lucide-react';
 import { FORMATIONS } from '../utils/formations';
 
 const MatchLineupDisplay = ({ match, onClose }) => {
@@ -89,136 +89,156 @@ const MatchLineupDisplay = ({ match, onClose }) => {
     const teamAPlayers = players.filter(p => match.rosters?.teamA?.includes(p.id));
     const teamBPlayers = players.filter(p => match.rosters?.teamB?.includes(p.id));
 
+    const themeColor = '#FF6B35';
+
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-4 lg:p-8 animate-in fade-in zoom-in duration-300">
-            <div className="absolute inset-0 bg-[#050510]/98 backdrop-blur-3xl" onClick={onClose} />
+            <div className="absolute inset-0 bg-[#050510]/95 backdrop-blur-3xl" onClick={onClose} />
 
-            <div className="relative w-full md:w-[95%] lg:max-w-6xl h-full md:h-[92vh] bg-[#0a0a1a] border-t md:border border-[#00d4ff]/20 rounded-none md:rounded-[2.5rem] overflow-hidden shadow-[0_0_150px_rgba(0,0,0,0.9)] flex flex-col">
+            <div className="relative w-full md:w-[95%] lg:max-w-7xl h-full md:h-[94vh] bg-[#0a0a1a] border-t md:border border-[#FF6B35]/20 rounded-none md:rounded-[3rem] overflow-hidden shadow-[0_0_150px_rgba(0,0,0,0.9)] flex flex-col">
+
+                {/* HUD Elements - Corners */}
+                <div className="absolute top-0 left-0 w-32 h-32 border-t-2 border-l-2 border-[#FF6B35]/30 rounded-tl-[3rem] pointer-events-none" />
+                <div className="absolute top-0 right-0 w-32 h-32 border-t-2 border-r-2 border-[#FF6B35]/10 rounded-tr-[3rem] pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-32 h-32 border-b-2 border-l-2 border-[#FF6B35]/10 rounded-bl-[3rem] pointer-events-none" />
+                <div className="absolute bottom-0 right-0 w-32 h-32 border-b-2 border-r-2 border-[#FF6B35]/30 rounded-br-[3rem] pointer-events-none" />
 
                 {/* Header */}
-                <div className="px-4 md:px-8 py-4 border-b border-white/5 flex justify-between items-center bg-white/5 shrink-0">
-                    <div className="flex items-center gap-3 md:gap-6">
-                        <div className="flex -space-x-3 md:-space-x-4">
-                            <div className="w-8 h-8 md:w-12 md:h-12 bg-black border border-[#00d4ff]/30 rounded-full flex items-center justify-center p-1 md:p-1.5 z-10 shadow-[0_0_15px_#00d4ff20]">
+                <div className="px-6 md:px-12 py-6 border-b border-white/5 flex justify-between items-center bg-white/5 backdrop-blur-xl shrink-0 z-20">
+                    <div className="flex items-center gap-4 md:gap-8">
+                        <div className="flex -space-x-4">
+                            <div className="w-10 h-10 md:w-16 md:h-16 bg-black border-2 border-[#FF6B35] rounded-full flex items-center justify-center p-1.5 md:p-2 z-10 shadow-[0_0_25px_#FF6B3540]">
                                 <img src={getTeamLogo(match.teamA)} className="w-full h-full object-contain" />
                             </div>
-                            <div className="w-8 h-8 md:w-12 md:h-12 bg-black border border-red-500/30 rounded-full flex items-center justify-center p-1 md:p-1.5 z-0">
+                            <div className="w-10 h-10 md:w-16 md:h-16 bg-black border-2 border-white/10 rounded-full flex items-center justify-center p-1.5 md:p-2 z-0 opacity-40">
                                 <img src={getTeamLogo(match.teamB)} className="w-full h-full object-contain" />
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-sm md:text-2xl font-black text-white uppercase tracking-tighter leading-none italic">TACTICAL BATTLEFIELD</h2>
-                            <div className="text-[7px] md:text-[9px] font-mono text-[#00d4ff] uppercase tracking-[0.2em] md:tracking-[0.3em] mt-1 flex items-center gap-1 md:gap-2">
-                                <Zap size={6} className="animate-pulse" /> <span className="hidden sm:inline">OFFICIAL MATCH LINEUP // </span> <User size={6} /> {match.referee || 'AutoRef'}
+                            <h2 className="text-xl md:text-3xl font-black text-white uppercase tracking-tighter leading-none italic" style={{ fontFamily: 'Orbitron, sans-serif' }}>
+                                NEURAL<span className="text-[#FF6B35]">_STADIUM</span>
+                            </h2>
+                            <div className="text-[8px] md:text-[10px] font-mono text-[#FF6B35]/60 uppercase tracking-[0.4em] mt-2 flex items-center gap-2">
+                                <Zap size={8} className="animate-pulse" /> HYPER-REALISTIC TACTICAL INTERFACE // v3.0.1
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2 md:gap-4">
+                    <div className="flex items-center gap-3 md:gap-6">
                         <button
                             onClick={() => setStadiumMode(!stadiumMode)}
-                            className={`flex items-center gap-1.5 px-2 md:px-3 py-1 md:py-1.5 rounded-lg border font-black text-[8px] md:text-[9px] uppercase transition-all duration-300 ${stadiumMode
-                                ? 'bg-[#00d4ff] text-[#050510] border-[#00f2ff] shadow-[0_0_15px_#00d4ff40]'
-                                : 'bg-white/5 text-white/40 border-white/10 hover:border-[#00d4ff]/50'
+                            className={`flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-xl border-2 font-black text-[9px] md:text-[11px] uppercase transition-all duration-500 hover:scale-105 active:scale-95 ${stadiumMode
+                                ? 'bg-[#FF6B35] text-black border-[#FF6B35] shadow-[0_0_30px_#FF6B3560]'
+                                : 'bg-white/5 text-[#FF6B35] border-[#FF6B35]/30 hover:bg-[#FF6B35]/10'
                                 }`}
                         >
-                            {stadiumMode ? <LayoutIcon size={10} /> : <Eye size={10} />}
-                            <span className="hidden xs:inline">{stadiumMode ? 'DATA' : 'STADIUM'}</span>
+                            {stadiumMode ? <LayoutIcon size={14} /> : <Eye size={14} />}
+                            <span>{stadiumMode ? '2D HUD' : '3D STADIUM'}</span>
                         </button>
-                        <div className="hidden sm:flex bg-white/5 p-1 rounded-xl border border-white/10">
-                            {[match.teamA, match.teamB].map(id => (
-                                <button
-                                    key={id}
-                                    onClick={() => setActiveTeamId(id)}
-                                    className={`px-3 md:px-4 py-1.5 rounded-lg text-[9px] md:text-[10px] font-black uppercase transition-all duration-300 ${activeTeamId === id
-                                        ? 'bg-[#00d4ff] text-[#050510] shadow-[0_0_15px_#00d4ff40]'
-                                        : 'text-white/40 hover:text-white'
-                                        }`}
-                                >
-                                    {getTeamName(id).split(' ')[0]}
-                                </button>
-                            ))}
-                        </div>
+
                         <button
                             onClick={onClose}
-                            className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-lg md:rounded-xl bg-white/5 text-white/20 hover:text-red-500 transition-all"
+                            className="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center rounded-2xl bg-white/5 text-[#FF6B35] hover:bg-red-500 hover:text-white transition-all duration-300 border border-white/10"
                         >
-                            <X size={18} />
+                            <X size={24} />
                         </button>
                     </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto lg:overflow-hidden flex flex-col lg:flex-row">
-                    {/* Tactical View */}
-                    <div className="w-full lg:w-3/5 relative flex items-center justify-center bg-black p-4 shrink-0 min-h-[450px]">
-                        {/* Team Toggle for Mobile */}
-                        <div className="sm:hidden absolute top-4 left-1/2 -translate-x-1/2 z-20 flex bg-white/5 p-1 rounded-xl border border-white/10 backdrop-blur-md">
+                    {/* Tactical View - The Pitch */}
+                    <div className="w-full lg:w-[65%] relative flex items-center justify-center bg-black p-4 md:p-8 shrink-0 min-h-[550px] overflow-hidden lg:perspective-[2000px]">
+
+                        {/* Stadium Ambience - Spotlights */}
+                        {stadiumMode && (
+                            <div className="absolute inset-0 pointer-events-none">
+                                <div className="absolute top-0 left-1/4 w-[1px] h-full bg-gradient-to-b from-[#FF6B35]/20 to-transparent rotate-[20deg] blur-sm" />
+                                <div className="absolute top-0 right-1/4 w-[1px] h-full bg-gradient-to-b from-[#FF6B35]/20 to-transparent -rotate-[20deg] blur-sm" />
+                            </div>
+                        )}
+
+                        {/* Team Toggle HUD */}
+                        <div className="absolute top-8 left-1/2 -translate-x-1/2 z-30 flex bg-black/80 p-1.5 rounded-2xl border-2 border-white/5 backdrop-blur-2xl shadow-2xl">
                             {[match.teamA, match.teamB].map(id => (
                                 <button
                                     key={id}
                                     onClick={() => setActiveTeamId(id)}
-                                    className={`px-6 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all duration-300 ${activeTeamId === id
-                                        ? 'bg-[#00d4ff] text-[#050510]'
-                                        : 'text-white/40'
+                                    className={`px-8 md:px-12 py-3 rounded-xl text-[10px] md:text-[12px] font-black uppercase transition-all duration-500 flex items-center gap-3 ${activeTeamId === id
+                                        ? 'bg-[#FF6B35] text-black shadow-[0_0_20px_#FF6B3540]'
+                                        : 'text-white/40 hover:text-white hover:bg-white/5'
                                         }`}
                                 >
+                                    <div className={`w-2 h-2 rounded-full ${activeTeamId === id ? 'bg-black animate-pulse' : 'bg-white/10'}`} />
                                     {getTeamName(id).split(' ')[0]}
                                 </button>
                             ))}
                         </div>
 
-                        <div className={`relative w-full aspect-[3/4] max-w-[360px] md:max-w-[450px] border border-[#00d4ff]/20 rounded-2xl overflow-hidden shadow-2xl transition-all duration-700 ${stadiumMode ? 'scale-[1.02]' : ''}`}>
+                        {/* The Field */}
+                        <div
+                            className={`relative w-full aspect-[4/5] max-w-[400px] md:max-w-[550px] border-4 border-[#FF6B35]/20 rounded-[3rem] transition-all duration-1000 ease-out preserve-3d shadow-[0_0_80px_rgba(0,0,0,0.8)] ${stadiumMode
+                                    ? 'transform rotateX(45deg) rotateZ(0deg) scale(0.9) translateY(100px)'
+                                    : 'transform rotateX(0deg) scale(1)'
+                                }`}
+                        >
                             {!stadiumMode ? (
-                                <div className="absolute inset-0 bg-gradient-to-b from-[#1a0033] via-[#0a0a20] to-[#00d4ff10]" />
+                                <div className="absolute inset-0 bg-gradient-to-b from-[#1a0033] via-[#050510] to-[#FF6B35]/10" />
                             ) : (
-                                <div className="absolute inset-0 bg-black">
-                                    <img src="/stadium_bg.png" className="w-full h-full object-cover opacity-60 scale-110" alt="Stadium" />
+                                <div className="absolute inset-0 bg-[#001100]">
+                                    {/* Artificial Turf Texture */}
+                                    <div className="absolute inset-0 opacity-30" style={{
+                                        backgroundImage: 'repeating-linear-gradient(90deg, #113311 0px, #113311 50px, #1a441a 50px, #1a441a 100px)'
+                                    }} />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black" />
                                 </div>
                             )}
 
-                            {/* Field Lines */}
-                            <div className="absolute inset-0 pointer-events-none opacity-30">
-                                <div className="absolute inset-4 border border-[#00d4ff] rounded-lg" />
-                                <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-[#00d4ff]" />
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border border-[#00d4ff] rounded-full" />
-                                <div className="absolute top-4 left-1/2 -translate-x-1/2 w-1/2 h-[80px] border-b border-x border-[#00d4ff]" />
-                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-1/2 h-[80px] border-t border-x border-[#00d4ff]" />
+                            {/* Field Lines - Tactic Style */}
+                            <div className="absolute inset-0 pointer-events-none">
+                                <div className="absolute inset-8 border-2 border-[#FF6B35]/30 rounded-2xl" />
+                                <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-[#FF6B35]/20" />
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 border-2 border-[#FF6B35]/20 rounded-full" />
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-[#FF6B35]/40 rounded-full" />
+                                {/* Penalty Areas */}
+                                <div className="absolute top-8 left-1/2 -translate-x-1/2 w-[60%] h-[120px] border-b-2 border-x-2 border-[#FF6B35]/20" />
+                                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[60%] h-[120px] border-t-2 border-x-2 border-[#FF6B35]/20" />
                             </div>
 
                             {/* Players */}
                             {tacticalLineup.map((pos) => (
                                 <div
                                     key={pos.id}
-                                    className="absolute transform -translate-x-1/2 -translate-y-1/2"
-                                    style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+                                    className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-1000 ease-out preserve-3d ${stadiumMode ? 'rotateX(-45deg)' : ''}`}
+                                    style={{ left: `${pos.x}%`, top: `${pos.y}%`, transitionDelay: `${pos.id * 30}ms` }}
                                 >
-                                    <PlayerMinNode player={pos.player} color={pos.color || currentTeam?.color || '#00d4ff'} />
+                                    <PlayerHologram player={pos.player} color={themeColor} is3D={stadiumMode} />
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    {/* Roster List Split View */}
-                    <div className="w-full lg:w-2/5 md:grid md:grid-cols-2 lg:flex lg:flex-col bg-[#0a0a1a] border-l border-white/5 overflow-auto custom-scrollbar">
-                        {/* Team A List */}
-                        <div className="p-6 border-b border-white/5">
-                            <h4 className="text-[10px] font-black text-[#00d4ff] uppercase tracking-widest mb-4 flex items-center gap-2">
-                                <div className="w-1 h-1 bg-[#00d4ff] animate-pulse" /> {getTeamName(match.teamA)}
+                    {/* Roster & Analitics Sidebar */}
+                    <div className="w-full lg:w-[35%] bg-[#050510] border-l border-white/5 flex flex-col overflow-hidden custom-scrollbar">
+                        <div className="p-8 border-b border-white/5 bg-white/[0.02]">
+                            <h4 className="text-[11px] font-black text-[#FF6B35] uppercase tracking-[0.4em] mb-6 flex items-center gap-3">
+                                <Activity size={14} className="animate-spin-slow" /> ACTIVE_SQUAD_TRANSCRIPT
                             </h4>
-                            <div className="space-y-1.5">
-                                {teamAPlayers.map(p => <RosterItem key={p.id} player={p} />)}
+                            <div className="grid grid-cols-2 gap-4 mb-6">
+                                <div className="p-4 bg-black border border-white/5 rounded-2xl">
+                                    <div className="text-[9px] font-mono text-white/30 uppercase mb-1">FORMATION</div>
+                                    <div className="text-lg font-black text-white italic">4-4-2 DIAMOND</div>
+                                </div>
+                                <div className="p-4 bg-black border border-white/5 rounded-2xl">
+                                    <div className="text-[9px] font-mono text-white/30 uppercase mb-1">TEAM_CHEM</div>
+                                    <div className="text-lg font-black text-[#FF6B35] italic">94%</div>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Team B List */}
-                        <div className="p-6">
-                            <h4 className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-4 flex items-center gap-2 text-right justify-end">
-                                {getTeamName(match.teamB)} <div className="w-1 h-1 bg-red-500 animate-pulse" />
-                            </h4>
-                            <div className="space-y-1.5">
-                                {teamBPlayers.map(p => <RosterItem key={p.id} player={p} reverse />)}
-                            </div>
+                        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-3">
+                            {tacticalLineup.filter(p => p.player).map(pos => (
+                                <RosterDetailedItem key={pos.id} player={pos.player} role={pos.role} />
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -227,35 +247,63 @@ const MatchLineupDisplay = ({ match, onClose }) => {
     );
 };
 
-const PlayerMinNode = ({ player, color }) => {
-    if (!player) return <div className="w-6 h-1 bg-white/10 rounded-full" />;
+const PlayerHologram = ({ player, color, is3D }) => {
+    if (!player) return <div className="w-8 h-8 rounded-full border border-dashed border-white/20 animate-pulse" />;
+
     return (
-        <div className="flex flex-col items-center gap-1 group/p">
-            <div
-                className="w-10 h-10 rounded-full border border-white/20 bg-black/60 backdrop-blur-sm p-0.5 shadow-lg group-hover/p:scale-110 transition-transform"
-                style={{ borderColor: `${color}60` }}
-            >
-                <div className="w-full h-full rounded-full overflow-hidden bg-[#ffffff05] flex items-center justify-center">
-                    {player.photo ? (
-                        <img src={player.photo} className="w-full h-full object-cover" alt="" />
-                    ) : <span className="text-[10px] font-black text-white">{player.number}</span>}
+        <div className="flex flex-col items-center gap-3 group/p">
+            <div className="relative">
+                {/* Holographic Glow Base */}
+                <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-12 h-4 bg-[#FF6B35]/20 blur-md rounded-full transition-opacity duration-1000 ${is3D ? 'opacity-100' : 'opacity-0'}`} />
+
+                {/* Player Card Node */}
+                <div
+                    className={`w-14 h-14 md:w-20 md:h-20 rounded-2xl border-2 border-[#FF6B35]/30 bg-black/80 backdrop-blur-xl p-1 shadow-2xl group-hover/p:scale-110 transition-all duration-500 overflow-hidden relative ${is3D ? 'shadow-[#FF6B35]/20' : ''}`}
+                >
+                    <div className="w-full h-full rounded-xl overflow-hidden bg-gradient-to-br from-white/5 to-transparent flex items-center justify-center relative">
+                        {player.photo ? (
+                            <img src={player.photo} className="w-full h-full object-cover filter brightness-110 contrast-125" alt="" />
+                        ) : (
+                            <div className="text-2xl font-black text-white/20">{player.number}</div>
+                        )}
+                        {/* Status Bar */}
+                        <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#00ff88] animate-pulse" />
+                    </div>
                 </div>
             </div>
-            <div className="px-1.5 py-0.5 bg-black/80 border border-white/10 rounded-sm skew-x-[-10deg]">
-                <span className="text-[8px] font-black text-white uppercase block skew-x-[10deg]">{player.name.split(' ').pop()}</span>
+
+            <div className="flex flex-col items-center gap-0.5 pointer-events-none">
+                <div className="px-3 py-1 bg-[#FF6B35] text-black text-[9px] md:text-[11px] font-black italic uppercase skew-x-[-15deg] shadow-[0_0_15px_#FF6B3560]">
+                    <div className="skew-x-[15deg]">{player.name.split(' ').pop()}</div>
+                </div>
+                <div className="text-[8px] font-mono text-white/40 uppercase tracking-widest">{player.number} // {player.position.substring(0, 3)}</div>
             </div>
         </div>
     );
 };
 
-const RosterItem = ({ player, reverse }) => (
-    <div className={`flex items-center gap-3 p-2 rounded-lg bg-white/[0.02] border border-white/[0.03] ${reverse ? 'flex-row-reverse text-right' : ''}`}>
-        <div className="w-8 h-8 rounded-lg bg-black border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
-            {player.photo ? <img src={player.photo} className="w-full h-full object-cover" /> : <span className="text-[10px] font-black text-white">{player.number}</span>}
+const RosterDetailedItem = ({ player, role }) => (
+    <div className="group flex items-center gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-[#FF6B35]/5 hover:border-[#FF6B35]/30 transition-all duration-500">
+        <div className="w-12 h-12 rounded-xl bg-black border border-white/10 overflow-hidden shrink-0 group-hover:scale-110 transition-transform">
+            {player.photo ? <img src={player.photo} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white/20 font-black">{player.number}</div>}
         </div>
         <div className="flex-1 min-w-0">
-            <div className="text-[10px] font-black text-white uppercase truncate">{player.name}</div>
-            <div className="text-[8px] font-mono text-white/30 uppercase">{player.position}</div>
+            <div className="flex items-center gap-2 mb-0.5">
+                <span className={`px-1.5 py-0.5 rounded text-[8px] font-black text-black uppercase ${role === 'GK' ? 'bg-yellow-400' :
+                        role === 'DF' ? 'bg-green-500' :
+                            role === 'MF' ? 'bg-[#FF6B35]' : 'bg-red-500'
+                    }`}>
+                    {role}
+                </span>
+                <div className="text-xs font-black text-white uppercase truncate tracking-tight">{player.name}</div>
+            </div>
+            <div className="flex items-center gap-3">
+                <div className="text-[10px] font-mono text-white/40">RAT: <span className="text-white">88</span></div>
+                <div className="text-[10px] font-mono text-white/40">G: <span className="text-[#FF6B35]">{player.stats?.goals || 0}</span></div>
+            </div>
+        </div>
+        <div className="text-right shrink-0">
+            <div className="text-xl font-black text-white/10 group-hover:text-[#FF6B35]/20 italic transition-colors">#{player.number}</div>
         </div>
     </div>
 );
